@@ -1,65 +1,63 @@
 <?php
 session_start();
 
-// 1. Kết nối CSDL (luôn cần thiết)
+// 1. Kết nối CSDL (Đảm bảo ConnectDB.php định nghĩa cả $conn_pdo và $conn_mysqli)
 require_once __DIR__ . '/app/config/ConnectDB.php';
 
 // 2. Lấy URL từ .htaccess truyền vào
-// Mặc định nếu không có url thì về Home/index
-$url = isset($_GET['url']) ? $_GET['url'] : 'Auth/login';
+$url = isset($_GET['url']) ? $_GET['url'] : 'home';
 
-// 3. Xử lý chuỗi URL: Xóa khoảng trắng, lọc ký tự lạ, cắt thành mảng
+// 3. Xử lý chuỗi URL
 $url = rtrim($url, '/');
 $urlArr = explode('/', filter_var($url, FILTER_SANITIZE_URL));
 
 // --- BƯỚC A: XÁC ĐỊNH CONTROLLER ---
-$controllerName = 'Home'; // Mặc định là Home
+$controllerName = 'Home'; 
 if (!empty($urlArr[0])) {
-    // Viết hoa chữ cái đầu để khớp tên file (ví dụ: user -> User)
     $controllerName = ucfirst($urlArr[0]);
 }
 
-// Kiểm tra file controller có tồn tại không
 $controllerFile = __DIR__ . '/app/controllers/' . $controllerName . '.php';
 
 if (file_exists($controllerFile)) {
     require_once $controllerFile;
     
+    // Danh sách các Controller do bạn viết và sử dụng chuẩn PDO
     $myControllers = ['Auth', 'Admin', 'User', 'Home'];
     
-    // Khởi tạo Controller và truyền $conn vào
     if (class_exists($controllerName)) {
-        if (in_array($controllerName, $myControllers)) {
+        // --- SỬA TẠI ĐÂY: XỬ LÝ ĐA KẾT NỐI CHO HOME ---
+        if ($controllerName === 'Home') {
+            // Truyền cả 2 loại kết nối vào Home để xử lý cả Admin và User
+            $controller = new Home($conn_pdo, $conn_mysqli);
+        } elseif (in_array($controllerName, $myControllers)) {
+            // Các controller khác của bạn dùng PDO
             $controller = new $controllerName($conn_pdo); 
         } else {
-            // Nếu là Controller của người khác thì truyền $conn_mysqli
+            // Controller của thành viên khác dùng MySQLi
             $controller = new $controllerName($conn_mysqli);
         }
     } else {
         die("Lỗi: Không tìm thấy class '$controllerName' trong file.");
     }
 } else {
-    // Xử lý khi gõ sai tên Controller (Ví dụ: /Abcxyz)
     die("Lỗi 404: Không tìm thấy trang (Controller '$controllerName' not found).");
 }
 
 // --- BƯỚC B: XÁC ĐỊNH ACTION (HÀM) ---
-$actionName = 'index'; // Mặc định tên hàm là index
+$actionName = 'index'; 
 if (!empty($urlArr[1])) {
     $actionName = $urlArr[1];
 }
 
 // --- BƯỚC C: XÁC ĐỊNH THAM SỐ (PARAMS) ---
-// Lấy tất cả phần còn lại của URL làm tham số (từ vị trí thứ 2 trở đi)
 $params = array_slice($urlArr, 2);
 
 // --- BƯỚC D: GỌI HÀM ---
 if (method_exists($controller, $actionName)) {
-    // Gọi hàm $actionName trong $controller và truyền mảng $params vào
     call_user_func_array([$controller, $actionName], $params);
 } else {
-    // [Hỗ trợ code cũ]: Nếu gọi hàm 'index' mà không thấy, 
-    // thử tìm hàm 'Get_data' (vì các controller cũ của bạn dùng Get_data)
+    // Hỗ trợ logic cũ nếu hàm index không tồn tại nhưng có Get_data
     if ($actionName == 'index' && method_exists($controller, 'Get_data')) {
         call_user_func_array([$controller, 'Get_data'], $params);
     } else {

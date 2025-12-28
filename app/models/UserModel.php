@@ -2,9 +2,8 @@
 // app/models/UserModel.php
 
 class UserModel {
-    private $db;
+    private $db; // Đây là đối tượng MySQLi
 
-    // SỬA: Nhận kết nối $db từ Controller truyền vào thay vì tự tạo mới
     public function __construct($db) {
         $this->db = $db;
     }
@@ -13,44 +12,45 @@ class UserModel {
      * Lấy danh sách những người dùng khác có trạng thái Hoạt động
      */
     public function getOtherUsers($excludeId) {
-        // Đảm bảo tên bảng account và users đã được tạo trong DB
+        // Sử dụng mysqli_real_escape_string để bảo mật cho SQL thường
+        $safeId = mysqli_real_escape_string($this->db, $excludeId);
+
         $sql = "SELECT tk.id_user, nd.hoten, nd.avatar, nd.diachi, nd.danhgia 
                 FROM account tk 
                 JOIN users nd ON tk.id_user = nd.id_user 
                 WHERE tk.role = 'Người dùng' 
-                AND tk.id_user != :excludeId 
+                AND tk.id_user != '$safeId' 
                 AND tk.trangthai = 'Hoạt động'";
         
-        $stmt = $this->db->prepare($sql);
+        $result = mysqli_query($this->db, $sql);
         
-        // Kiểm tra nếu prepare thất bại (nguyên nhân gây lỗi execute() on bool)
-        if (!$stmt) {
-            $errorInfo = $this->db->errorInfo();
-            die("Lỗi SQL trong getOtherUsers: " . $errorInfo[2]);
+        // SỬA LỖI: Sử dụng $this->db->error của MySQLi thay vì errorInfo() của PDO
+        if (!$result) {
+            die("Lỗi SQL: " . $this->db->error); 
         }
 
-        $stmt->execute([':excludeId' => $excludeId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
     
     /**
      * Tìm kiếm người dùng theo tên
      */
     public function searchUsers($keyword, $excludeId) {
+        $k = mysqli_real_escape_string($this->db, $keyword);
+        $id = mysqli_real_escape_string($this->db, $excludeId);
+
         $sql = "SELECT tk.id_user, nd.hoten, nd.avatar, nd.diachi, nd.danhgia 
                 FROM account tk 
                 JOIN users nd ON tk.id_user = nd.id_user 
-                WHERE nd.hoten LIKE :keyword 
-                AND tk.id_user != :excludeId";
+                WHERE nd.hoten LIKE '%$k%' 
+                AND tk.id_user != '$id'";
         
-        $stmt = $this->db->prepare($sql);
+        $result = mysqli_query($this->db, $sql);
         
-        if (!$stmt) {
-            $errorInfo = $this->db->errorInfo();
-            die("Lỗi SQL trong searchUsers: " . $errorInfo[2]);
+        if (!$result) {
+            die("Lỗi SQL: " . $this->db->error);
         }
 
-        $stmt->execute([':keyword' => "%$keyword%", ':excludeId' => $excludeId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 }
