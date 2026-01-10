@@ -9,9 +9,20 @@ class Admin {
     private $duyetSPModel;
 
     public function __construct($conn) {
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
-            header("Location: /baitaplon/Auth/login");
-            exit();
+        $url = isset($_GET['url']) ? $_GET['url'] : '';
+        $isApiRequest = strpos($url, 'getDetail') !== false || 
+                        strpos($url, 'updateStatus') !== false ||
+                        strpos($url, 'deleteAccount') !== false ||
+                        strpos($url, 'getPendingProducts') !== false ||
+                        strpos($url, 'getProductDetail') !== false ||
+                        strpos($url, 'approve') !== false ||
+                        strpos($url, 'reject') !== false;
+
+        if (!$isApiRequest) {
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
+                header("Location: /baitaplon/Auth/login");
+                exit();
+            }
         }
         $this->adminModel = new AdminModel($conn);
         $this->profileModel = new ProfileModel($conn);

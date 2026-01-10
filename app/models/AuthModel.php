@@ -26,7 +26,10 @@ class AuthModel {
         try {
             $this->db->begin_transaction();
 
-            $newId = 'US' . time();
+            $maxId = $this->db->query("SELECT MAX(CAST(SUBSTRING(id_user, 3) AS UNSIGNED)) as max_num FROM account WHERE id_user REGEXP '^US[0-9]{3}$'");
+            $row = $maxId->fetch_assoc();
+            $newNum = ($row['max_num'] ?: 0) + 1;
+            $newId = 'US' . str_pad($newNum, 3, '0', STR_PAD_LEFT);
 
             $sqlAcc = "INSERT INTO account (id_user, username, password, email, role, trangthai, ngaytao) 
                     VALUES (?, ?, ?, ?, 'Người dùng', 'Chờ duyệt', NOW())";
