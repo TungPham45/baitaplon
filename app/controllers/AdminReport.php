@@ -23,7 +23,10 @@ class AdminReport {
 
         $reports = $this->reportModel->getAllReports();
         
-        require __DIR__ . '/../views/Admin/report_list.php';
+        $active_page = 'report_management';
+        $functionTitle = "Quản lý Báo cáo Vi phạm";
+        $contentView = __DIR__ . '/../views/admin/report_management.php';
+        require_once __DIR__ . '/../views/admin/dashboard.php';
     }
 
     // URL: /AdminReport/process (POST)
