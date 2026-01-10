@@ -76,24 +76,18 @@ class ChatModel {
 
     // Thêm tin nhắn mới
     public function insertMessage($from_user, $to_user, $content) {
-    $conversation_id = $this->findConversation($from_user, $to_user);
-    if ($conversation_id == 0) {
-        $conversation_id = $this->createConversation($from_user, $to_user);
-    }
+        $conversation_id = $this->findConversation($from_user, $to_user);
+        if ($conversation_id == 0) {
+            $conversation_id = $this->createConversation($from_user, $to_user);
+        }
 
-    // 1. Insert tin nhắn
-    $sql = "INSERT INTO messages (id_conversation, sender_id, content) VALUES (?, ?, ?)";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("iss", $conversation_id, $from_user, $content);
-    $stmt->execute();
+        $sql = "INSERT INTO messages (id_conversation, sender_id, content) VALUES (?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        // id_conversation (i), sender_id (s), content (s)
+        $stmt->bind_param("iss", $conversation_id, $from_user, $content);
+        $stmt->execute();
 
-    // 2. CẬP NHẬT THỜI GIAN CHO CUỘC HỘI THOẠI (QUAN TRỌNG)
-    $sqlUpdate = "UPDATE conversations SET last_message_at = NOW() WHERE id_conversation = ?";
-    $stmtUpdate = $this->conn->prepare($sqlUpdate);
-    $stmtUpdate->bind_param("i", $conversation_id);
-    $stmtUpdate->execute();
-
-    return $conversation_id;
+        return $conversation_id;
     }
 
     // Load tin nhắn theo ID cuộc hội thoại
