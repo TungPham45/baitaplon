@@ -5,41 +5,51 @@ class AdminModel {
         $this->db = $db;
     }
 
-    // Lấy tất cả tài khoản kèm họ tên từ bảng nguoidung
     public function getAllAccounts() {
-        // JOIN bảng account và nguoidung
         $sql = "SELECT tk.id_user, nd.hoten, tk.email, tk.trangthai 
                 FROM account tk 
                 JOIN users nd ON tk.id_user = nd.id_user";
-        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->db->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     public function getAccountById($id) {
         $sql = "SELECT tk.*, nd.* FROM account tk 
                 JOIN users nd ON tk.id_user = nd.id_user 
-                WHERE tk.id_user = :id";
+                WHERE tk.id_user = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
     }
 
-    // Cập nhật trạng thái (Phê duyệt, Khóa, Mở lại)
     public function updateStatus($id, $status) {
-        $sql = "UPDATE account SET trangthai = :status WHERE id_user = :id";
+        $sql = "UPDATE account SET trangthai = ? WHERE id_user = ?";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':status' => $status, ':id' => $id]);
+        $stmt->bind_param("ss", $status, $id);
+        return $stmt->execute();
     }
 
-    // Xóa tài khoản (Xóa cả 2 bảng)
     public function deleteAccount($id) {
         try {
-            $this->db->beginTransaction();
-            $this->db->prepare("DELETE FROM users WHERE id_user = :id")->execute([':id' => $id]);
-            $this->db->prepare("DELETE FROM account WHERE id_user = :id")->execute([':id' => $id]);
-            return $this->db->commit();
+            $this->db->begin_transaction();
+
+            $stmt1 = $this->db->prepare("DELETE FROM users WHERE id_user = ?");
+            $stmt1->bind_param("s", $id);
+            $stmt1->execute();
+            $stmt1->close();
+
+            $stmt2 = $this->db->prepare("DELETE FROM account WHERE id_user = ?");
+            $stmt2->bind_param("s", $id);
+            $stmt2->execute();
+            $stmt2->close();
+
+            $this->db->commit();
+            return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            $this->db->rollback();
             return false;
         }
     }
 }
+?>

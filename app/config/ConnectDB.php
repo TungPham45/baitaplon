@@ -12,13 +12,3 @@ if ($conn_mysqli->connect_error) {
 }
 $conn_mysqli->set_charset("utf8mb4");
 
-// --- CÁCH 2: KẾT NỐI PDO (Dành cho bạn dùng) ---
-try {
-    $conn_pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-} catch (PDOException $e) {
-    die("PDO Connection failed: " . $e->getMessage());
-}
-?>

@@ -11,22 +11,26 @@ class DuyetSPModel
     // Lấy tất cả sản phẩm chờ duyệt
     public function getPendingProducts()
     {
-        // Lưu ý: Đã đổi sp.avatar thành sp.anh_dai_dien
-        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.anh_dai_dien, sp.ngaydang, 
-                       dm.ten_danhmuc, u.hoten, u.sdt
+        // Dùng subquery thay vì JOIN để tránh duplicate rows
+        $sql = "SELECT sp.*, 
+                       (SELECT ten_danhmuc FROM danhmuc WHERE id_danhmuc = sp.id_danhmuc LIMIT 1) as ten_danhmuc,
+                       (SELECT hoten FROM users WHERE id_user = sp.id_user LIMIT 1) as hoten,
+                       (SELECT sdt FROM users WHERE id_user = sp.id_user LIMIT 1) as sdt
                 FROM sanpham sp
-                JOIN danhmuc dm ON sp.id_danhmuc = dm.id_danhmuc
-                JOIN users u ON sp.id_user = u.id_user
                 WHERE sp.trangthai = 'Chờ duyệt'
                 ORDER BY sp.ngaydang DESC";
 
         $result = mysqli_query($this->con, $sql);
-        $data = [];
-        if ($result) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                $data[] = $row;
-            }
+        if (!$result) {
+            error_log("MySQL Error: " . mysqli_error($this->con));
+            return [];
         }
+        
+        $data = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $data[] = $row;
+        }
+        
         return $data;
     }
 
@@ -35,11 +39,13 @@ class DuyetSPModel
     {
         $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
         
-        // Lưu ý: Đã kiểm tra users có cột diachi hay không, nếu không có hãy bỏ u.diachi đi
-        $sql = "SELECT sp.*, dm.ten_danhmuc, u.hoten, u.sdt, u.diachi
+        // Dùng subquery để tránh duplicate
+        $sql = "SELECT sp.*, 
+                       (SELECT ten_danhmuc FROM danhmuc WHERE id_danhmuc = sp.id_danhmuc LIMIT 1) as ten_danhmuc,
+                       (SELECT hoten FROM users WHERE id_user = sp.id_user LIMIT 1) as hoten,
+                       (SELECT sdt FROM users WHERE id_user = sp.id_user LIMIT 1) as sdt,
+                       (SELECT diachi FROM users WHERE id_user = sp.id_user LIMIT 1) as diachi
                 FROM sanpham sp
-                JOIN danhmuc dm ON sp.id_danhmuc = dm.id_danhmuc
-                JOIN users u ON sp.id_user = u.id_user
                 WHERE sp.id_sanpham = '$id_sanpham'";
 
         $result = mysqli_query($this->con, $sql);

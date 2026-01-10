@@ -20,70 +20,39 @@ class Chat {
     // ===== DANH SÁCH =====
     public function start($param = null)
     {
-        // 1️⃣ Kiểm tra đăng nhập trước khi lấy ID
         if (!isset($_SESSION['user_id'])) {
             header("Location: /baitaplon/Login");
             exit;
         }
 
-        // SỬA: Dùng 'user_id' thay vì 'id_user'
         $my_id = $_SESSION['user_id']; 
-
-        if (isset($_GET['product_id'])) {
-            $_SESSION['chat_product_id'] = (int)$_GET['product_id'];
-        }
-
-        // 2️⃣ Load sidebar
-        $conversations = $this->chatModel->loadConversations($my_id);
-
         $active_conversation_id = 0;
 
+        // 1️⃣ XÁC ĐỊNH CONVERSATION ID
         if ($param !== null) {
-            // 🔥 CASE A: param là conversation_id (chỉ khi toàn số)
-            if (ctype_digit((string)$param) 
-                && $this->chatModel->isConversationOfUser((int)$param, $my_id)) {
-
+            if (ctype_digit((string)$param) && $this->chatModel->isConversationOfUser((int)$param, $my_id)) {
                 $active_conversation_id = (int)$param;
-
-            } 
-            // 🔥 CASE B: param là seller_id (USxxx hoặc ID khác)
-            else {
-                
-                $seller_id = $param; // ✅ GIỮ NGUYÊN STRING
-
-                if ($seller_id != $my_id) { // So sánh lỏng lẻo để tránh lỗi type string/int
-                    $active_conversation_id =
-                        $this->chatModel
-                            ->getOrCreateConversation($my_id, $seller_id);
-                }
+            } else {
+                // Nếu param là USxxx (seller_id)
+                $active_conversation_id = $this->chatModel->getOrCreateConversation($my_id, $param);
             }
-
-            $_SESSION['active_conversation_id'] = $active_conversation_id;
-            $_SESSION['sender_id'] = $seller_id ?? null;
-
         } else {
-            // Không có param → conversation gần nhất
-            $active_conversation_id =
-                $_SESSION['active_conversation_id']
-                ?? ($this->chatModel->getLatestConversation($my_id)['id_conversation'] ?? 0);
+            $latest = $this->chatModel->getLatestConversation($my_id);
+            $active_conversation_id = $_SESSION['active_conversation_id'] ?? ($latest[0]['id_conversation'] ?? 0);
         }
 
-        // 3️⃣ Load messages
-        $sender_id = '';
-        $sender_name = '';
-        $messages = [];
-
+        // 2️⃣ QUAN TRỌNG: CẬP NHẬT SENDER_ID VÀO SESSION ĐỂ GỬI TIN
         if ($active_conversation_id > 0) {
-            $sender_id = $this->chatModel
-                ->getOtherUserId($active_conversation_id, $my_id);
+            $sender_id = $this->chatModel->getOtherUserId($active_conversation_id, $my_id);
+            $sender_name = $this->chatModel->getNameSenderByID($sender_id);
+            $messages = $this->chatModel->loadMessageByConversation($active_conversation_id);
 
-            $sender_name = $this->chatModel
-                ->getNameSenderByID($sender_id);
-
-            $messages = $this->chatModel
-                ->loadMessageByConversation($active_conversation_id);
+            // Lưu lại để hàm send() sử dụng
+            $_SESSION['active_conversation_id'] = $active_conversation_id;
+            $_SESSION['sender_id'] = $sender_id; 
         }
 
+        $conversations = $this->chatModel->loadConversations($my_id);
         require __DIR__ . '/../views/GiaoDien_Chat.php';
     }
 

@@ -594,16 +594,16 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    console.log(data.message);
                     // Close modal and reload page
                     const modal = bootstrap.Modal.getInstance(document.getElementById('postModal'));
                     modal.hide();
                     window.location.reload();
                 } else {
-                    alert('Lỗi: ' + data.error);
+                    console.log('Lỗi: ' + data.error);
                 }
             })
-            .catch(err => alert('Lỗi submit: ' + err.message));
+            .catch(err => console.log('Lỗi submit: ' + err.message));
         }
     });
 

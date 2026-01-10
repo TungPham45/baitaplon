@@ -1,30 +1,28 @@
 <?php
 require_once __DIR__ . '/../models/AdminModel.php';
 require_once __DIR__ . '/../models/ProfileModel.php';
+require_once __DIR__ . '/../models/DuyetSPModel.php';
 
 class Admin {
     private $adminModel;
     private $profileModel;
+    private $duyetSPModel;
 
     public function __construct($conn) {
-        // 1. Kiểm tra quyền truy cập: Chỉ cho phép 'Quản lý'
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
             header("Location: /baitaplon/Auth/login");
             exit();
         }
         $this->adminModel = new AdminModel($conn);
         $this->profileModel = new ProfileModel($conn);
+        $this->duyetSPModel = new DuyetSPModel($conn);
     }
 
-    /**
-     * Xem hồ sơ cá nhân của Admin
-     */
     public function profile() {
         $userId = $_SESSION['user_id'];
         $user = $this->profileModel->getProfile($userId); 
 
         $functionTitle = "Hồ sơ Quản trị viên";
-        // Cập nhật đường dẫn View theo cấu trúc folder views mới
         $contentView = __DIR__ . '/../views/admin/profile/show.php'; 
         require_once __DIR__ . '/../views/admin/dashboard.php'; 
     }
@@ -36,7 +34,6 @@ class Admin {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $avatarName = $user['avatar']; 
 
-            // Xử lý Upload ảnh
             if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES['avatar']['tmp_name'];
                 $fileName = $_FILES['avatar']['name'];
@@ -46,7 +43,6 @@ class Admin {
 
                 if (in_array($fileExtension, $allowedExtensions)) {
                     $newFileName = 'user_' . $userId . '_' . time() . '.' . $fileExtension;
-                    // Cập nhật đường dẫn upload vào folder public mới
                     $uploadFileDir = __DIR__ . '/../../public/uploads/avatars/';
                     
                     if (!is_dir($uploadFileDir)) {
@@ -74,7 +70,6 @@ class Admin {
 
             if ($this->profileModel->updateProfile($userId, $data)) {
                 $_SESSION['success'] = "Cập nhật thành công!";
-                // Điều hướng về Admin/profile theo luồng Class Admin
                 header("Location: /baitaplon/Admin/profile");
                 exit();
             }
@@ -84,9 +79,7 @@ class Admin {
         $contentView = __DIR__ . '/../views/admin/profile/edit.php'; 
         require_once __DIR__ . '/../views/admin/dashboard.php'; 
     }
-    /**
-     * Trang chủ quản trị (Dashboard)
-     */
+
     public function dashboard() {
         $active_page = 'user_management';
         $accounts = $this->adminModel->getAllAccounts(); 
@@ -94,9 +87,7 @@ class Admin {
         $contentView = __DIR__ . '/../views/admin/user_management.php';
         require_once __DIR__ . '/../views/admin/dashboard.php';
     }
-    /**
-     * AJAX: Lấy thông tin chi tiết tài khoản để hiển thị Modal
-     */
+
     public function getDetail($id = null) {
         if (!$id) {
             echo json_encode(['error' => 'Thiếu ID người dùng']);
@@ -111,15 +102,11 @@ class Admin {
         }
     }
 
-    /**
-     * AJAX: Cập nhật trạng thái (Phê duyệt, Khóa, Mở lại)
-     */
     public function updateStatus() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'];
             $status = $_POST['status'];
 
-            // Gọi model cập nhật cột 'trangthai' trong bảng 'taikhoan'
             $result = $this->adminModel->updateStatus($id, $status);
 
             if ($result) {
@@ -130,9 +117,6 @@ class Admin {
         }
     }
 
-    /**
-     * AJAX: Xóa tài khoản vĩnh viễn
-     */
     public function deleteAccount($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $this->adminModel->deleteAccount($id);
@@ -144,4 +128,130 @@ class Admin {
             }
         }
     }
+
+    public function manageProducts() {
+        try {
+            $products = $this->duyetSPModel->getPendingProducts();
+            $active_page = 'product_management';
+            $contentView = __DIR__ . '/../views/admin/product_approval.php';
+            require_once __DIR__ . '/../views/admin/dashboard.php';
+        } catch (Exception $e) {
+            echo "Lỗi: " . $e->getMessage();
+        }
+    }
+
+    public function getPendingProducts() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $products = $this->duyetSPModel->getPendingProducts();
+            echo json_encode([
+                'success' => true,
+                'data' => $products
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getProductDetail() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_GET['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_GET['id_sanpham']);
+            $product = $this->duyetSPModel->getProductDetail($id_sanpham);
+            $images = $this->duyetSPModel->getProductImages($id_sanpham);
+            $attributes = $this->duyetSPModel->getProductAttributes($id_sanpham);
+
+            if (!$product) {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+
+            echo json_encode([
+                'success' => true,
+                'product' => $product,
+                'images' => $images,
+                'attributes' => $attributes
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function approve() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_POST['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_POST['id_sanpham']);
+            $this->duyetSPModel->approveProduct($id_sanpham);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Duyệt sản phẩm thành công!'
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function approveAll() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $this->duyetSPModel->approveAllProducts();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Duyệt tất cả sản phẩm thành công!'
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function reject() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_POST['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_POST['id_sanpham']);
+            $reason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
+            
+            $this->duyetSPModel->rejectProduct($id_sanpham, $reason);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Từ chối sản phẩm thành công!'
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }
+?>

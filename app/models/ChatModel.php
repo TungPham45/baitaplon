@@ -96,14 +96,14 @@ class ChatModel {
             SELECT 
                 m.id_message,
                 m.sender_id,
-                u.hoten   AS sender_name,
-                u.avatar  AS sender_avatar,
+                u.hoten AS sender_name,
+                u.avatar AS sender_avatar,
                 m.content,
-                m.created_at,
-                m.updated_at
+                m.created_at
             FROM messages m
             JOIN users u ON m.sender_id = u.id_user
             WHERE m.id_conversation = ?
+            GROUP BY m.id_message -- Ngăn chặn lặp tin nhắn nếu bảng users trùng ID
             ORDER BY m.created_at ASC
         ";
         $stmt = $this->conn->prepare($sql);
@@ -112,48 +112,31 @@ class ChatModel {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Lấy danh sách các cuộc hội thoại của 1 user
-public function loadConversations($user_id) {
-    // Sử dụng LEFT JOIN hoặc Subquery ở phần tin nhắn để đảm bảo không bị mất dòng nếu chưa có tin nhắn
-    $sql = "
-        SELECT 
-            cu_me.id_conversation,
-            c.last_message_at,
-            u.id_user,
-            u.hoten,
-            u.avatar,
-            -- Lấy tin nhắn cuối cùng (nếu chưa có thì trả về NULL)
-            (
-                SELECT m.content 
-                FROM messages m 
-                WHERE m.id_conversation = cu_me.id_conversation 
-                ORDER BY m.created_at DESC 
-                LIMIT 1
-            ) as last_message
-        FROM conversation_users cu_me
-        -- 1. JOIN để tìm người kia (đối phương) trong cùng hội thoại
-        JOIN conversation_users cu_other 
-            ON cu_me.id_conversation = cu_other.id_conversation 
-            AND cu_other.id_user != cu_me.id_user
-        -- 2. JOIN bảng users để lấy tên/avatar đối phương
-        JOIN users u 
-            ON cu_other.id_user = u.id_user
-        -- 3. JOIN bảng conversations để lấy thời gian (Nếu dữ liệu bị thiếu ở bảng này thì sẽ mất dòng)
-        JOIN conversations c 
-            ON cu_me.id_conversation = c.id_conversation
-        WHERE cu_me.id_user = ?
-        -- 4. Sắp xếp: Ưu tiên cái chưa có thời gian (mới tạo) hoặc mới nhắn tin lên đầu
-        ORDER BY 
-            (c.last_message_at IS NULL) DESC, -- Đưa hội thoại mới (chưa có time) lên đầu
-            c.last_message_at DESC,           -- Đưa hội thoại mới nhắn gần đây lên tiếp theo
-            c.id_conversation DESC            -- Nếu cùng null thì ID lớn lên đầu
-    ";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("s", $user_id);
-    $stmt->execute();
-    return $stmt->get_result();
-}
+        // Lấy danh sách các cuộc hội thoại của 1 user
+    public function loadConversations($user_id) {
+        $sql = "
+            SELECT 
+                cu_me.id_conversation,
+                c.last_message_at,
+                u.id_user,
+                u.hoten,
+                u.avatar,
+                (SELECT m.content FROM messages m WHERE m.id_conversation = cu_me.id_conversation ORDER BY m.created_at DESC LIMIT 1) as last_message
+            FROM conversation_users cu_me
+            JOIN conversation_users cu_other ON cu_me.id_conversation = cu_other.id_conversation AND cu_other.id_user != cu_me.id_user
+            JOIN users u ON cu_other.id_user = u.id_user
+            JOIN conversations c ON cu_me.id_conversation = c.id_conversation
+            WHERE cu_me.id_user = ?
+            GROUP BY cu_me.id_conversation -- Ép mỗi hội thoại chỉ hiện 1 dòng
+            ORDER BY 
+                (c.last_message_at IS NULL) DESC,
+                c.last_message_at DESC
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $user_id);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
     public function getOtherUserId($conversation_id, $my_id)
         {
             $sql = "
@@ -246,6 +229,43 @@ public function loadConversations($user_id) {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    // Lấy danh sách các cuộc trò chuyện gần nhất (kèm tin nhắn cuối)
+    public function getLatestConversation($user_id) {
+        $sql = "
+            SELECT 
+                c.id_conversation,
+                c.last_message_at,
+                u.id_user AS partner_id,
+                u.hoten AS partner_name,
+                u.avatar AS partner_avatar,
+                -- Subquery lấy tin nhắn mới nhất để hiển thị preview
+                (
+                    SELECT content 
+                    FROM messages m 
+                    WHERE m.id_conversation = c.id_conversation 
+                    ORDER BY m.created_at DESC 
+                    LIMIT 1
+                ) AS last_content
+            FROM conversations c
+            -- Join để lấy các hội thoại của user hiện tại
+            JOIN conversation_users cu_me ON c.id_conversation = cu_me.id_conversation
+            -- Join tiếp để tìm người kia (partner) trong hội thoại đó
+            JOIN conversation_users cu_other ON c.id_conversation = cu_other.id_conversation
+            -- Join bảng users để lấy thông tin người kia
+            LEFT JOIN users u ON cu_other.id_user = u.id_user
+            WHERE cu_me.id_user = ? 
+            AND cu_other.id_user != ? -- Đảm bảo không lấy thông tin của chính mình
+            ORDER BY c.last_message_at DESC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        // id_user là varchar nên dùng "ss" (bind 2 lần cho 2 dấu ?)
+        $stmt->bind_param("ss", $user_id, $user_id);
+        $stmt->execute();
+        
+        // Trả về mảng kết hợp (Associative Array)
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 
 }
 ?>

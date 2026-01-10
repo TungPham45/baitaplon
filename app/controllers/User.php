@@ -1,139 +1,47 @@
+
 <?php
-// app/controllers/User.php
-
-// 1. Nạp ProfileModel với đường dẫn mới
-require_once __DIR__ . '/../models/ProfileModel.php';
-
-class User { // Đổi tên từ UserController thành User để khớp index.php
-    private $profileModel;
-    private $db; // Lưu lại kết nối để dùng cho các Model nạp thêm
-
-    public function __construct($conn) {
-        // Kiểm tra đăng nhập theo luồng URL mới
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: /baitaplon/Auth/login");
-            exit();
-        }
-        $this->db = $conn;
-        $this->profileModel = new ProfileModel($conn);
-    }
-
-    /**
-     * Xem hồ sơ cá nhân
-     */
-    public function profile($targetId = null) {
-        $myId = $_SESSION['user_id'];
-        $viewId = $targetId ?? $myId; 
-        
-        $user = $this->profileModel->getProfile($viewId);
-        if (!$user) { 
-            echo "Người dùng không tồn tại"; 
-            return; 
-        }
-
-        $isMine = ($myId == $viewId);
-
-        // DỮ LIỆU MINH HỌA SẢN PHẨM
-        $mockActiveProducts = [
-            ['id' => 1, 'title' => 'iPhone 13 Pro Max', 'price' => '15.000.000 đ', 'img' => 'p1.jpg', 'time' => '2 giờ trước', 'loc' => 'Cần Thơ'],
-            ['id' => 2, 'title' => 'Macbook Pro M1', 'price' => '22.500.000 đ', 'img' => 'p2.jpg', 'time' => '5 giờ trước', 'loc' => 'TP.HCM']
-        ];
-        $mockSoldProducts = [
-            ['id' => 3, 'title' => 'Máy ảnh Canon 700D', 'price' => '6.000.000 đ', 'img' => 'p3.jpg', 'time' => '1 ngày trước', 'loc' => 'Cần Thơ']
-        ];
-
-        // Nạp view bằng đường dẫn tuyệt đối
-        require_once __DIR__ . '/../views/user/profile_view.php';
+class User
+{
+    protected $conn;
+    
+    public function __construct($conn)
+    {
+        $this->conn = $conn;
     }
     
     /**
-     * Chỉnh sửa thông tin cá nhân
+     * Load model
      */
-    public function editProfile() {
-        $userId = $_SESSION['user_id'];
-        $user = $this->profileModel->getProfile($userId);
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $avatarName = $user['avatar']; 
-
-            // Xử lý Upload ảnh vào folder public mới
-            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-                $fileTmpPath = $_FILES['avatar']['tmp_name'];
-                $fileName = $_FILES['avatar']['name'];
-                $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-
-                if (in_array($fileExtension, $allowedExtensions)) {
-                    $newFileName = 'user_' . $userId . '_' . time() . '.' . $fileExtension;
-                    $uploadFileDir = __DIR__ . '/../../public/uploads/avatars/';
-                    
-                    if (!is_dir($uploadFileDir)) {
-                        mkdir($uploadFileDir, 0777, true);
-                    }
-
-                    $dest_path = $uploadFileDir . $newFileName;
-
-                    if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                        if ($avatarName && $avatarName != 'default.png' && file_exists($uploadFileDir . $avatarName)) {
-                            unlink($uploadFileDir . $avatarName);
-                        }
-                        $avatarName = $newFileName;
-                    }
-                }
-            }
-
-            // Loại bỏ gioitinh và ngaysinh vì CSDL không có
-            $data = [
-                'name'     => $_POST['fullname'],
-                'phone'    => $_POST['sdt'],
-                'address'  => $_POST['diachi'],
-                'avatar'   => $avatarName,
-                'bio'      => $_POST['gioithieu']
-            ];
-
-            if ($this->profileModel->updateProfile($userId, $data)) {
-                $_SESSION['success'] = "Cập nhật hồ sơ thành công!";
-                header("Location: /baitaplon/User/profile");
-                exit();
-            }
+    protected function model($modelName)
+    {
+        $modelFile = __DIR__ . '/../models/' . $modelName . '.php';
+        if (file_exists($modelFile)) {
+            require_once $modelFile;
+            $model = new $modelName($this->conn);
+            return $model;
+        } else {
+            die("Model $modelName không tồn tại!");
         }
-
-        require_once __DIR__ . '/../views/user/edit_profile_view.php';
     }
-
+    
     /**
-     * Đổi mật khẩu
+     * Load view
      */
-    public function changePassword() {
-        $error = '';
-        $success = '';
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $oldPass = $_POST['old_password'];
-            $newPass = $_POST['new_password'];
-            $confirmPass = $_POST['confirm_password'];
-
-            $user = $this->profileModel->getProfile($_SESSION['user_id']);
-            
-            if (!password_verify($oldPass, $user['password'])) {
-                $error = "Mật khẩu cũ không chính xác!";
-            } elseif ($newPass !== $confirmPass) {
-                $error = "Xác nhận mật khẩu mới không khớp!";
-            } else {
-                // Nạp AuthModel theo cấu trúc folder mới
-                require_once __DIR__ . '/../models/AuthModel.php';
-                $authModel = new AuthModel($this->db);
-                if ($authModel->updatePassword($user['email'], $newPass)) {
-                    $success = "Đổi mật khẩu thành công!";
-                } else {
-                    $error = "Có lỗi xảy ra, vui lòng thử lại.";
-                }
-            }
+    protected function view($viewName, $data = [])
+    {
+        $viewFile = __DIR__ . '/../views/' . $viewName . '.php';
+        if (file_exists($viewFile)) {
+            // Extract data array thành các biến
+            extract($data);
+            require_once $viewFile;
+        } else {
+            die("View $viewName không tồn tại!");
         }
-
-        require_once __DIR__ . '/../views/user/change_password.php';
     }
-	public function Profile($profileId, $loggedInId = '')
+    
+    // Hiển thị trang Profile
+    // URL: index.php?controller=user&action=profile&id=US001
+    public function Profile($profileId, $loggedInId = '')
     {
         $userModel = $this->model('UserModel');
         $sanphamModel = $this->model('SanphamModel');
@@ -178,28 +86,30 @@ class User { // Đổi tên từ UserController thành User để khớp index.p
             $diachi = $_POST['diachi'];
             $gioithieu = $_POST['gioithieu'];
             
-            // Xử lý upload ảnh
-            $avatarUrl = null;
+            // 1. Lấy thông tin user cũ để giữ lại avatar nếu không đổi
+            $userModel = $this->model('UserModel');
+            $currentUser = $userModel->getUserById($id_user);
+            $avatarUrl = $currentUser['avatar']; // Mặc định dùng ảnh cũ
+
+            // 2. Xử lý upload ảnh (Sửa lại đường dẫn khớp với thực tế)
             if (isset($_FILES['avatar_file']) && $_FILES['avatar_file']['error'] == 0) {
-                $target_dir = "public/images/";
+                $target_dir = __DIR__ . "/../../public/uploads/avatars/";
                 if (!file_exists($target_dir)) mkdir($target_dir, 0777, true);
                 
                 $fileName = time() . "_" . basename($_FILES["avatar_file"]["name"]);
                 $target_file = $target_dir . $fileName;
                 
                 if (move_uploaded_file($_FILES["avatar_file"]["tmp_name"], $target_file)) {
-                    $avatarUrl = $target_file;
+                    $avatarUrl = $fileName; // Chỉ lưu tên file vào DB
                 }
             }
 
-            // Gọi Model cập nhật
-            $userModel = $this->model('UserModel');
+            // 3. Gọi Model cập nhật
             $userModel->updateUser($id_user, $hoten, $sdt, $diachi, $gioithieu, $avatarUrl);
 
-            // Quay lại trang profile của chính mình
-            // Dùng urlencode để đảm bảo link đúng
             header("Location: /baitaplon/User/Profile/" . urlencode($id_user));
             exit();
         }
     }
 }
+?>

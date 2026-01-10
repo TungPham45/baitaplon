@@ -11,27 +11,22 @@ class PostModel
     // Insert sản phẩm
     public function insertProduct($ten_sanpham, $id_danhmuc, $id_user, $gia, $mota, $anh_dai_dien, $khu_vuc_ban)
     {
-        // Escape dữ liệu đầu vào
+        // Escape dữ liệu để tránh SQL Injection
         $ten_sanpham = mysqli_real_escape_string($this->con, $ten_sanpham);
-        $id_danhmuc = mysqli_real_escape_string($this->con, $id_danhmuc);
-        $id_user = mysqli_real_escape_string($this->con, $id_user);
-        $gia = mysqli_real_escape_string($this->con, $gia);
+        $id_user = mysqli_real_escape_string($this->con, $id_user); // US002...
         $mota = mysqli_real_escape_string($this->con, $mota);
         $anh_dai_dien = mysqli_real_escape_string($this->con, $anh_dai_dien);
-        // Escape địa chỉ
         $khu_vuc_ban = mysqli_real_escape_string($this->con, $khu_vuc_ban);
 
-        // SỬA: Thêm cột khu_vuc_ban vào câu lệnh SQL
+            // SQL: id_user là VARCHAR nên cần dấu nháy đơn '$id_user'
         $sql = "INSERT INTO sanpham (ten_sanpham, id_danhmuc, id_user, gia, mota, avatar, khu_vuc_ban, ngaydang, trangthai) 
-                VALUES ('$ten_sanpham', '$id_danhmuc', '$id_user', '$gia', '$mota', '$anh_dai_dien', '$khu_vuc_ban', NOW(), N'Đã duyệt')";
+                VALUES ('$ten_sanpham', '$id_danhmuc', '$id_user', '$gia', '$mota', '$anh_dai_dien', '$khu_vuc_ban', NOW(), N'Chờ duyệt')";
 
         $result = mysqli_query($this->con, $sql);
-
-        if ($result) {
-            return mysqli_insert_id($this->con);// Trả về ID vừa insert
-        } else {
-            return false;
+        if (!$result) {
+            error_log("SQL Error: " . mysqli_error($this->con) . " | SQL: " . $sql);
         }
+        return $result ? mysqli_insert_id($this->con) : false;
     }
 
     // Insert ảnh chi tiết sản phẩm

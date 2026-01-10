@@ -82,12 +82,20 @@ class SanphamModel
     public function getProductById($id)
     {
         $id = mysqli_real_escape_string($this->con, $id);
+        
+        // Sử dụng LEFT JOIN thay vì JOIN (INNER JOIN) để tránh mất dữ liệu khi thiếu liên kết
         $sql = "SELECT s.*, u.hoten, u.sdt, u.avatar AS avatar_user, d.ten_danhmuc 
                 FROM sanpham s
-                JOIN users u ON s.id_user = u.id_user
-                JOIN danhmuc d ON s.id_danhmuc = d.id_danhmuc
+                LEFT JOIN users u ON s.id_user = u.id_user
+                LEFT JOIN danhmuc d ON s.id_danhmuc = d.id_danhmuc
                 WHERE s.id_sanpham = '$id'"; 
+                
         $result = mysqli_query($this->con, $sql);
+        
+        if (!$result) {
+            die("Lỗi SQL: " . mysqli_error($this->con));
+        }
+        
         return mysqli_fetch_assoc($result);
     }
     
