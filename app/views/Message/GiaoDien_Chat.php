@@ -168,19 +168,18 @@
 
 
         <!-- ✅ FORM CHỈ NẰM Ở INPUT -->
-            <form class="chat-input"
-                method="post"
-                action="/baitaplon/Chat/send"
+            <form class="chat-input" 
+                method="post" 
+                action="/baitaplon/Chat/send" 
                 id="chatForm">
+
+                <input type="hidden" name="conversation_id" value="<?php echo $active_conversation_id ?? 0; ?>">
 
                 <input type="hidden" name="message_id" id="editMessageId">
 
                 <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn...">
                 <button type="submit">➤</button>
             </form>
-
-
-
 
     </div>
 

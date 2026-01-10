@@ -53,37 +53,51 @@ class Chat {
         }
 
         $conversations = $this->chatModel->loadConversations($my_id);
-        require __DIR__ . '/../views/GiaoDien_Chat.php';
+        require __DIR__ . '/../views/Message/GiaoDien_Chat.php';
     }
 
     public function send()
-    {
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: /baitaplon/Login");
+        {
+            if (!isset($_SESSION['user_id'])) {
+                header("Location: /baitaplon/Login");
+                exit;
+            }
+
+            $my_id = $_SESSION['user_id'];
+            $content = trim($_POST['message'] ?? '');
+            $message_id = (int)($_POST['message_id'] ?? 0);
+            
+            // 🔥 QUAN TRỌNG: Lấy ID hội thoại từ FORM (đáng tin cậy hơn Session)
+            $conversation_id = (int)($_POST['conversation_id'] ?? 0);
+
+            // Nếu form không có, mới fallback về session (chống cháy)
+            if ($conversation_id == 0) {
+                $conversation_id = $_SESSION['active_conversation_id'] ?? 0;
+            }
+
+            // A. SỬA TIN NHẮN
+            if ($message_id > 0 && $content !== '') {
+                $this->chatModel->updateMessage($message_id, $my_id, $content);
+            }
+            // B. GỬI TIN MỚI
+            else if ($content !== '' && $conversation_id > 0) {
+                
+                // 1. Tìm ra người nhận dựa trên conversation_id này
+                // (Đảm bảo dù session có sai, tin nhắn vẫn đến đúng người trong hội thoại này)
+                $to_user = $this->chatModel->getOtherUserId($conversation_id, $my_id);
+
+                if (!empty($to_user)) {
+                    // Gọi hàm insert (Hàm này của bạn đã có logic tạo/tìm hội thoại rồi)
+                    $this->chatModel->insertMessage($my_id, $to_user, $content);
+                    
+                    // Cập nhật session để khi reload vẫn ở đúng đoạn chat này
+                    $_SESSION['active_conversation_id'] = $conversation_id;
+                }
+            }
+
+            header("Location: /baitaplon/chat");
             exit;
         }
-
-        // SỬA: Dùng 'user_id'
-        $my_id = $_SESSION['user_id'];
-        $content = trim($_POST['message'] ?? '');
-        $message_id = (int)($_POST['message_id'] ?? 0);
-
-        // ✏️ ĐANG SỬA TIN NHẮN
-        if ($message_id > 0 && $content !== '') {
-            $this->chatModel->updateMessage($message_id, $my_id, $content);
-        }
-        // ➕ GỬI TIN MỚI
-        else if ($content !== '') {
-            $to_user = $_SESSION['sender_id'] ?? ''; // Thêm check null
-            if (!empty($to_user)) {
-                $conversation_id = $this->chatModel->insertMessage($my_id, $to_user, $content);
-                $_SESSION['active_conversation_id'] = $conversation_id;
-            }
-        }
-
-        header("Location: /baitaplon/chat");
-        exit;
-    }
 
     public function search()
     {
@@ -126,7 +140,7 @@ class Chat {
                 ->loadMessageByConversation($active_conversation_id);
         }
 
-        require __DIR__ . '/../views/GiaoDien_Chat.php';
+        require __DIR__ . '/../views/Message/GiaoDien_Chat.php';
     }
 
     public function deleteMessage()
@@ -191,7 +205,7 @@ class Chat {
             }
         }
 
-        require __DIR__ . '/../views/GiaoDien_Chat.php';
+        require __DIR__ . '/../views/Message/GiaoDien_Chat.php';
     }
 }
 ?>
