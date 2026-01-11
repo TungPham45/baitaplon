@@ -272,6 +272,34 @@ class ChatModel {
         // Trả về mảng kết hợp (Associative Array)
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+    // 1. Cập nhật sản phẩm đang quan tâm cho cuộc hội thoại này
+        public function updateConversationProduct($conversation_id, $product_id) {
+            // Sửa $this->con thành $this->conn và dùng prepare statement để an toàn
+            $sql = "UPDATE conversations SET id_sanpham = ? WHERE id_conversation = ?";
+            $stmt = $this->conn->prepare($sql);
+            
+            // id_sanpham (int), id_conversation (int) -> dùng "ii"
+            // Nếu id là string thì đổi thành "ss"
+            $stmt->bind_param("ii", $product_id, $conversation_id); 
+            
+            return $stmt->execute();
+        }
 
+        // 2. Lấy ID sản phẩm đã lưu trong cuộc hội thoại
+        public function getProductOfConversation($conversation_id) {
+            $sql = "SELECT id_sanpham FROM conversations WHERE id_conversation = ?";
+            $stmt = $this->conn->prepare($sql);
+            
+            // id_conversation (int) -> dùng "i"
+            $stmt->bind_param("i", $conversation_id);
+            $stmt->execute();
+            
+            $result = $stmt->get_result();
+            
+            if ($row = $result->fetch_assoc()) {
+                return $row['id_sanpham'];
+            }
+            return null;
+        }
 }
 ?>

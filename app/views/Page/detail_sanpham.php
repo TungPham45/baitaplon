@@ -113,30 +113,36 @@ $mainImg = !empty($p['anh_dai_dien']) ? "/baitaplon/" . $p['anh_dai_dien'] : 'ht
                         </div>
                     </div>
                     
-                    <div class="d-grid gap-2">
-            <a href="tel:<?php echo htmlspecialchars($p['sdt']); ?>" class="btn btn-success fw-bold">
-                <i class="bi bi-telephone-fill"></i> GỌI NGAY: <?php echo htmlspecialchars($p['sdt']); ?>
-            </a>
+            <div class="d-grid gap-2">
+                <a href="tel:<?php echo htmlspecialchars($p['sdt']); ?>" class="btn btn-success fw-bold">
+                    <i class="bi bi-telephone-fill"></i> GỌI NGAY: <?php echo htmlspecialchars($p['sdt']); ?>
+                </a>
 
                 <?php 
-                // Kiểm tra đăng nhập từ dữ liệu controller truyền sang
+                // Kiểm tra trạng thái đăng nhập
                 $isLoggedIn = !empty($data['isLoggedIn']); 
-                
-                // Nếu đã đăng nhập -> Link vào Controller Chat/start
-                // Nếu chưa đăng nhập -> Link vào Controller Login
-                $chatLink = $isLoggedIn 
-                    ? "/baitaplon/Chat/start/" . $p['id_user'] 
-                    : "/baitaplon/Login";
-                    
-                $onclickInfo = $isLoggedIn ? "" : "return confirm('Bạn cần đăng nhập để bắt đầu trò chuyện. Chuyển đến trang đăng nhập?');";
                 ?>
 
-                <a href="<?php echo $chatLink; ?>" 
-                class="btn btn-outline-primary"
-                onclick="<?php echo $onclickInfo; ?>">
-                    <i class="bi bi-chat-dots-fill"></i> Chat với người bán
-                </a>
+                <?php if ($isLoggedIn): ?>
+                    <form action="/baitaplon/Chat/start/<?= $p['id_user'] ?>" method="POST" style="display: grid;">
+                        
+                        <input type="hidden" name="product_id_post" value="<?= $p['id_sanpham'] ?>">
+                        
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-chat-dots-fill"></i> Chat với người bán
+                        </button>
+                    </form>
+
+                <?php else: ?>
+                    <a href="/baitaplon/Login" 
+                       class="btn btn-outline-primary"
+                       onclick="return confirm('Bạn cần đăng nhập để bắt đầu trò chuyện. Chuyển đến trang đăng nhập?');">
+                        <i class="bi bi-chat-dots-fill"></i> Chat với người bán
+                    </a>
+                <?php endif; ?>
             </div>
+
+
                 </div>
             </div>
 

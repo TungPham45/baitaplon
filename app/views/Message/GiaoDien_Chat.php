@@ -116,7 +116,7 @@
             </div>
         </div>
         <?php endif; ?>
-
+ 
 
         
         <div class="chat-messages <?= !empty($product_context) ? 'has-pinned' : '' ?>">
