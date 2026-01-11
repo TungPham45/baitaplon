@@ -1,154 +1,142 @@
-/* ===== OVERLAY ===== */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-}
 
-/* ===== MODAL ===== */
-.modal {
-    width: 680px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 30px 60px rgba(0,0,0,.2);
-    padding: 24px;
-    animation: fadeIn .2s ease;
-}
+    /* ===== 1. CORE MODAL ===== */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(5px);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        animation: fadeIn 0.2s ease-out;
+    }
 
-/* ===== HEADER ===== */
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    .modal {
+        background: #fff; width: 420px; max-width: 90%;
+        border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden; display: flex; flex-direction: column;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-.modal-header h2 {
-    font-size: 22px;
-    font-weight: 700;
-}
+    /* ===== 2. HEADER ===== */
+    .modal-header {
+        padding: 16px 20px; display: flex; justify-content: space-between;
+        align-items: center; border-bottom: 1px solid #f0f0f0; background: #fff;
+    }
+    .modal-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #111; }
+    .btn-close {
+        background: transparent; border: none; font-size: 1.2rem; color: #999;
+        cursor: pointer; width: 32px; height: 32px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .btn-close:hover { background: #f5f5f5; color: #333; }
 
-.btn-close {
-    border: none;
-    background: transparent;
-    font-size: 26px;
-    cursor: pointer;
-    opacity: .6;
-}
+    /* ===== 3. BODY ===== */
+    .modal-body {
+        padding: 20px; overflow-y: auto; max-height: 75vh;
+        display: flex; flex-direction: column; gap: 20px;
+    }
 
-/* ===== BODY ===== */
-.modal-body {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
+    /* Profile */
+    .profile-section { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .avatar-circle {
+        width: 72px; height: 72px; background: #eff6ff; color: #2563eb;
+        font-size: 28px; font-weight: 700; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 4px solid #fff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        margin-bottom: 10px;
+    }
+    .user-name { font-size: 1.15rem; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+    .user-context { font-size: 0.9rem; color: #6b7280; }
 
-.row {
-    display: flex;
-    gap: 16px;
-}
-
-.form-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* INPUT */
-.form-group input,
-.form-group textarea {
-    border-radius: 999px;
-    border: 1px solid #e5e7eb;
-    padding: 14px 18px;
-    font-size: 14px;
-    outline: none;
-}
-
-.form-group textarea {
-    border-radius: 16px;
-    resize: none;
-    height: 120px;
-}
-
-.form-group input:disabled {
-    background: #f9fafb;
-    color: #555;
-}
-
-/* ===== STAR ===== */
-.star-rating {
-    display: flex;
-    flex-direction: row; /* Giữ nguyên chiều xuôi */
-    gap: 10px;           /* Tăng khoảng cách cho dễ bấm */
-    font-size: 32px;     /* Tăng kích thước sao to hơn */
-    cursor: pointer;
+    /* Rating Star (Đã sửa tên class về .star-rating cho khớp JS) */
+    .rating-section { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     
-    /* 🔥 QUAN TRỌNG: Chống bôi đen sao khi click nhanh */
-    user-select: none;
-    -webkit-user-select: none; 
-}
-
-.star-rating span {
-    color: #e5e7eb;      /* Màu xám mặc định */
-    transition: all 0.2s ease;
-}
-
-/* Hiệu ứng khi di chuột vào ngôi sao (để biết là nút bấm được) */
-.star-rating span:hover {
-    transform: scale(1.2); /* Phóng to nhẹ khi di chuột */
-    color: #ffe066;        /* Màu vàng nhạt gợi ý */
-}
-
-/* Class .active này sẽ do Javascript thêm vào khi click */
-.star-rating span.active {
-    color: #ffca08; /* Màu vàng đậm (hoặc màu #22c1b5 của bạn) */
-    text-shadow: 0 0 10px rgba(255, 202, 8, 0.5); /* Hiệu ứng phát sáng */
-}
-
-/* ===== FOOTER ===== */
-.modal-footer {
-    margin-top: 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.btn-secondary {
-    padding: 12px 22px;
-    border-radius: 999px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    cursor: pointer;
-}
-
-.btn-primary {
-    padding: 12px 26px;
-    border-radius: 999px;
-    border: none;
-    background: #22c1b5;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* ===== ANIMATION ===== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(.95);
+    .star-rating { 
+        display: flex; gap: 10px; font-size: 40px; cursor: pointer; 
+        justify-content: center;
     }
-    to {
-        opacity: 1;
-        transform: scale(1);
+    
+    .star-rating span { 
+        color: #e5e7eb; transition: transform 0.2s, color 0.2s; 
     }
-}
+    .star-rating span:hover { transform: scale(1.15); }
+    
+    /* QUAN TRỌNG: Màu vàng cho sao đã chọn */
+    .star-rating span.filled { 
+        color: #fbbf24 !important; 
+        filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4));
+    }
+
+    .rating-text { font-weight: 700; color: #d97706; height: 24px; font-size: 1rem; margin-top: 5px; }
+
+    /* Tags Badge (Đã chỉnh lại cho đẹp) */
+    .feedback-tags {
+        display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+    }
+    .tag-item {
+        font-size: 0.85rem; padding: 6px 14px; background: #f3f4f6;
+        border: 1px solid transparent; border-radius: 20px; color: #4b5563;
+        cursor: pointer; transition: all 0.2s; user-select: none; font-weight: 500;
+    }
+    .tag-item:hover { background: #e5e7eb; }
+    .tag-item.active {
+        background: #fffbeb; border-color: #fcd34d; color: #b45309; font-weight: 600;
+    }
+
+    /* Transaction Badge */
+    .transaction-badge { display: flex; justify-content: center; }
+    .transaction-badge label {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: #f0fdf4; border: 1px solid #bbf7d0;
+        padding: 8px 16px; border-radius: 50px; cursor: pointer; transition: 0.2s;
+    }
+    .transaction-badge label:hover { background: #dcfce7; }
+    .transaction-badge input { width: 16px; height: 16px; accent-color: #16a34a; }
+    .transaction-badge span { font-weight: 600; color: #166534; font-size: 0.9rem; }
+
+    /* Inputs & Upload */
+    .input-group textarea {
+        width: 100%; padding: 14px; border: 1px solid #e5e7eb;
+        border-radius: 12px; font-family: inherit; font-size: 0.95rem;
+        resize: none; box-sizing: border-box; background: #f9fafb;
+        transition: 0.2s;
+    }
+    .input-group textarea:focus { background: #fff; outline: none; border-color: #22c1b5; box-shadow: 0 0 0 3px rgba(34, 193, 181, 0.1); }
+
+    .btn-upload-box {
+        display: flex; flex-direction: column; align-items: center;
+        justify-content: center; padding: 24px; border: 2px dashed #cbd5e1;
+        border-radius: 12px; background: #fff; cursor: pointer;
+        transition: 0.2s; text-align: center; color: #64748b;
+    }
+    .btn-upload-box:hover { border-color: #22c1b5; background: #f0fdfc; color: #22c1b5; }
+    .btn-upload-box i { font-size: 28px; margin-bottom: 8px; color: #94a3b8; transition: 0.2s; }
+    .btn-upload-box:hover i { color: #22c1b5; }
+    .upload-title { font-weight: 600; font-size: 0.95rem; }
+    
+    .preview-list { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+    .preview-thumb { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0; }
+    .preview-item { position: relative; }
+    .btn-remove-img {
+        position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff;
+        border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+        font-size: 10px; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ===== 4. FOOTER ===== */
+    .modal-footer {
+        padding: 16px 24px; border-top: 1px solid #f0f0f0;
+        display: flex; justify-content: flex-end; gap: 12px; background: #fff;
+    }
+    .btn-outline {
+        padding: 10px 20px; border-radius: 8px; border: 1px solid #e5e7eb;
+        background: #fff; color: #374151; font-weight: 600; cursor: pointer;
+    }
+    .btn-outline:hover { background: #f3f4f6; }
+    .btn-solid {
+        padding: 10px 24px; border-radius: 8px; border: none; background: #22c1b5;
+        color: #fff; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(34, 193, 181, 0.3);
+    }
+    .btn-solid:hover { background: #1ba89d; transform: translateY(-1px); }
+
+    /* Animation */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }

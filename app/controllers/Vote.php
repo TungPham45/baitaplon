@@ -14,7 +14,7 @@ class Vote {
 
     // ==================================================
     // 1. HIỆN POPUP ĐÁNH GIÁ NGƯỜI DÙNG
-    // URL: /Vote/dialog/{partner_id} (Ví dụ: US002)
+    // URL: /Vote/dialog/{partner_id}
     // ==================================================
     public function dialog($partner_id) {
         // 1. Kiểm tra đăng nhập
@@ -31,7 +31,7 @@ class Vote {
             return;
         }
         
-        // 3. Lấy thông tin người bị đánh giá (Tên, Avatar...)
+        // 3. Lấy thông tin người bị đánh giá
         $partnerInfo = $this->voteModel->getUserInfo($partner_id);
 
         if (!$partnerInfo) {
@@ -40,55 +40,66 @@ class Vote {
         }
 
         // 4. Chuẩn bị dữ liệu truyền sang View
-        // Ở đây ta dùng user_id làm định danh chính thay vì transaction_id
         $target_id    = $partnerInfo['id_user']; 
         $target_name  = $partnerInfo['hoten'];
         
-        // Lưu ý: View dialog.php cần sửa nhẹ để hứng biến $target_id
+        // Gọi View dialog
         require __DIR__ . '/../views/Vote/dialog.php';
     }
 
     // ==================================================
-    // 2. XỬ LÝ SUBMIT
+    // 2. XỬ LÝ SUBMIT (CẬP NHẬT MỚI)
     // ==================================================
     public function submit() {
+        // Đặt header JSON để JS nhận diện đúng
         header('Content-Type: application/json');
 
+        // 1. Check Login
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Vui lòng đăng nhập.']);
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
             return;
         }
 
-        $reviewer_id = $_SESSION['user_id']; // Tôi (Người đánh giá)
+        $reviewer_id = $_SESSION['user_id']; // Người đánh giá (Tôi)
         
-        // Lấy dữ liệu từ JS gửi lên
-        // Lưu ý: JS cần gửi key là 'target_id' thay vì 'transaction_id'
+        // 2. Lấy dữ liệu từ FormData gửi lên
         $rated_user_id = $_POST['target_id'] ?? ''; 
         $rating        = (int)($_POST['rating'] ?? 0);
         $comment       = trim($_POST['comment'] ?? '');
-
-        // Validate
-        if (empty($rated_user_id) || $rating < 1 || $rating > 5) {
-            echo json_encode(['status' => 'error', 'message' => 'Dữ liệu không hợp lệ.']);
-            return;
-        }
-
-        // 🛑 BẢO MẬT: Kiểm tra xem 2 người này có từng chat với nhau không?
-        // Nếu chưa chat bao giờ -> Không cho đánh giá (chống spam)
-        $hasChatted = $this->voteModel->checkIfChatted($reviewer_id, $rated_user_id);
         
-        if (!$hasChatted) {
-            echo json_encode(['status' => 'error', 'message' => 'Bạn cần nhắn tin với người này trước khi đánh giá.']);
+        // [MỚI] Lấy trạng thái "Đã giao dịch" (0 hoặc 1)
+        $is_transacted = isset($_POST['is_transacted']) ? (int)$_POST['is_transacted'] : 0;
+
+        // 3. Validate cơ bản
+        if (empty($rated_user_id) || $rating < 1 || $rating > 5) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ (Số sao phải từ 1-5).']);
             return;
         }
 
-        // Lưu đánh giá
-        $result = $this->voteModel->addReview($reviewer_id, $rated_user_id, $rating, $comment);
+       // 4. 🛑 BẢO MẬT: Kiểm tra lịch sử chat
+        $hasChatted = $this->voteModel->checkIfChatted($reviewer_id, $rated_user_id);
 
+        if (!$hasChatted) {
+            echo json_encode(['success' => false, 'message' => 'Bạn cần trao đổi/nhắn tin với người này trước khi đánh giá.']);
+            return;
+        }
+
+        // 5. Gọi Model để lưu (Truyền thêm $is_transacted và $_FILES)
+        // $_FILES chứa các file ảnh được gửi lên từ form
+        $result = $this->voteModel->addReview(
+            $reviewer_id, 
+            $rated_user_id, 
+            $rating, 
+            $comment, 
+            $is_transacted, 
+            $_FILES // [MỚI] Truyền file sang Model
+        );
+
+        // 6. Trả kết quả về cho JS
         if ($result) {
-            echo json_encode(['status' => 'success']);
+            echo json_encode(['success' => true, 'message' => 'Đánh giá thành công!']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Lỗi hệ thống hoặc bạn đã đánh giá người này gần đây.']);
+            echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra khi lưu đánh giá.']);
         }
     }
 }

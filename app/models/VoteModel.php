@@ -36,18 +36,72 @@ class VoteModel {
         return $stmt->num_rows > 0; // Trả về true nếu tìm thấy
     }
 
-    // Lưu đánh giá User
-    public function addReview($reviewer_id, $rated_user_id, $rating, $comment) {
-        // (Tùy chọn) Kiểm tra xem đã đánh giá trong vòng 7 ngày qua chưa?
-        // Để tránh spam 1 người đánh giá 10 lần liên tục
+    // =========================================================================
+    // 🔥 [UPDATE] HÀM LƯU ĐÁNH GIÁ (Bao gồm Xác nhận giao dịch & Hình ảnh)
+    // =========================================================================
+    public function addReview($reviewer_id, $rated_user_id, $rating, $comment, $is_transacted, $files = null) {
         
-        $sql = "INSERT INTO reviews (user_id, seller_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())";
+        // 1. Insert vào bảng REVIEWS trước
+        // Thêm cột 'is_transacted' vào câu lệnh
+        $sql = "INSERT INTO reviews (user_id, seller_id, rating, comment, is_transacted, created_at) 
+                VALUES (?, ?, ?, ?, ?, NOW())";
         
-        // Lưu ý: Cột seller_id trong bảng reviews bây giờ đóng vai trò là 'rated_user_id'
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssis", $reviewer_id, $rated_user_id, $rating, $comment);
         
-        return $stmt->execute();
+        // s: string, s: string, i: int, s: string, i: int (is_transacted)
+        $stmt->bind_param("ssisi", $reviewer_id, $rated_user_id, $rating, $comment, $is_transacted);
+        
+        if ($stmt->execute()) {
+            // Lấy ID của review vừa tạo để dùng cho việc lưu ảnh
+            $review_id = $stmt->insert_id;
+
+            // 2. Xử lý lưu ảnh (Nếu có file gửi lên)
+            if ($files && !empty($files['review_images']['name'][0])) {
+                $this->saveReviewImages($review_id, $files);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Hàm phụ: Xử lý upload và lưu ảnh vào bảng review_images
+    private function saveReviewImages($review_id, $files) {
+        // Đường dẫn thư mục lưu ảnh (Bạn phải tạo thư mục này trước: public/uploads/reviews)
+        $target_dir = "public/uploads/reviews/";
+        
+        // Tạo thư mục nếu chưa tồn tại
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
+        $sqlImg = "INSERT INTO review_images (review_id, image_path) VALUES (?, ?)";
+        $stmtImg = $this->conn->prepare($sqlImg);
+
+        $count_files = count($files['review_images']['name']);
+
+        for ($i = 0; $i < $count_files; $i++) {
+            // Kiểm tra lỗi upload
+            if ($files['review_images']['error'][$i] === 0) {
+                
+                // Tạo tên file độc nhất để tránh trùng
+                $file_extension = pathinfo($files['review_images']['name'][$i], PATHINFO_EXTENSION);
+                $new_filename = time() . "_" . uniqid() . "." . $file_extension;
+                $target_file = $target_dir . $new_filename;
+
+                // Di chuyển file từ bộ nhớ tạm vào thư mục đích
+                if (move_uploaded_file($files['review_images']['tmp_name'][$i], $target_file)) {
+                    
+                    // Lưu đường dẫn vào database (Lưu đường dẫn tương đối để dễ gọi view)
+                    // Lưu: uploads/reviews/ten_file.jpg
+                    $db_path = "uploads/reviews/" . $new_filename;
+                    
+                    $stmtImg->bind_param("is", $review_id, $db_path);
+                    $stmtImg->execute();
+                }
+            }
+        }
     }
 }
 ?>

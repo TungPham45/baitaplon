@@ -1,4 +1,3 @@
-
 <?php
 class User
 {
@@ -10,7 +9,7 @@ class User
     }
     
     /**
-     * Load model
+     * Hàm load Model
      */
     protected function model($modelName)
     {
@@ -25,13 +24,13 @@ class User
     }
     
     /**
-     * Load view
+     * Hàm load View
      */
     protected function view($viewName, $data = [])
     {
         $viewFile = __DIR__ . '/../views/' . $viewName . '.php';
         if (file_exists($viewFile)) {
-            // Extract data array thành các biến
+            // Giải nén mảng data thành các biến riêng biệt ($profile, $products...)
             extract($data);
             require_once $viewFile;
         } else {
@@ -39,44 +38,61 @@ class User
         }
     }
     
-    // Hiển thị trang Profile
-    // URL: index.php?controller=user&action=profile&id=US001
+    // =================================================================
+    // HIỂN THỊ TRANG PROFILE
+    // URL: /User/Profile/US001/US002 (Xem profile US001 với tư cách US002)
+    // =================================================================
     public function Profile($profileId, $loggedInId = '')
     {
-        $userModel = $this->model('UserModel');
+        // 1. Load các Model cần thiết
+        $userModel = $this->model('UserModel'); 
         $sanphamModel = $this->model('SanphamModel');
+        
+        // 🔥 Load ProfileModel để lấy đánh giá (Quan trọng)
+        $profileModel = $this->model('ProfileModel'); 
 
-        // 1. XỬ LÝ ID ĐĂNG NHẬP (Để giữ trạng thái Navbar)
-        // Nếu không truyền tham số thứ 2 ($loggedInId), 
-        // thì mặc định coi như đang xem profile của chính mình ($loggedInId = $profileId)
+        // 2. Xử lý ID người xem (loggedInId)
+        // Nếu không truyền ID người xem, lấy từ session
         if (empty($loggedInId)) {
-            $loggedInId = $profileId;
+            if (isset($_SESSION['user_id'])) {
+                $loggedInId = $_SESSION['user_id'];
+            } else {
+                // Nếu chưa đăng nhập thì coi như khách vãng lai
+                $loggedInId = ''; 
+            }
         }
 
-        // 2. Lấy thông tin người dùng CẦN XEM (Profile)
+        // 3. Lấy thông tin người được xem (Chủ Profile)
         $userProfile = $userModel->getUserById($profileId);
 
-        // 3. Lấy sản phẩm của người đó (Sửa lỗi hiển thị tất cả sản phẩm)
-        // Tham số thứ 6 là $profileId để lọc theo User
+        // 4. Lấy danh sách sản phẩm của người đó
+        // (Tham số thứ 6 là $profileId để lọc sản phẩm của user này)
         $products = $sanphamModel->getProducts('', '', '', 0, 100, $profileId);
+        
+        // 5. 🔥 [MỚI] Lấy danh sách ĐÁNH GIÁ từ ProfileModel
+        $reviews = $profileModel->getReviewsByUserId($profileId);
 
-        // 4. Kiểm tra quyền sở hữu (Để hiện nút Sửa)
-        $isOwner = ($loggedInId === $profileId);
+        // 6. Kiểm tra quyền sở hữu (Để hiện nút "Sửa trang cá nhân")
+        $isOwner = (!empty($loggedInId) && $loggedInId === $profileId);
 
+        // 7. Đóng gói dữ liệu gửi sang View
         $data = [
-            'page'        => 'profile',
+            'page'        => 'profile', // Để Navbar biết đang ở trang nào
             'profile'     => $userProfile,
             'products'    => $products,
+            'reviews'     => $reviews, // <-- Truyền biến này sang View
             'isOwner'     => $isOwner,
-            // Quan trọng: Truyền user_id để Navbar file home.php nhận diện đã đăng nhập
             'user_id'     => $loggedInId, 
             'isLoggedIn'  => !empty($loggedInId)
         ];
 
+        // Load view home (View này sẽ include file profile.php)
         $this->view('home', $data);
     }
 
-    // Xử lý cập nhật thông tin
+    // =================================================================
+    // XỬ LÝ CẬP NHẬT THÔNG TIN (POST)
+    // =================================================================
     public function Update()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -86,28 +102,42 @@ class User
             $diachi = $_POST['diachi'];
             $gioithieu = $_POST['gioithieu'];
             
-            // 1. Lấy thông tin user cũ để giữ lại avatar nếu không đổi
+            // 1. Lấy thông tin cũ để giữ lại avatar nếu người dùng không up ảnh mới
             $userModel = $this->model('UserModel');
             $currentUser = $userModel->getUserById($id_user);
-            $avatarUrl = $currentUser['avatar']; // Mặc định dùng ảnh cũ
+            $avatarUrl = $currentUser['avatar']; 
 
-            // 2. Xử lý upload ảnh (Sửa lại đường dẫn khớp với thực tế)
+            // 2. Xử lý upload ảnh Avatar
             if (isset($_FILES['avatar_file']) && $_FILES['avatar_file']['error'] == 0) {
+                // Đường dẫn thư mục lưu ảnh
                 $target_dir = __DIR__ . "/../../public/uploads/avatars/";
+                
+                // Tạo thư mục nếu chưa có
                 if (!file_exists($target_dir)) mkdir($target_dir, 0777, true);
                 
+                // Tạo tên file mới
                 $fileName = time() . "_" . basename($_FILES["avatar_file"]["name"]);
                 $target_file = $target_dir . $fileName;
                 
+                // Di chuyển file
                 if (move_uploaded_file($_FILES["avatar_file"]["tmp_name"], $target_file)) {
-                    $avatarUrl = $fileName; // Chỉ lưu tên file vào DB
+                    // Lưu đường dẫn tương đối vào DB (public/...)
+                    $avatarUrl = "public/uploads/avatars/" . $fileName; 
                 }
             }
 
-            // 3. Gọi Model cập nhật
+            // 3. Gọi Model cập nhật Database
             $userModel->updateUser($id_user, $hoten, $sdt, $diachi, $gioithieu, $avatarUrl);
 
-            header("Location: /baitaplon/User/Profile/" . urlencode($id_user));
+            // 4. Chuyển hướng về lại trang Profile
+            $redirectUrl = "/baitaplon/User/Profile/" . urlencode($id_user);
+            
+            // Nếu đang đăng nhập thì nối thêm ID người xem vào URL để giữ session
+            if (isset($_SESSION['user_id'])) {
+                $redirectUrl .= "/" . urlencode($_SESSION['user_id']);
+            }
+            
+            header("Location: " . $redirectUrl);
             exit();
         }
     }
