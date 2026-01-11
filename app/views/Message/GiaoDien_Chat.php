@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat Realtime</title>
-        <link rel="stylesheet" href="/baitaplon/public/css/GiaoDien_Chat.css">
+    <link rel="stylesheet" href="/baitaplon/public/css/GiaoDien_Chat.css">
+    
 </head>
 <body>
 
 <div class="chat-container">
 
-    <!-- ================= LEFT (30%) ================= -->
-<div class="chat-list">
-    <a href="/baitaplon/Home/index/<?= htmlspecialchars($my_id) ?>" class="btn btn-outline-secondary btn-back-home">
+    <div class="chat-list">
+        <a href="/baitaplon/Home/index/<?= htmlspecialchars($my_id) ?>" class="btn btn-outline-secondary btn-back-home">
             <i class="bi bi-arrow-left-circle-fill"></i> Quay lại Trang chủ
         </a>
 
-    <!-- 🔍 SEARCH -->
         <form method="post" action="/baitaplon/Chat/search">
             <div class="chat-search">
                 <input 
@@ -28,66 +27,61 @@
             </div>
         </form>
 
-        <!-- 📩 DANH SÁCH CUỘC TRÒ CHUYỆN -->
         <div class="chat-users">
-
             <?php if (!empty($conversations)): ?>
                 <?php foreach ($conversations as $c): ?>
-
+                    
                     <div class="chat-user <?= ($c['id_conversation'] == ($active_conversation_id ?? 0)) ? 'active' : '' ?>"
                         onclick="window.location.href='/baitaplon/Chat/start/<?= $c['id_conversation'] ?>'" >
 
                         <div class="avatar">
-                            <?= strtoupper(substr($c['hoten'], 0, 1)) ?>
+                            <?php if (!empty($c['avatar'])): ?>
+                                <img src="/baitaplon/<?= htmlspecialchars($c['avatar']) ?>" alt="Avt">
+                            <?php else: ?>
+                                <?= strtoupper(substr($c['hoten'], 0, 1)) ?>
+                            <?php endif; ?>
                         </div>
 
                         <div class="chat-user-info">
                             <div class="username">
                                 <?= htmlspecialchars($c['hoten']) ?>
                             </div>
-
                             <div class="last-message">
                                 <?= htmlspecialchars($c['last_message'] ?? 'Chưa có tin nhắn') ?>
                             </div>
                         </div>
 
                         <div class="chat-time">
-                            <?= isset($c['last_message_at']) 
-                                ? formatChatTime($c['last_message_at']) 
-                                : '' ?>
+                            <?= isset($c['last_message_at']) ? formatChatTime($c['last_message_at']) : '' ?>
                         </div>
                     </div>
 
                 <?php endforeach; ?>
-
             <?php else: ?>
-                <div class="chat-empty">
-                    Không tìm thấy cuộc trò chuyện
-                </div>
+                <div class="chat-empty">Không tìm thấy cuộc trò chuyện</div>
             <?php endif; ?>
-
         </div>
     </div>
 
 
-    <!-- ================= CENTER (50%) ================= -->
-   <div class="chat-main">                
+    <div class="chat-main">                
         <div class="chat-header">
             <div class="chat-header-left">
                 <div class="chat-header-avatar">
-                    <?= strtoupper(substr($sender_name, 0, 1)) ?>
+                    <?php if (!empty($sender_avatar)): ?>
+                        <img src="/baitaplon/<?= htmlspecialchars($sender_avatar) ?>" alt="Avt">
+                    <?php else: ?>
+                        <?= strtoupper(substr($sender_name ?? 'U', 0, 1)) ?>
+                    <?php endif; ?>
                 </div>
 
                 <div class="chat-title">
                     <?= htmlspecialchars($sender_name) ?>
-                    <span class="chat-status-sub">● Đang hoạt động</span>
                 </div>
             </div>
 
             <div class="chat-header-right">
-                <button type="button" class="btn-search-message" onclick="toggleSearchMessage()">
-                    🔍
-                </button>
+                <button type="button" class="btn-search-message" onclick="toggleSearchMessage()">🔍</button>
             </div>
         </div>
         
@@ -97,9 +91,19 @@
         <div class="product-pinned-bar">
             <div class="pinned-left">
                 <div class="pinned-img">
-                    <img src="/baitaplon/public/images/<?= htmlspecialchars($product_context['image'] ?? 'default.png') ?>" 
-                         alt="Product"
-                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    <?php 
+                        // Kiểm tra xem có ảnh từ DB không
+                        if (!empty($product_context['image'])) {
+                            // Nếu có, nối với thư mục gốc /baitaplon/ (Giống trang Detail)
+                            $imgSrc = "/baitaplon/" . $product_context['image'];
+                        } else {
+                            // Nếu không có, dùng ảnh mặc định (để ý đường dẫn ảnh mặc định của bạn)
+                            $imgSrc = "/baitaplon/public/images/wave_cu.png"; 
+                        }
+                    ?>
+                    <img src="<?= htmlspecialchars($imgSrc) ?>" 
+                        alt="Product"
+                        style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                 </div>
                 <div class="pinned-info">
                     <div class="pinned-title" style="font-weight: bold;"><?= htmlspecialchars($product_context['name']) ?></div>
@@ -117,8 +121,6 @@
         </div>
         <?php endif; ?>
  
-
-        
         <div class="chat-messages <?= !empty($product_context) ? 'has-pinned' : '' ?>">
             <?php if (!empty($messages)): ?>
                 <?php $prevTime = null; ?>
@@ -136,7 +138,11 @@
                     <div class="message <?= $isMine ? 'message-right' : 'message-left' ?>">
                         <?php if (!$isMine): ?>
                             <div class="message-avatar">
-                                <?= strtoupper(substr($sender_name, 0, 1)) ?>
+                                <?php if (!empty($sender_avatar)): ?>
+                                    <img src="/baitaplon/<?= htmlspecialchars($sender_avatar) ?>" alt="Avt">
+                                <?php else: ?>
+                                    <?= strtoupper(substr($sender_name ?? 'U', 0, 1)) ?>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
@@ -180,31 +186,39 @@
         </form>
     </div>
 
-    <!-- ================= RIGHT (20%) ================= -->
-            <div class="chat-info">
-                
-                <div class="avatar-large">
-                    <?= strtoupper(substr($sender_name, 0, 1)) ?>
-                </div>
+    <div class="chat-info">
+        
+        <div class="avatar-large">
+            <?php if (!empty($sender_avatar)): ?>
+                <img src="/baitaplon/<?= htmlspecialchars($sender_avatar) ?>" alt="Avt">
+            <?php else: ?>
+                <?= strtoupper(substr($sender_name ?? 'U', 0, 1)) ?>
+            <?php endif; ?>
+        </div>
 
-                <h4><?= htmlspecialchars($sender_name) ?></h4>
-                
-                <div class="user-status">● Đang hoạt động</div>
+        <h4><?= htmlspecialchars($sender_name) ?></h4>
+        
+        
 
-                <ul class="chat-info-list">
-                    <li onclick="window.location.href='/baitaplon/User/Profile/<?= $sender_id ?>/<?= $my_id ?>'">Xem trang cá nhân</li>
-                    <li  onclick="toggleSearchMessage()" style="cursor: pointer;"> Tìm kiếm trong tin nhắn</li>
-                    <li>File phương tiện & file</li>
-                    <li data-partner-id="<?= $sender_id ?>" onclick="openVoteDialog(this)">Đánh giá người dùng</li>
-                    <li style="color: red;">Chặn người dùng</li>
-                </ul>
-
-            </div>
+        <ul class="chat-info-list">
+            <li style="color: green;" onclick="window.location.href='/baitaplon/User/Profile/<?= $sender_id ?>/<?= $my_id ?>'">Xem trang cá nhân</li>
+            <li style="color: blue;" onclick="toggleSearchMessage()" style="cursor: pointer;"> Tìm kiếm trong tin nhắn</li>
+            
+            <li style="color: orange;" data-partner-id="<?= $sender_id ?>" onclick="openVoteDialog(this)">Đánh giá người dùng</li>
+          
+            <li style="color: red; cursor: pointer;" onclick="confirmDeleteConversation(<?= $active_conversation_id ?>)">
+                <i class="bi bi-trash"></i> Xóa đoạn chat
+            </li>
+        </ul>
+                <form id="formDeleteConversation" action="/baitaplon/Chat/deleteConversation" method="POST" style="display: none;">
+                    <input type="hidden" name="conversation_id" id="inputDeleteConvId">
+                </form>
+    </div>
 
 </div>
 <script src="/baitaplon/public/js/openConversation.js"></script>
 <script src="/baitaplon/public/js/OpenSearchMessage.js"></script>
 <script src="/baitaplon/public/js/openDialogVote.js"></script>
-
+<script src="/baitaplon/public/js/deleteMessage.js"></script>
 </body>
 </html>

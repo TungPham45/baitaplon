@@ -554,3 +554,23 @@ body {
     /* Trừ đi header (60px) + pinned (70px) + input (60px) */
     height: calc(100% - 190px); 
 }
+ .avatar img, 
+        .chat-header-avatar img, 
+        .message-avatar img, 
+        .avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cắt ảnh vừa khung tròn không bị méo */
+            border-radius: 50%;
+        }
+        
+        /* Căn chỉnh khung avatar để chữ cái luôn ở giữa nếu không có ảnh */
+        .avatar, .chat-header-avatar, .message-avatar, .avatar-large {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #e9ecef; /* Màu nền nhẹ nếu là chữ */
+            color: #555;
+            font-weight: bold;
+        }

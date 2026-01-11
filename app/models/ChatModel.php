@@ -10,7 +10,7 @@ class ChatModel {
     public function getNameSenderByID($sender_id) {
         $sql = "SELECT hoten FROM users WHERE id_user = ? LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $sender_id); // "s" vì id_user là varchar(20)
+        $stmt->bind_param("s", $sender_id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         return $result['hoten'] ?? '';
@@ -35,31 +35,39 @@ class ChatModel {
     }
 
     // Tạo hội thoại mới
-    public function createConversation($user1, $user2) {
-        // Tạo bản ghi trong bảng conversations (Giả định bảng này có auto_increment id_conversation)
-        $this->conn->query("INSERT INTO conversations () VALUES ()");
-        $conversation_id = $this->conn->insert_id;
+    public function createConversation($user1, $user2, $product_id = null) {
+        // Bước 1: Tạo bản ghi trong bảng conversations
+        if ($product_id) {
+            // Nếu có sản phẩm, insert kèm id_sanpham
+            $stmt = $this->conn->prepare("INSERT INTO conversations (id_sanpham, last_message_at) VALUES (?, NOW())");
+            $stmt->bind_param("i", $product_id);
+            $stmt->execute();
+            $conversation_id = $stmt->insert_id;
+        } else {
+            // Nếu chat thông thường (không qua sản phẩm)
+            $this->conn->query("INSERT INTO conversations (last_message_at) VALUES (NOW())");
+            $conversation_id = $this->conn->insert_id;
+        }
 
-        $stmt = $this->conn->prepare(
-            "INSERT INTO conversation_users (id_conversation, id_user)
-             VALUES (?, ?), (?, ?)"
+        // Bước 2: Gắn 2 người dùng vào hội thoại này
+        $stmtUsers = $this->conn->prepare(
+            "INSERT INTO conversation_users (id_conversation, id_user) VALUES (?, ?), (?, ?)"
         );
-        // id_conversation là Int (i), id_user là Varchar (s) -> thứ tự: i, s, i, s
-        $stmt->bind_param("isis", $conversation_id, $user1, $conversation_id, $user2);
-        $stmt->execute();
+        // id_conversation (int), id_user (string) -> isis
+        $stmtUsers->bind_param("isis", $conversation_id, $user1, $conversation_id, $user2);
+        $stmtUsers->execute();
 
-        return $conversation_id;
+        return (int)$conversation_id;
     }
 
-        public function getOrCreateConversation($user1, $user2)
+    public function getOrCreateConversation($user1, $user2, $product_id = null)
         {
+            // Kiểm tra xem 2 người này đã có hội thoại chưa
             $sql = "
                 SELECT cu1.id_conversation
                 FROM conversation_users cu1
-                JOIN conversation_users cu2
-                    ON cu1.id_conversation = cu2.id_conversation
-                WHERE cu1.id_user = ?
-                AND cu2.id_user = ?
+                JOIN conversation_users cu2 ON cu1.id_conversation = cu2.id_conversation
+                WHERE cu1.id_user = ? AND cu2.id_user = ?
                 LIMIT 1
             ";
             $stmt = $this->conn->prepare($sql);
@@ -68,10 +76,19 @@ class ChatModel {
             $res = $stmt->get_result();
 
             if ($row = $res->fetch_assoc()) {
-                return (int)$row['id_conversation']; // ✅ INT
+                $existing_id = (int)$row['id_conversation'];
+                
+                // 🔥 QUAN TRỌNG: Nếu người dùng bấm chat từ 1 sản phẩm mới ($product_id có giá trị)
+                // Ta cần cập nhật hội thoại cũ này để nó ghim sản phẩm mới đó
+                if ($product_id) {
+                    $this->updateConversationProduct($existing_id, $product_id);
+                }
+                
+                return $existing_id;
             }
 
-            return (int)$this->createConversation($user1, $user2); // ✅ INT
+            // Nếu chưa có thì tạo mới
+            return $this->createConversation($user1, $user2, $product_id);
         }
 
     // Thêm tin nhắn mới
@@ -160,7 +177,14 @@ class ChatModel {
             $row = $stmt->get_result()->fetch_assoc();
             return $row['id_user'] ?? '';
         }
-
+        public function removeConversationForUser($conversation_id, $user_id) {
+                // Cách 1: Xóa hẳn user khỏi conversation_users (User kia vẫn thấy chat, nhưng user này sẽ mất lịch sử)
+                $sql = "DELETE FROM conversation_users WHERE id_conversation = ? AND id_user = ?";
+                
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bind_param("is", $conversation_id, $user_id);
+                return $stmt->execute();
+            }
     // Tìm kiếm hội thoại theo tên người nhận
     public function searchConversationBySenderName($my_id, $keyword){
         $sql = "
@@ -273,33 +297,24 @@ class ChatModel {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
     // 1. Cập nhật sản phẩm đang quan tâm cho cuộc hội thoại này
-        public function updateConversationProduct($conversation_id, $product_id) {
-            // Sửa $this->con thành $this->conn và dùng prepare statement để an toàn
-            $sql = "UPDATE conversations SET id_sanpham = ? WHERE id_conversation = ?";
-            $stmt = $this->conn->prepare($sql);
-            
-            // id_sanpham (int), id_conversation (int) -> dùng "ii"
-            // Nếu id là string thì đổi thành "ss"
-            $stmt->bind_param("ii", $product_id, $conversation_id); 
-            
-            return $stmt->execute();
-        }
+    public function updateConversationProduct($conversation_id, $product_id) {
+        $sql = "UPDATE conversations SET id_sanpham = ? WHERE id_conversation = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $product_id, $conversation_id); 
+        return $stmt->execute();
+    }
 
         // 2. Lấy ID sản phẩm đã lưu trong cuộc hội thoại
-        public function getProductOfConversation($conversation_id) {
-            $sql = "SELECT id_sanpham FROM conversations WHERE id_conversation = ?";
-            $stmt = $this->conn->prepare($sql);
-            
-            // id_conversation (int) -> dùng "i"
-            $stmt->bind_param("i", $conversation_id);
-            $stmt->execute();
-            
-            $result = $stmt->get_result();
-            
-            if ($row = $result->fetch_assoc()) {
-                return $row['id_sanpham'];
-            }
-            return null;
+    public function getProductOfConversation($conversation_id) {
+        $sql = "SELECT id_sanpham FROM conversations WHERE id_conversation = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $conversation_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            return $row['id_sanpham'];
         }
+        return null;
+    }
 }
 ?>
