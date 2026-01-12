@@ -77,7 +77,11 @@ class Auth {
                         $_SESSION['username'] = $user['username'];
                         
                         // Chuyển hướng theo luồng Home/index mới
-                        header("Location: /baitaplon/Home/index");
+                        if ($user['role'] == 'Quản lý') { 
+                            header("Location: /baitaplon/Admin/dashboard"); // Chuyển sang trang Admin
+                        } else {
+                            header("Location: /baitaplon/Home/index"); // Khách thì về trang chủ
+                        }
                         exit();
                 }
             } else {

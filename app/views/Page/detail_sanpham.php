@@ -29,7 +29,15 @@ if (!$p) {
 
 // Xử lý ảnh đại diện mặc định
 $mainAvatar = !empty($p['avatar_user']) ? "/baitaplon/" . $p['avatar_user'] : 'https://via.placeholder.com/150';
-$mainImg = !empty($p['anh_dai_dien']) ? "/baitaplon/" . $p['anh_dai_dien'] : 'https://via.placeholder.com/500';
+
+// [SỬA LẠI] Xử lý ảnh chính sản phẩm:
+// Ưu tiên lấy ảnh đầu tiên trong album ảnh chi tiết (vì nó thường là ảnh gốc/to)
+// Nếu không có album thì mới dùng ảnh đại diện (anh_dai_dien)
+if (!empty($imgs) && isset($imgs[0]['url_anh'])) {
+    $mainImg = "/baitaplon/" . $imgs[0]['url_anh'];
+} else {
+    $mainImg = !empty($p['anh_dai_dien']) ? "/baitaplon/" . $p['anh_dai_dien'] : 'https://via.placeholder.com/500';
+}
 ?>
 
 <div class="container mt-5 mb-5">
