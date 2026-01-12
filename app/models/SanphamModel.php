@@ -60,15 +60,17 @@ class SanphamModel
         if ($address !== '') $where .= " AND sp.khu_vuc_ban LIKE '%$address%'";
         if ($userId !== '')  $where .= " AND sp.id_user = '$userId' ";
 
-        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.avatar, sp.khu_vuc_ban, sp.ngaydang, sp.trangthai, dm.ten_danhmuc, 
-                COALESCE(MIN(spa.url_anh), sp.avatar) AS anh_hienthi
-                FROM sanpham sp
-                LEFT JOIN danhmuc dm ON sp.id_danhmuc = dm.id_danhmuc
-                LEFT JOIN sanpham_anh spa ON sp.id_sanpham = spa.id_sanpham
-                " . $where . "
-                GROUP BY sp.id_sanpham
-                ORDER BY sp.ngaydang DESC
-                LIMIT $offset, $limit";
+        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.avatar, sp.khu_vuc_ban, sp.ngaydang, sp.trangthai, 
+        dm.ten_danhmuc, acc.role, 
+        COALESCE(MIN(spa.url_anh), sp.avatar) AS anh_hienthi
+        FROM sanpham sp
+        LEFT JOIN danhmuc dm ON sp.id_danhmuc = dm.id_danhmuc
+        LEFT JOIN account acc ON sp.id_user = acc.id_user  -- JOIN bảng account (thay vì users)
+        LEFT JOIN sanpham_anh spa ON sp.id_sanpham = spa.id_sanpham
+        " . $where . "
+        GROUP BY sp.id_sanpham
+        ORDER BY sp.ngaydang DESC
+        LIMIT $offset, $limit";
 
         $result = mysqli_query($this->con, $sql);
         $data = [];
