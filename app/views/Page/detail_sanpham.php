@@ -5,7 +5,7 @@
 $p = isset($data['product']) ? $data['product'] : null;
 $imgs = isset($data['productImages']) ? $data['productImages'] : [];
 $baseUrl = "/baitaplon";
-
+$attrs = isset($data['productAttributes']) ? $data['productAttributes'] : [];
 // Lấy ID người xem (để xử lý link Home và link Chat)
 $viewerId = isset($data['user_id']) ? $data['user_id'] : '';
 
@@ -167,7 +167,34 @@ $mainImg = !empty($p['anh_dai_dien']) ? "/baitaplon/" . $p['anh_dai_dien'] : 'ht
         </div>
     </div>
 </div>
-
+<?php if (!empty($attrs)): ?>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold text-uppercase">
+                    Thông số chi tiết
+                </div>
+                <div class="card-body">
+                    <div class="attributes-list">
+                        <?php foreach ($attrs as $attr): ?>
+                            <div class="attribute-item">
+                                <span class="attr-name"><?php echo htmlspecialchars($attr['ten_thuoctinh']); ?>:</span>
+                                <span class="attr-value"><?php echo htmlspecialchars($attr['giatri']); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .attributes-list { background: #f9f9f9; padding: 12px; border-radius: 4px; margin-top: 8px; }
+        .attribute-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; display: flex; justify-content: space-between; }
+        .attribute-item:last-child { border-bottom: none; }
+        .attr-name { font-weight: bold; color: #333; }
+        .attr-value { color: #666; }
+    </style>
+    <?php endif; ?>
 <script>
     function changeImage(element) {
         document.getElementById('mainImage').src = element.src;

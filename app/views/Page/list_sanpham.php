@@ -150,5 +150,3 @@ if (!function_exists('buildHomeUrl')) {
         </ul>
     </nav>
 <?php endif; ?>
-
-
