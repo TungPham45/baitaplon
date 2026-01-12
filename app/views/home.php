@@ -119,10 +119,24 @@
                 <a href="/baitaplon/Chat/index/0/<?php echo $currentUserId; ?>" class="text-secondary fs-5"><i class="bi bi-chat-dots-fill"></i></a>
                 <div class="dropdown">
                     <a href="#" class="text-secondary fs-5" data-bs-toggle="dropdown"><i class="bi bi-person-circle"></i></a>
+                    
                     <ul class="dropdown-menu dropdown-menu-end shadow">
-                         <li><a class="dropdown-item" href="/baitaplon/User/Profile/<?php echo urlencode($currentUserId); ?>">Trang cá nhân</a></li>
-                         <li><hr class="dropdown-divider"></li>
-                         <li><a class="dropdown-item text-danger" href="/baitaplon/Home?logout=1">Đăng xuất</a></li>
+                        
+                        <?php 
+                        // Lấy role từ Session và xử lý khoảng trắng thừa (nếu có)
+                        $role = isset($_SESSION['role']) ? trim($_SESSION['role']) : '';
+                        if ($role === 'Quản lý'): 
+                        ?>
+                            <li>
+                                <a class="dropdown-item fw-bold text-primary" href="/baitaplon/Admin/dashboard">
+                                    <i class="bi bi-speedometer2"></i> Quản lý Web
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        <?php endif; ?>
+                        <li><a class="dropdown-item" href="/baitaplon/User/Profile/<?php echo urlencode($currentUserId); ?>">Trang cá nhân</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="/baitaplon/Home?logout=1">Đăng xuất</a></li>
                     </ul>
                 </div>
             <?php else: ?>
