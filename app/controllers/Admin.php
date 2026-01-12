@@ -16,7 +16,8 @@ class Admin {
                         strpos($url, 'getPendingProducts') !== false ||
                         strpos($url, 'getProductDetail') !== false ||
                         strpos($url, 'approve') !== false ||
-                        strpos($url, 'reject') !== false;
+                        strpos($url, 'reject') !== false ||
+                        strpos($url, 'searchAccounts') !== false;
 
         if (!$isApiRequest) {
             if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
@@ -93,7 +94,16 @@ class Admin {
 
     public function dashboard() {
         $active_page = 'user_management';
-        $accounts = $this->adminModel->getAllAccounts(); 
+        
+        $hoten = isset($_GET['hoten']) ? trim($_GET['hoten']) : '';
+        $trangthai = isset($_GET['trangthai']) ? $_GET['trangthai'] : 'all';
+        
+        if (!empty($hoten) || $trangthai !== 'all') {
+            $accounts = $this->adminModel->searchAccounts($hoten, $trangthai);
+        } else {
+            $accounts = $this->adminModel->getAllAccounts();
+        }
+        
         $functionTitle = "Hệ thống quản lý tài khoản";
         $contentView = __DIR__ . '/../views/admin/user_management.php';
         require_once __DIR__ . '/../views/admin/dashboard.php';
@@ -137,6 +147,27 @@ class Admin {
             } else {
                 echo json_encode(['success' => false, 'message' => 'Không thể xóa tài khoản. Vui lòng kiểm tra lại.']);
             }
+        }
+    }
+
+    public function searchAccounts() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $hoten = isset($_GET['hoten']) ? trim($_GET['hoten']) : '';
+            $trangthai = isset($_GET['trangthai']) ? $_GET['trangthai'] : 'all';
+            
+            $accounts = $this->adminModel->searchAccounts($hoten, $trangthai);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $accounts
+            ]);
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 

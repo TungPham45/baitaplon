@@ -78,6 +78,17 @@ class PostController {
                 $this->postModel->insertProductImage($id_sanpham, $imgUrl);
             }
 
+            // 5. Lưu thuộc tính sản phẩm
+            if (isset($_POST['thuoctinh']) && is_array($_POST['thuoctinh'])) {
+                foreach ($_POST['thuoctinh'] as $id_thuoctinh => $id_option) {
+                    if (!empty($id_option)) {
+                        if (!$this->postModel->insertAttributeValue($id_sanpham, $id_thuoctinh, $id_option)) {
+                            throw new Exception("Lỗi khi lưu thuộc tính sản phẩm");
+                        }
+                    }
+                }
+            }
+
             $this->conn->commit();
 
             echo json_encode([

@@ -13,6 +13,44 @@ class AdminModel {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function searchAccounts($hoten = '', $trangthai = '') {
+        $conditions = [];
+        $params = [];
+        $types = '';
+
+        if (!empty($hoten)) {
+            $conditions[] = "nd.hoten LIKE ?";
+            $params[] = "%$hoten%";
+            $types .= 's';
+        }
+
+        if (!empty($trangthai) && $trangthai !== 'all') {
+            $conditions[] = "tk.trangthai = ?";
+            $params[] = $trangthai;
+            $types .= 's';
+        }
+
+        $sql = "SELECT tk.id_user, nd.hoten, tk.email, tk.trangthai 
+                FROM account tk 
+                JOIN users nd ON CAST(tk.id_user AS CHAR) = CAST(nd.id_user AS CHAR)";
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        $sql .= " ORDER BY tk.id_user ASC";
+
+        if (!empty($params)) {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        } else {
+            $result = $this->db->query($sql);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+
     public function getAccountById($id) {
         $sql = "SELECT tk.id_user, nd.id_user as nd_id_user, tk.username, tk.email, tk.role, tk.trangthai, tk.ngaytao, 
                        nd.hoten, nd.sdt, nd.diachi, nd.avatar, nd.gioithieu, nd.danhgia 

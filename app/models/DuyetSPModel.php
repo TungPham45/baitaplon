@@ -12,10 +12,10 @@ class DuyetSPModel
     public function getPendingProducts()
     {
         // Dùng subquery thay vì JOIN để tránh duplicate rows
-        $sql = "SELECT sp.*, 
-                       (SELECT ten_danhmuc FROM danhmuc WHERE id_danhmuc = sp.id_danhmuc LIMIT 1) as ten_danhmuc,
-                       (SELECT hoten FROM users WHERE id_user = sp.id_user LIMIT 1) as hoten,
-                       (SELECT sdt FROM users WHERE id_user = sp.id_user LIMIT 1) as sdt
+        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.avatar, sp.id_danhmuc, sp.id_user, sp.ngaydang, sp.trangthai,
+                        (SELECT ten_danhmuc FROM danhmuc WHERE id_danhmuc = sp.id_danhmuc LIMIT 1) as ten_danhmuc,
+                        (SELECT hoten FROM users WHERE id_user = sp.id_user LIMIT 1) as hoten,
+                        (SELECT sdt FROM users WHERE id_user = sp.id_user LIMIT 1) as sdt
                 FROM sanpham sp
                 WHERE sp.trangthai = 'Chờ duyệt'
                 ORDER BY sp.ngaydang DESC";
@@ -71,15 +71,33 @@ class DuyetSPModel
         return $data;
     }
 
-    // Lấy thuộc tính sản phẩm (Lưu ý: Chỉ chạy nếu có bảng gia_tri_thuoc_tinh)
+    // Lấy thuộc tính sản phẩm với tên thuộc tính và giá trị
     public function getProductAttributes($id_sanpham)
     {
         $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
-        $sql = "SELECT tt.ten_thuoctinh, 
-                COALESCE(opt.gia_tri_option, gvt.id_option) as giatri
+        
+        // Lấy id_danhmuc của sản phẩm
+        $sql_sp = "SELECT id_danhmuc FROM sanpham WHERE id_sanpham = '$id_sanpham'";
+        $result_sp = mysqli_query($this->con, $sql_sp);
+        $product = mysqli_fetch_assoc($result_sp);
+        
+        if (!$product) {
+            return [];
+        }
+        
+        $id_danhmuc = $product['id_danhmuc'];
+        
+        // Lấy thuộc tính của sản phẩm (nếu có)
+        $sql = "SELECT 
+                    tt.ten_thuoctinh,
+                    CASE 
+                        WHEN opt.id_option IS NOT NULL THEN opt.gia_tri_option
+                        ELSE gvt.id_option
+                    END as giatri,
+                    tt.id_thuoctinh
                 FROM gia_tri_thuoc_tinh gvt
-                JOIN thuoc_tinh tt ON gvt.id_thuoctinh = tt.id_thuoctinh
-                LEFT JOIN thuoc_tinh_options opt ON gvt.id_option = opt.id_option
+                INNER JOIN thuoc_tinh tt ON gvt.id_thuoctinh = tt.id_thuoctinh
+                LEFT JOIN thuoc_tinh_options opt ON gvt.id_option = CAST(opt.id_option AS CHAR)
                 WHERE gvt.id_sanpham = '$id_sanpham'
                 ORDER BY tt.id_thuoctinh";
 
@@ -87,10 +105,31 @@ class DuyetSPModel
         $data = [];
         if ($result) {
             while ($row = mysqli_fetch_assoc($result)) {
-                $data[] = $row;
+                $data[$row['id_thuoctinh']] = [
+                    'ten_thuoctinh' => $row['ten_thuoctinh'],
+                    'giatri' => $row['giatri']
+                ];
             }
         }
-        return $data;
+        
+        // Nếu sản phẩm không có thuộc tính, lấy cấu trúc thuộc tính mặc định của danh mục
+        if (empty($data)) {
+            $sql_attrs = "SELECT tt.id_thuoctinh, tt.ten_thuoctinh 
+                          FROM thuoc_tinh tt 
+                          WHERE tt.id_danhmuc = '$id_danhmuc'
+                          ORDER BY tt.id_thuoctinh";
+            $result_attrs = mysqli_query($this->con, $sql_attrs);
+            if ($result_attrs) {
+                while ($row = mysqli_fetch_assoc($result_attrs)) {
+                    $data[$row['id_thuoctinh']] = [
+                        'ten_thuoctinh' => $row['ten_thuoctinh'],
+                        'giatri' => 'Chưa cập nhật'
+                    ];
+                }
+            }
+        }
+        
+        return array_values($data);
     }
 
     // Duyệt sản phẩm

@@ -3,6 +3,35 @@
         <h2><i class="fas fa-users-cog"></i> Quản lý tài khoản hệ thống</h2>
     </div>
     
+    <div class="search-box">
+        <form id="searchForm" method="GET" action="/baitaplon/Admin/dashboard">
+            <div class="search-row">
+                <div class="search-group">
+                    <label for="hoten">Họ và tên:</label>
+                    <input type="text" id="hoten" name="hoten" placeholder="Nhập họ và tên..." 
+                           value="<?php echo isset($_GET['hoten']) ? htmlspecialchars($_GET['hoten']) : ''; ?>">
+                </div>
+                <div class="search-group">
+                    <label for="trangthai">Trạng thái:</label>
+                    <select id="trangthai" name="trangthai">
+                        <option value="all">Tất cả</option>
+                        <option value="Hoạt động" <?php echo (isset($_GET['trangthai']) && $_GET['trangthai'] === 'Hoạt động') ? 'selected' : ''; ?>>Hoạt động</option>
+                        <option value="Chờ duyệt" <?php echo (isset($_GET['trangthai']) && $_GET['trangthai'] === 'Chờ duyệt') ? 'selected' : ''; ?>>Chờ duyệt</option>
+                        <option value="Bị khóa" <?php echo (isset($_GET['trangthai']) && $_GET['trangthai'] === 'Bị khóa') ? 'selected' : ''; ?>>Bị khóa</option>
+                    </select>
+                </div>
+                <div class="search-group btn-group">
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                    <a href="/baitaplon/Admin/dashboard" class="btn-reset">
+                        <i class="fas fa-sync-alt"></i> Tải lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
     <table class="admin-table">
         <thead>
             <tr>
@@ -14,7 +43,7 @@
                 <th>Hành động</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="accountTableBody">
             <?php foreach ($accounts as $acc): ?>
             <tr>
                 <td><strong>#<?php echo $acc['id_user']; ?></strong></td>
@@ -22,8 +51,19 @@
                 <td><?php echo $acc['email']; ?></td>
                 <td style="letter-spacing: 3px;">********</td>
                 <td>
-                    <span class="badge badge-<?php echo str_replace(' ', '-', $acc['trangthai']); ?>">
-                        <?php echo $acc['trangthai']; ?>
+                    <?php 
+                    $statusClass = '';
+                    $statusText = $acc['trangthai'];
+                    if ($statusText === 'Hoạt động') {
+                        $statusClass = 'Hoạt-động';
+                    } else if ($statusText === 'Chờ duyệt') {
+                        $statusClass = 'Chờ-duyệt';
+                    } else if ($statusText === 'Khóa' || $statusText === 'Bị khóa') {
+                        $statusClass = 'Bị-khóa';
+                    }
+                    ?>
+                    <span class="badge badge-<?php echo $statusClass; ?>">
+                        <?php echo $statusText; ?>
                     </span>
                 </td>
                 <td>

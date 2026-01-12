@@ -487,7 +487,7 @@ function displayProducts(products) {
 
     productList.innerHTML = products.map(product => `
         <div class="product-card">
-            <img src="${product.anh_dai_dien}" alt="${product.ten_sanpham}" class="product-image" onclick="viewDetail(${product.id_sanpham})">
+            <img src="/baitaplon/${product.avatar}" alt="${product.ten_sanpham}" class="product-image" onclick="viewDetail(${product.id_sanpham})">
             <div class="product-info">
                 <div class="product-name">${product.ten_sanpham}</div>
                 <div class="product-price">${formatPrice(product.gia)} VNĐ</div>
@@ -559,7 +559,7 @@ function displayDetail(data) {
     `;
 
     images.forEach(img => {
-        html += `<img src="${img.url_anh}" alt="Ảnh" onclick="openLightbox('${img.url_anh}')">`;
+        html += `<img src="/baitaplon/${img.url_anh}" alt="Ảnh" onclick="openLightbox('/baitaplon/${img.url_anh}')">`;
     });
 
     html += `
@@ -589,19 +589,26 @@ function displayDetail(data) {
     if (attributes.length > 0) {
         html += `
             <div class="detail-section">
-                <div class="section-title">Thuộc tính sản phẩm:</div>
+                <div class="section-title">📋 Thuộc tính sản phẩm:</div>
                 <div class="attributes-list">
         `;
         attributes.forEach(attr => {
             html += `
                 <div class="attribute-item">
                     <span class="attr-name">${attr.ten_thuoctinh}:</span>
-                    <span class="attr-value">${attr.giatri}</span>
+                    <span class="attr-value">${attr.giatri || 'Chưa cập nhật'}</span>
                 </div>
             `;
         });
         html += `
                 </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="detail-section">
+                <div class="section-title">📋 Thuộc tính sản phẩm:</div>
+                <div class="section-value" style="color: #999;">Sản phẩm chưa có thuộc tính</div>
             </div>
         `;
     }

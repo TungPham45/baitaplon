@@ -264,3 +264,112 @@
     box-sizing: border-box;
     border-radius: 50%;
 }
+
+/* 7. SEARCH BOX */
+.search-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.search-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+.search-group input,
+.search-group select {
+    padding: 10px 14px;
+    border: 1px solid #e3e6f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    min-width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-group input:focus,
+.search-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+}
+
+.search-group.btn-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding-top: 18px;
+}
+
+.btn-search {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-search:hover {
+    background: #375a7f;
+}
+
+.btn-reset {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-reset:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+/* Badge styles */
+.badge-Hoạt-động, .badge-Bị-khóa, .badge-Chờ-duyệt {
+    background: #f56565;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-Hoạt-động {
+    background: #48bb78;
+}
+
+.badge-Chờ-duyệt {
+    background: #ed8936;
+}
