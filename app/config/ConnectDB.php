@@ -3,7 +3,7 @@
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$db   = 'khoinguyentest';
+$db   = 'duchai';
 
 // --- CÁCH 1: KẾT NỐI MYSQLI (Dành cho người khác dùng) ---
 $conn_mysqli = new mysqli($host, $user, $pass, $db);

@@ -181,7 +181,7 @@
             <?php endif; ?>
             
             <input type="hidden" name="message_id" id="editMessageId">
-            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn...">
+            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn..." autofocus>
             <button type="submit">➤</button>
         </form>
     </div>

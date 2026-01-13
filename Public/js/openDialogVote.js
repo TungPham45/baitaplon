@@ -73,19 +73,18 @@ function setRating(star) {
     if(errorMsg) errorMsg.style.display = 'none';
 
     // 1. Tô màu sao (Dựa trên class .filled trong CSS mới)
-    const stars = document.querySelectorAll('.star-group span');
-    stars.forEach((s, index) => {
-        // Dùng classList.toggle hoặc add/remove
-        if (index < star) {
-            s.classList.add('filled');
-            // Cập nhật icon thành sao đặc (solid) nếu dùng FontAwesome
-            s.innerHTML = '<i class="fas fa-star"></i>';
-        } else {
-            s.classList.remove('filled');
-            // Sao rỗng (regular) nếu muốn, hoặc giữ nguyên icon
-            s.innerHTML = '<i class="fas fa-star"></i>'; 
-        }
-    });
+    const stars = document.querySelectorAll('.star-rating span'); 
+        
+        stars.forEach((s, index) => {
+            if (index < star) {
+                s.classList.add('filled');
+                // Nếu dùng font-awesome solid/regular thì update ở đây
+                s.innerHTML = '<i class="fas fa-star"></i>'; 
+            } else {
+                s.classList.remove('filled');   
+                s.innerHTML = '<i class="far fa-star"></i>'; // Hoặc để class cũ nếu muốn
+            }
+        });
 
     // 2. Hiện label cảm xúc
     const labels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];

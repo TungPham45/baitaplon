@@ -47,7 +47,7 @@
 
 .search-box i {
     position: absolute;
-    left: 14px;
+    left: 30px;
     top: 50%;
     transform: translateY(-50%);
     color: #94a3b8; /* Màu icon nhạt hơn chút */
@@ -56,9 +56,9 @@
 }
 
 .search-box input {
-    width: 100%;
+    width: 85%;
     height: 42px; /* 🔥 Chiều cao cố định */
-    padding: 0 15px 0 40px; /* Padding trái né icon */
+    padding: 0 15px 0 30px; /* Padding trái né icon */
     border: 1px solid #e2e8f0;
     border-radius: 8px; /* Bo tròn mềm mại hơn */
     outline: none;

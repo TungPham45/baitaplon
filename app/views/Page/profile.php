@@ -237,7 +237,7 @@ if ($totalReviews > 0) {
                                         <?php if(!empty($rv['images'])): ?>
                                             <div class="d-flex gap-2">
                                                 <?php foreach($rv['images'] as $img): ?>
-                                                    <img src="/baitaplon/<?php echo htmlspecialchars($img); ?>" class="rounded border" width="60" height="60" style="object-fit: cover;">
+                                                    <img src="/baitaplon/public/<?php echo htmlspecialchars($img); ?>" class="rounded border" width="60" height="60" style="object-fit: cover;">
                                                 <?php endforeach; ?>
                                             </div>
                                         <?php endif; ?>
