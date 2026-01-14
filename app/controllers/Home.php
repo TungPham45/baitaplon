@@ -38,6 +38,7 @@ class Home
         $keyword  = isset($_GET['q']) ? trim($_GET['q']) : '';
         $category = isset($_GET['danhmuc']) ? trim($_GET['danhmuc']) : '';
         $address  = isset($_GET['diachi']) ? trim($_GET['diachi']) : '';
+        $status   = isset($_GET['trangthai']) ? trim($_GET['trangthai']) : '';
         $page     = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         if ($page < 1) $page = 1;
 
@@ -45,9 +46,9 @@ class Home
         $offset = ($page - 1) * $limit;
 
         // 4. Lấy dữ liệu sản phẩm
-        $totalProducts = $sanphamModel->countProducts($keyword, $category, $address, '');
+        $totalProducts = $sanphamModel->countProducts($keyword, $category, $address, '', $status);
         $totalPages    = ($totalProducts > 0) ? ceil($totalProducts / $limit) : 1;
-        $products      = $sanphamModel->getProducts($keyword, $category, $address, $offset, $limit, '');
+        $products      = $sanphamModel->getProducts($keyword, $category, $address, $offset, $limit, '', $status);
 
         // 5. Xây dựng cây danh mục
         $parents = $cateModel->getParentCategories();
@@ -77,10 +78,11 @@ class Home
         $data = [
             'products'       => $products,
             'categoryTree'   => $categoryTree,
-            'currentCatName' => $currentCategoryName, 
+            'currentCatName' => $currentCategoryName,
             'keyword'        => $keyword,
             'category'       => $category,
             'address'        => $address,
+            'status'         => $status,
             'page'           => 'list_sanpham',
             'pageNum'        => $page,
             'totalPages'     => $totalPages,
