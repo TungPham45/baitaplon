@@ -50,5 +50,37 @@ class PostModel
                 VALUES ('$id_sanpham', '$id_thuoctinh', '$id_option')";
         return mysqli_query($this->con, $sql);
     }
+    // Cập nhật trạng thái (Dùng cho nút "Đã bán")
+    public function updateStatus($id, $status) {
+        $id = mysqli_real_escape_string($this->con, $id);
+        $status = mysqli_real_escape_string($this->con, $status);
+        $sql = "UPDATE sanpham SET trangthai = '$status' WHERE id_sanpham = '$id'";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // Xóa sản phẩm
+    public function deleteProduct($id) {
+        $id = mysqli_real_escape_string($this->con, $id);
+        // Xóa ảnh phụ trước
+        mysqli_query($this->con, "DELETE FROM sanpham_anh WHERE id_sanpham = '$id'");
+        // Xóa thuộc tính
+        mysqli_query($this->con, "DELETE FROM gia_tri_thuoc_tinh WHERE id_sanpham = '$id'");
+        // Xóa sản phẩm
+        $sql = "DELETE FROM sanpham WHERE id_sanpham = '$id'";
+        return mysqli_query($this->con, $sql);
+    }
+
+    // Cập nhật thông tin (Dùng cho nút "Lưu thay đổi")
+    public function updateProduct($id, $data) {
+        $sets = [];
+        foreach ($data as $key => $val) {
+            $val = mysqli_real_escape_string($this->con, $val);
+            $sets[] = "$key = '$val'";
+        }
+        $setString = implode(', ', $sets);
+        $sql = "UPDATE sanpham SET $setString WHERE id_sanpham = '$id'";
+        
+        return mysqli_query($this->con, $sql);
+    }
 }
 ?>

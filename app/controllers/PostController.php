@@ -148,5 +148,83 @@ class PostController {
 
         return $newFilename; // Chỉ trả về tên file
     }
+    // --- 1. ĐÁNH DẤU ĐÃ BÁN ---
+    public function markSold($id) {
+        if (!isset($_SESSION['user_id'])) header("Location: /baitaplon/Auth/login");
+        
+        // Cần kiểm tra quyền sở hữu trước khi update (gọi model check)
+        // Ở đây mình làm nhanh gọi updateStatus luôn
+        $this->postModel->updateStatus($id, 'Đã bán');
+        
+        // Quay lại trang chi tiết
+        header("Location: /baitaplon/Home/detail_Sanpham/$id");
+        exit();
+    }
+
+    // --- 2. XÓA BÀI VIẾT ---
+    public function delete($id) {
+        if (!isset($_SESSION['user_id'])) header("Location: /baitaplon/Auth/login");
+
+        // Gọi Model để xóa
+        if ($this->postModel->deleteProduct($id)) {
+            echo "<script>alert('Đã xóa bài viết!'); window.location.href='/baitaplon/Home';</script>";
+        } else {
+            echo "<script>alert('Lỗi khi xóa!'); window.history.back();</script>";
+        }
+    }
+
+    // --- 3. XỬ LÝ FORM SỬA (Từ Modal) ---
+    public function update($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
+            // 1. Cập nhật thông tin cơ bản
+            $catId = !empty($_POST['catLevel2']) ? $_POST['catLevel2'] : 
+                     (!empty($_POST['catLevel1']) ? $_POST['catLevel1'] : null);
+
+            $data = [
+                'ten_sanpham' => $_POST['title'],
+                'gia' => $_POST['price'],
+                'mota' => $_POST['description'],
+                'khu_vuc_ban' => $_POST['address']
+            ];
+            
+            if ($catId) $data['id_danhmuc'] = $catId;
+
+            // Bắt đầu Transaction
+            $this->conn->begin_transaction();
+            try {
+                // Update bảng sanpham
+                if (!$this->postModel->updateProduct($id, $data)) {
+                    throw new Exception("Lỗi cập nhật thông tin sản phẩm");
+                }
+
+                // 2. Cập nhật thuộc tính (NẾU người dùng có gửi lên)
+                // Lưu ý: Nếu user đổi danh mục, thuộc tính cũ sẽ vô nghĩa -> Xóa đi thêm lại là chuẩn nhất
+                if (isset($_POST['thuoctinh']) && is_array($_POST['thuoctinh'])) {
+                    
+                    // Xóa hết thuộc tính cũ
+                    mysqli_query($this->conn, "DELETE FROM gia_tri_thuoc_tinh WHERE id_sanpham = '$id'");
+
+                    // Thêm thuộc tính mới
+                    foreach ($_POST['thuoctinh'] as $id_thuoctinh => $val) {
+                        
+                        if (!empty($val)) {
+                             // Gọi hàm insertAttributeValue trong PostModel
+                             // Lưu ý: Hàm này cần insert id_option
+                             $this->postModel->insertAttributeValue($id, $id_thuoctinh, $val);
+                        }
+                    }
+                }
+
+                $this->conn->commit();
+                echo "<script>alert('Cập nhật thành công!'); window.location.href='/baitaplon/Home/detail_Sanpham/$id';</script>";
+
+            } catch (Exception $e) {
+                $this->conn->rollback();
+                echo "<script>alert('Lỗi: " . $e->getMessage() . "'); window.history.back();</script>";
+            }
+        }
+    }
+    
 }
 ?>
