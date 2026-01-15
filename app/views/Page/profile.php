@@ -163,14 +163,14 @@ if ($totalReviews > 0) {
                             <strong class="d-block mb-1 text-dark small text-uppercase">
                                 <i class="bi bi-card-text me-1 text-primary"></i>Giới thiệu:
                             </strong>
-                            <p class="text-muted small ps-1 mb-0" style="line-height: 1.6;"> 
+                            <p class="text-muted small ps-1 mb-0" style="line-height: 1.6;">
                                 <?= !empty($u['gioithieu']) ? nl2br(htmlspecialchars($u['gioithieu'])) : "Chưa có giới thiệu." ?>
                             </p>
                         </div>
                     </div>
 
                     <?php if ($isOwner): ?>
-                        <div class="mt-auto pt-4 pb-2 px-3">
+                        <div class="mt-3 px-3">
                             <button type="button" class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                                 <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa hồ sơ
                             </button>

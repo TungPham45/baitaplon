@@ -142,6 +142,12 @@ class SanphamModel
         }
         return $rows; 
     }
+    public function tangLuotXem($id_sanpham) {
+        // Tăng view lên 1 đơn vị
+        $id = mysqli_real_escape_string($this->con, $id_sanpham);
+        $sql = "UPDATE sanpham SET luot_xem = luot_xem + 1 WHERE id_sanpham = '$id'";
+        return mysqli_query($this->con, $sql);
+    }
 }
 ?>
 

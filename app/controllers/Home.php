@@ -97,14 +97,25 @@ class Home
     public function detail_Sanpham($id_sanpham, $user_id = '')
     {
         $productModel = new SanphamModel($this->conn);
-        $duyetSPModel = new DuyetSPModel($this->conn); 
-        
+        $duyetSPModel = new DuyetSPModel($this->conn);
+
         $product = $productModel->getProductById($id_sanpham);
         $productImages = $productModel->getProductImages($id_sanpham);
         $productAttributes = $duyetSPModel->getProductAttributes($id_sanpham);
-        
+
         // Logic lấy User ID trong trang chi tiết cũng tương tự
         $userId = !empty($user_id) ? $user_id : (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '');
+
+        // Tăng lượt xem nếu người xem không phải chủ sở hữu sản phẩm
+        if ($product && isset($product['id_user'])) {
+            $productOwnerId = $product['id_user'];
+            $isOwner = (!empty($userId) && $userId === $productOwnerId);
+
+            if (!$isOwner) {
+                // Người xem không phải chủ sở hữu → tăng lượt xem
+                $productModel->tangLuotXem($id_sanpham);
+            }
+        }
 
         $data = [
             'product'           => $product,
@@ -114,7 +125,7 @@ class Home
             'user_id'           => $userId,
             'isLoggedIn'        => !empty($userId)
         ];
-        
+
         require_once __DIR__ . '/../views/home.php';
     }
 }

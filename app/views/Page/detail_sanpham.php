@@ -16,10 +16,10 @@ if (!empty($imgs) && isset($imgs[0]['url_anh'])) {
     $mainImg = !empty($p['anh_dai_dien']) ? "/baitaplon/" . $p['anh_dai_dien'] : 'https://via.placeholder.com/500';
 }
 
-// 3. Kiểm tra Chính chủ hoặc Admin
+// 3. Kiểm tra chỉ Chính chủ (không cho Admin)
 $isOwner = false;
 if ($p && !empty($viewerId)) {
-    if ($viewerId == $p['id_user'] || $userRole === 'Quản lý') {
+    if ($viewerId == $p['id_user']) {
         $isOwner = true;
     }
 }
