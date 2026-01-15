@@ -23,7 +23,6 @@ class Chat {
         $this->start();
     }
 
-    1. KẾT NỐI TỪ SẢN PHẨM
     public function connect($seller_id, $product_id = null) {
         if (!isset($_SESSION['user_id'])) {
             header('Location: /baitaplon/User/Login'); exit;
