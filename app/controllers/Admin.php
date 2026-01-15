@@ -392,35 +392,6 @@ class Admin {
         }
     }
 
-    public function rejectProduct() {
-        header('Content-Type: application/json; charset=utf-8');
-        try {
-            if (!isset($_POST['id_sanpham'])) {
-                throw new Exception("Thiếu ID sản phẩm");
-            }
-
-            $id_sanpham = intval($_POST['id_sanpham']);
-            $reason = isset($_POST['reason']) ? trim($_POST['reason']) : 'Từ chối bởi admin';
-
-            // Sử dụng AdminModel để từ chối sản phẩm
-            $result = $this->adminModel->rejectProduct($id_sanpham, $reason);
-
-            if ($result) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Đã từ chối sản phẩm!'
-                ]);
-            } else {
-                throw new Exception("Không thể cập nhật trạng thái sản phẩm");
-            }
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
 
     public function exportProductStatistics() {
         try {

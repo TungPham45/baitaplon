@@ -267,11 +267,12 @@ class AdminModel {
     }
 
     public function stopSellingProduct($id_sanpham, $reason) {
-        $sql = "UPDATE sanpham SET trangthai = N'Dừng bán', mota = CONCAT(COALESCE(mota, ''), '\n\n[Lý do dừng bán: ', ?, ']') WHERE id_sanpham = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param('si', $reason, $id_sanpham);
-        return $stmt->execute();
-    }
+            $sql = "UPDATE sanpham SET trangthai = N'Dừng bán', mota = ? WHERE id_sanpham = ?";
+            $stmt = $this->db->prepare($sql);
+            $newMota = "[Lý do dừng bán: " . $reason . "]";
+            $stmt->bind_param('si', $newMota, $id_sanpham);
+            return $stmt->execute();
+        }
 
     public function approveProduct($id_sanpham) {
         $sql = "UPDATE sanpham SET trangthai = N'Đã duyệt' WHERE id_sanpham = ?";
