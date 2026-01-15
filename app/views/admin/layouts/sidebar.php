@@ -28,6 +28,11 @@ $current_url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : 'Home/index';
                     <i class="fas fa-shopping-cart"></i> Quản lý sản phẩm
                 </a>
             </li>
+            <li>
+                <a href="/baitaplon/Admin/productStatistics" class="<?php echo (strpos($current_url, 'productStatistics') !== false) ? 'active' : ''; ?>">
+                    <i class="fas fa-chart-bar"></i> Thống kê sản phẩm
+                </a>
+            </li>
         </ul>
     </nav>
 </aside>

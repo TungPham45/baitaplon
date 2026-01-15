@@ -5,17 +5,19 @@ $products      = isset($data['products']) ? $data['products'] : [];
 $keyword       = isset($data['keyword']) ? $data['keyword'] : '';
 $category      = isset($data['category']) ? $data['category'] : '';
 $address       = isset($data['address']) ? $data['address'] : '';
+$status        = isset($data['status']) ? $data['status'] : '';
 $page          = isset($data['pageNum']) ? $data['pageNum'] : 1;
 $totalPages    = isset($data['totalPages']) ? $data['totalPages'] : 1;
 $totalProducts = isset($data['totalProducts']) ? $data['totalProducts'] : 0;
 
 if (!function_exists('buildHomeUrl')) {
-    function buildHomeUrl($page, $keyword, $category, $address) {
+    function buildHomeUrl($page, $keyword, $category, $address, $status = '') {
         $params = [];
         if (isset($_GET['url'])) $params['url'] = $_GET['url'];
         if ($keyword !== '') $params['q'] = $keyword;
         if ($category !== '') $params['danhmuc'] = $category;
         if ($address !== '') $params['diachi'] = $address;
+        if ($status !== '') $params['trangthai'] = $status;
         $params['page'] = $page;
         return '?' . http_build_query($params);
     }
@@ -30,7 +32,7 @@ if (!function_exists('buildHomeUrl')) {
             Tất cả tin đăng <small class="text-muted">(<?php echo number_format($totalProducts); ?> sản phẩm)</small>
         <?php endif; ?>
     </h5>
-    <?php if ($keyword !== '' || $category !== '' || $address !== ''): ?>
+    <?php if ($keyword !== '' || $category !== '' || $address !== '' || $status !== ''): ?>
         <a href="./" class="btn btn-sm btn-link">Xóa lọc</a>
     <?php endif; ?>
 </div>
@@ -56,7 +58,15 @@ if (!function_exists('buildHomeUrl')) {
 
         <div class="card-body d-flex flex-column">
             
-            <?php if (isset($p['role']) && trim($p['role']) === 'Quản lý'): ?>
+            <?php
+            $isAdmin = false;
+            if (isset($p['role'])) {
+                $role = trim(strtolower($p['role']));
+                $isAdmin = in_array($role, ['quản lý', 'admin', 'administrator', 'quanly', 'ad']);
+            }
+            ?>
+
+            <?php if ($isAdmin): ?>
                 <div class="mb-1">
                     <span class="badge bg-warning text-dark border border-light shadow-sm" style="font-size: 0.7rem;">
                         <i class="bi bi-patch-check-fill text-primary"></i> Được bán bởi Admin
@@ -117,7 +127,7 @@ if (!function_exists('buildHomeUrl')) {
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination justify-content-center">
             <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="<?php echo ($page > 1) ? buildHomeUrl($page - 1, $keyword, $category, $address) : '#'; ?>">
+                <a class="page-link" href="<?php echo ($page > 1) ? buildHomeUrl($page - 1, $keyword, $category, $address, $status) : '#'; ?>">
                     &laquo; Trước
                 </a>
             </li>
@@ -127,11 +137,11 @@ if (!function_exists('buildHomeUrl')) {
             for ($i = $start; $i <= $end; $i++):
             ?>
                 <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo buildHomeUrl($i, $keyword, $category, $address); ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="<?php echo buildHomeUrl($i, $keyword, $category, $address, $status); ?>"><?php echo $i; ?></a>
                 </li>
             <?php endfor; ?>
             <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="<?php echo ($page < $totalPages) ? buildHomeUrl($page + 1, $keyword, $category, $address) : '#'; ?>">
+                <a class="page-link" href="<?php echo ($page < $totalPages) ? buildHomeUrl($page + 1, $keyword, $category, $address, $status) : '#'; ?>">
                     Sau &raquo;
                 </a>
             </li>

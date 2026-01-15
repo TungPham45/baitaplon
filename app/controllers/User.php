@@ -65,15 +65,27 @@ class User
         // 3. Lấy thông tin người được xem (Chủ Profile)
         $userProfile = $userModel->getUserById($profileId);
 
+        // 6. Kiểm tra quyền sở hữu (Để hiện nút "Sửa trang cá nhân")
+        $isOwner = (!empty($loggedInId) && $loggedInId === $profileId);
+
         // 4. Lấy danh sách sản phẩm của người đó
         // (Tham số thứ 6 là $profileId để lọc sản phẩm của user này)
-        $products = $sanphamModel->getProducts('', '', '', 0, 100, $profileId);
-        
+        $trang_thai_filter = '';
+        if (isset($_GET['trang_thai'])) {
+            $trang_thai_filter = $_GET['trang_thai'];
+        } elseif ($isOwner) {
+            // Nếu là chủ tài khoản và không có GET parameter, hiển thị tất cả sản phẩm
+            $trang_thai_filter = 'all';
+        }
+        $products = $sanphamModel->getProducts('', '', '', 0, 100, $profileId, $trang_thai_filter);
+
         // 5. 🔥 [MỚI] Lấy danh sách ĐÁNH GIÁ từ ProfileModel
         $reviews = $profileModel->getReviewsByUserId($profileId);
 
-        // 6. Kiểm tra quyền sở hữu (Để hiện nút "Sửa trang cá nhân")
-        $isOwner = (!empty($loggedInId) && $loggedInId === $profileId);
+        // 6.5. Thống kê sản phẩm theo trạng thái
+        $soldCount = $sanphamModel->countProducts('', '', '', $profileId, 'Đã bán');
+        $approvedCount = $sanphamModel->countProducts('', '', '', $profileId, 'Đã duyệt');
+        $totalActiveProducts = $soldCount + $approvedCount;
 
         // 7. Đóng gói dữ liệu gửi sang View
         $data = [
@@ -82,8 +94,12 @@ class User
             'products'    => $products,
             'reviews'     => $reviews, // <-- Truyền biến này sang View
             'isOwner'     => $isOwner,
-            'user_id'     => $loggedInId, 
-            'isLoggedIn'  => !empty($loggedInId)
+            'user_id'     => $loggedInId,
+            'isLoggedIn'  => !empty($loggedInId),
+            'default_status' => $trang_thai_filter, // Truyền trạng thái mặc định để view hiển thị đúng
+            'soldCount' => $soldCount, // Số sản phẩm đã bán
+            'approvedCount' => $approvedCount, // Số sản phẩm đã duyệt
+            'totalActiveProducts' => $totalActiveProducts // Tổng sản phẩm hoạt động
         ];
 
         // Load view home (View này sẽ include file profile.php)

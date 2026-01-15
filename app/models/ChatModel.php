@@ -185,6 +185,19 @@ class ChatModel {
                 $stmt->bind_param("is", $conversation_id, $user_id);
                 return $stmt->execute();
             }
+    public function isUserBanned($user_id) {
+        // Giả sử bảng chứa trạng thái là 'account' và cột là 'trangthai'
+        // Nếu hệ thống bạn lưu ở bảng 'users', hãy đổi 'account' thành 'users'
+        $sql = "SELECT trangthai FROM account WHERE id_user = ? LIMIT 1";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        
+        // Trả về TRUE nếu bị khóa, FALSE nếu bình thường
+        return ($result && $result['trangthai'] === 'Bị khóa');
+    }
     // Tìm kiếm hội thoại theo tên người nhận
     public function searchConversationBySenderName($my_id, $keyword){
         $sql = "

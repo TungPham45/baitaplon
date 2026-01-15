@@ -23,7 +23,7 @@ class Chat {
         $this->start();
     }
 
-    // 1. KẾT NỐI TỪ SẢN PHẨM
+    1. KẾT NỐI TỪ SẢN PHẨM
     public function connect($seller_id, $product_id = null) {
         if (!isset($_SESSION['user_id'])) {
             header('Location: /baitaplon/User/Login'); exit;
@@ -33,6 +33,7 @@ class Chat {
         header('Location: /baitaplon/Chat/start/' . $conversation_id);
         exit;
     }
+        
 
     // 2. TRANG CHÍNH
     public function start($param = null)
@@ -114,31 +115,47 @@ class Chat {
     }
 
     // 3. GỬI TIN NHẮN
-    public function send()
-    {
-        if (!isset($_SESSION['user_id'])) { header("Location: /baitaplon/Login"); exit; }
+        public function send()
+        {
+            if (!isset($_SESSION['user_id'])) { header("Location: /baitaplon/Login"); exit; }
 
-        $my_id = $_SESSION['user_id'];
-        $content = trim($_POST['message'] ?? '');
-        $message_id = (int)($_POST['message_id'] ?? 0);
-        $conversation_id = (int)($_POST['conversation_id'] ?? 0);
+            $my_id = $_SESSION['user_id'];
+            $content = trim($_POST['message'] ?? '');
+            $message_id = (int)($_POST['message_id'] ?? 0);
+            $conversation_id = (int)($_POST['conversation_id'] ?? 0);
 
-        if ($message_id > 0 && $content !== '') {
-            $this->chatModel->updateMessage($message_id, $my_id, $content);
-        } else if ($content !== '') {
-            if ($conversation_id > 0) {
-                $to_user = $this->chatModel->getOtherUserId($conversation_id, $my_id);
-                if ($to_user) {
-                    $this->chatModel->insertMessage($my_id, $to_user, $content);
+            // Xử lý gửi tin nhắn mới
+            if ($content !== '' && $message_id == 0) { 
+                if ($conversation_id > 0) {
+                    // Lấy ID người nhận
+                    $to_user = $this->chatModel->getOtherUserId($conversation_id, $my_id);
+                    
+                    if ($to_user) {
+                        // --- 🔥 KIỂM TRA NGƯỜI NHẬN CÓ BỊ BAN KHÔNG 🔥 ---
+                        if ($this->chatModel->isUserBanned($to_user)) {
+                            echo "<script>
+                                    alert('Đối phương đã bị KHÓA tài khoản. Không thể gửi tin nhắn!');
+                                    window.location.href = '/baitaplon/Chat/start/$conversation_id';
+                                </script>";
+                            exit; // Dừng ngay, không insert tin nhắn
+                        }
+                        // -------------------------------------------------
+
+                        // Nếu không bị ban thì gửi bình thường
+                        $this->chatModel->insertMessage($my_id, $to_user, $content);
+                    }
                 }
+            } 
+            // Xử lý sửa tin nhắn (update)
+            else if ($message_id > 0 && $content !== '') {
+                $this->chatModel->updateMessage($message_id, $my_id, $content);
             }
-        }
 
-        $redirectUrl = "/baitaplon/Chat";
-        if ($conversation_id > 0) $redirectUrl .= "/start/" . $conversation_id;
-        header("Location: " . $redirectUrl);
-        exit;
-    }
+            $redirectUrl = "/baitaplon/Chat";
+            if ($conversation_id > 0) $redirectUrl .= "/start/" . $conversation_id;
+            header("Location: " . $redirectUrl);
+            exit;
+        }
 
     // 4. TÌM KIẾM HỘI THOẠI
     public function search()
@@ -188,6 +205,7 @@ class Chat {
         header("Location: /baitaplon/Chat/start/" . $active_id);
         exit;
     }
+    
     public function deleteConversation() {
                 // 1. Kiểm tra đăng nhập
                 if (!isset($_SESSION['user_id'])) {

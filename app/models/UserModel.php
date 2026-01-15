@@ -138,13 +138,25 @@ class UserModel {
         }
         return null;
     }
-    public function banUser($id_user) {
-        $id = mysqli_real_escape_string($this->con, $id_user);
-        
+    public function banUser($userId, $reason) {
+            // Cập nhật trạng thái thành 'Bị khóa' và lưu lý do
+            // Lưu ý: Đã sửa $this->conn thành $this->con cho đúng với biến của class
+            $sql = "UPDATE account SET trangthai = 'Bị khóa', ban_reason = ? WHERE id_user = ?";
+            
+            // Kiểm tra xem biến $this->con có hỗ trợ prepare không (mysqli object)
+            if ($stmt = $this->con->prepare($sql)) {
+                $stmt->bind_param("ss", $reason, $userId);
+                $result = $stmt->execute();
+                $stmt->close();
+                return $result;
+            } else {
+                // Fallback nếu server không hỗ trợ prepare statement kiểu OOP (ít gặp)
+                $safeReason = mysqli_real_escape_string($this->con, $reason);
+                $safeId = mysqli_real_escape_string($this->con, $userId);
+                $sqlRaw = "UPDATE account SET trangthai = 'Bị khóa', ban_reason = '$safeReason' WHERE id_user = '$safeId'";
+                return mysqli_query($this->con, $sqlRaw);
+            }
+        }
 
-        $sql = "UPDATE account SET trangthai = 'Bị khóa' WHERE id_user = '$id'";
-        
-        return mysqli_query($this->con, $sql);
-    }
 }
 ?>

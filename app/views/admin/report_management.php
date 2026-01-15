@@ -109,18 +109,22 @@
 
                             <td class="text-right">
                                 <?php if ($r['status'] == 'PENDING'): ?>
-                                    <form method="POST" action="/baitaplon/AdminReport/process" class="action-buttons">
-                                        <input type="hidden" name="report_id" value="<?= $r['id_report'] ?>">
-                                        <input type="hidden" name="reported_id" value="<?= $r['reported_id'] ?>">
-                                        
-                                        <button type="submit" name="action" value="BAN_USER" class="btn-icon btn-ban" title="Khóa tài khoản" onclick="return confirm('⚠️ CẢNH BÁO: Bạn có chắc chắn muốn KHÓA vĩnh viễn tài khoản này?')">
+                                    <div class="action-buttons">
+                                        <button type="button" 
+                                                class="btn-icon btn-ban" 
+                                                title="Khóa tài khoản" 
+                                                onclick="openBanModal('<?= $r['id_report'] ?>', '<?= $r['reported_id'] ?>', '<?= htmlspecialchars($r['reported_name']) ?>')">
                                             <i class="fa-solid fa-gavel"></i>
                                         </button>
                                         
-                                        <button type="submit" name="action" value="IGNORE" class="btn-icon btn-ignore" title="Bỏ qua báo cáo">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </form>
+                                        <form method="POST" action="/baitaplon/AdminReport/process" style="display:inline;">
+                                            <input type="hidden" name="report_id" value="<?= $r['id_report'] ?>">
+                                            <input type="hidden" name="action" value="IGNORE">
+                                            <button type="submit" class="btn-icon btn-ignore" title="Bỏ qua báo cáo">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 <?php else: ?>
                                     <i class="fa-solid fa-check-circle text-success" title="Hoàn tất"></i>
                                 <?php endif; ?>
@@ -137,6 +141,34 @@
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+</div>
+
+<div id="banModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fa-solid fa-triangle-exclamation"></i> Xác nhận Khóa Tài Khoản
+        </div>
+        <form method="POST" action="/baitaplon/AdminReport/process">
+            <input type="hidden" name="action" value="BAN_USER">
+            <input type="hidden" name="report_id" id="modal_report_id">
+            <input type="hidden" name="reported_id" id="modal_reported_id">
+            
+            <div class="form-group">
+                <label>Người bị khóa:</label>
+                <input type="text" id="modal_user_name" class="form-control" readonly style="background: #f8f9fa; color: #555;">
+            </div>
+
+            <div class="form-group">
+                <label for="ban_reason">Lý do khóa (Sẽ hiện khi user đăng nhập): <span style="color:red">*</span></label>
+                <textarea name="ban_reason" id="ban_reason" class="form-control" rows="3" required placeholder="Vd: Vi phạm ngôn từ, Spam, Lừa đảo..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeBanModal()">Hủy</button>
+                <button type="submit" class="btn-confirm">Xác nhận Khóa</button>
+            </div>
+        </form>
     </div>
 </div>
 

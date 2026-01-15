@@ -41,5 +41,6 @@ class AdminReportModel {
         $stmt->bind_param("ssi", $status, $admin_note, $report_id);
         return $stmt->execute();
     }
+
 }
 ?>

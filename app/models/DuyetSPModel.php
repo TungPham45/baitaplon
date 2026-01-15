@@ -76,7 +76,7 @@ class DuyetSPModel
     {
         $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
         
-        // Lấy id_danhmuc của sản phẩm
+        // 1. Lấy id_danhmuc (giữ nguyên logic của bạn)
         $sql_sp = "SELECT id_danhmuc FROM sanpham WHERE id_sanpham = '$id_sanpham'";
         $result_sp = mysqli_query($this->con, $sql_sp);
         $product = mysqli_fetch_assoc($result_sp);
@@ -87,7 +87,7 @@ class DuyetSPModel
         
         $id_danhmuc = $product['id_danhmuc'];
         
-        // Lấy thuộc tính của sản phẩm (nếu có)
+        // 2. Lấy thuộc tính (ĐÃ SỬA SQL)
         $sql = "SELECT 
                     tt.ten_thuoctinh,
                     CASE 
@@ -97,7 +97,9 @@ class DuyetSPModel
                     tt.id_thuoctinh
                 FROM gia_tri_thuoc_tinh gvt
                 INNER JOIN thuoc_tinh tt ON gvt.id_thuoctinh = tt.id_thuoctinh
-                LEFT JOIN thuoc_tinh_options opt ON gvt.id_option = CAST(opt.id_option AS CHAR)
+                LEFT JOIN thuoc_tinh_options opt 
+                    ON gvt.id_option = CAST(opt.id_option AS CHAR) 
+                    AND opt.id_thuoctinh = tt.id_thuoctinh  -- [QUAN TRỌNG]: Thêm dòng này để chặn khớp sai
                 WHERE gvt.id_sanpham = '$id_sanpham'
                 ORDER BY tt.id_thuoctinh";
 
@@ -112,7 +114,7 @@ class DuyetSPModel
             }
         }
         
-        // Nếu sản phẩm không có thuộc tính, lấy cấu trúc thuộc tính mặc định của danh mục
+        // 3. Fallback nếu không có dữ liệu (Giữ nguyên logic của bạn)
         if (empty($data)) {
             $sql_attrs = "SELECT tt.id_thuoctinh, tt.ten_thuoctinh 
                           FROM thuoc_tinh tt 

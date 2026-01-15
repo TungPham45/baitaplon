@@ -55,9 +55,9 @@ class Auth {
     // --- 1. ĐĂNG NHẬP ---
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $identifier = $_POST['username_or_email'];
-            $password = $_POST['password'];
-            $user = $this->authModel->login($identifier);
+            $identifier = trim($_POST['username_or_email']);
+            $password   = $_POST['password'];
+            $user       = $this->authModel->login($identifier);
 
             if ($user && password_verify($password, $user['password'])) {
                 switch ($user['trangthai']) {
@@ -67,21 +67,26 @@ class Auth {
                         return;
 
                     case 'Bị khóa':
-                        $error = "Tài khoản này đã bị khóa!";
+                        case 'Bị khóa':
+                        $reason = $user['ban_reason'] ?? 'Vi phạm chính sách cộng đồng.';
+                        
+                        echo "<script>
+                                alert('Tài khoản đã bị KHÓA.\\nLý do: $reason\\n\\n( LH Hotline: 0383572JQK để được hỗ trợ!)');
+                              </script>";
                         require_once __DIR__ . '/../views/auth/login.php';
                         return;
 
                     case 'Hoạt động':
-                        $_SESSION['user_id'] = $user['id_user'];
-                        $_SESSION['role'] = $user['role'];
+                        // BẢO MẬT: Tạo ID session mới để tránh Session Fixation
+                        session_regenerate_id(true);
+
+                        $_SESSION['user_id']  = $user['id_user'];
+                        $_SESSION['role']     = $user['role'];
                         $_SESSION['username'] = $user['username'];
                         
-                        // Chuyển hướng theo luồng Home/index mới
-                        if ($user['role'] == 'Quản lý') { 
-                            header("Location: /baitaplon/Admin/dashboard"); // Chuyển sang trang Admin
-                        } else {
-                            header("Location: /baitaplon/Home/index"); // Khách thì về trang chủ
-                        }
+                        // Chuyển hướng
+                        $redirect = ($user['role'] == 'Quản lý') ? "/baitaplon/Admin/dashboard" : "/baitaplon/Home/index";
+                        header("Location: $redirect");
                         exit();
                 }
             } else {
