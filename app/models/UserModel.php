@@ -139,18 +139,33 @@ class UserModel {
         return null;
     }
     public function banUser($userId, $reason) {
-            // Cập nhật trạng thái thành 'Bị khóa' và lưu lý do
-            // Lưu ý: Đã sửa $this->conn thành $this->con cho đúng với biến của class
+            // 1. Lấy thông tin người bị ban trước để kiểm tra quyền
+            // Lưu ý: Đảm bảo bảng account có cột 'role' (hoặc 'loaitaikhoan' tùy database của bạn)
+            $checkSql = "SELECT role FROM account WHERE id_user = ?";
+            
+            if ($stmtCheck = $this->con->prepare($checkSql)) {
+                $stmtCheck->bind_param("s", $userId);
+                $stmtCheck->execute();
+                $resultCheck = $stmtCheck->get_result()->fetch_assoc();
+                $stmtCheck->close();
+
+                // 🔥 QUAN TRỌNG: Nếu là Admin hoặc Quản lý thì KHÔNG ĐƯỢC ban
+                // Bạn hãy đổi 'Admin', 'Quản lý' đúng theo giá trị trong DB của bạn
+                if ($resultCheck && ($resultCheck['role'] === 'Admin' || $resultCheck['role'] === 'Quản lý')) {
+                    return false; // Trả về false ngay lập tức
+                }
+            }
+
+            // 2. Nếu không phải Admin thì mới thực hiện lệnh Ban
             $sql = "UPDATE account SET trangthai = 'Bị khóa', ban_reason = ? WHERE id_user = ?";
             
-            // Kiểm tra xem biến $this->con có hỗ trợ prepare không (mysqli object)
             if ($stmt = $this->con->prepare($sql)) {
                 $stmt->bind_param("ss", $reason, $userId);
                 $result = $stmt->execute();
                 $stmt->close();
                 return $result;
             } else {
-                // Fallback nếu server không hỗ trợ prepare statement kiểu OOP (ít gặp)
+                // Fallback
                 $safeReason = mysqli_real_escape_string($this->con, $reason);
                 $safeId = mysqli_real_escape_string($this->con, $userId);
                 $sqlRaw = "UPDATE account SET trangthai = 'Bị khóa', ban_reason = '$safeReason' WHERE id_user = '$safeId'";

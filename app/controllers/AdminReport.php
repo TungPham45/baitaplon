@@ -44,16 +44,17 @@ class AdminReport {
                         
                         // 2. ✅ GỌI HÀM KHÓA TÀI KHOẢN TỪ USER MODEL (Truyền thêm lý do)
                         // Lưu ý: Bạn cần sửa UserModel để nhận thêm tham số thứ 2
+                       // ...
                         $isBanned = $this->userModel->banUser($reported_id, $ban_reason);
-                        
                         if ($isBanned) {
                             echo "<script>
                                 alert('Đã khóa tài khoản ID: $reported_id thành công!'); 
                                 window.location.href='/baitaplon/AdminReport';
                             </script>";
                         } else {
+                            // Sửa thông báo lỗi
                             echo "<script>
-                                alert('Có lỗi xảy ra khi khóa tài khoản.'); 
+                                alert('Thất bại! Có thể lỗi hệ thống hoặc BẠN KHÔNG THỂ KHÓA TÀI KHOẢN ADMIN/QUẢN LÝ.'); 
                                 window.location.href='/baitaplon/AdminReport';
                             </script>";
                         }
@@ -67,6 +68,6 @@ class AdminReport {
                     }
                 }
             }
-            
+
 }
 ?>
