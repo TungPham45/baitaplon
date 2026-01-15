@@ -5,46 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chỉnh sửa hồ sơ</title>
     <link rel="stylesheet" href="/baitaplon/public/css/admin.css">
+    <link rel="stylesheet" href="/baitaplon/public/css/profile_css.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="auth-container wide">
-        <h2>CHỈNH SỬA HỒ SƠ</h2>
+    <div class="auth-container wide edit-profile-card">
+        <h2><i class="fas fa-user-edit"></i> CHỈNH SỬA HỒ SƠ</h2>
         <form action="/baitaplon/Admin/editProfile" method="POST" enctype="multipart/form-data">
             
-            <div style="text-align: center; margin-bottom: 20px;">
-                <label>Ảnh đại diện hiện tại</label><br>
+            <div class="avatar-upload-section">
+                <label>Ảnh đại diện</label>
                 <?php 
                     $avatarPath = $user['avatar'] 
-                        ? '/baitaplon/public/uploads/avatars/' . $user['avatar'] 
+                        ? '/baitaplon/public/uploads/avatars/' . htmlspecialchars($user['avatar']) 
                         : '/baitaplon/public/uploads/avatars/default.png';
                 ?>
-                <img src="<?php echo $avatarPath; ?>" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;"><br>
-                <input type="file" name="avatar" accept="image/*" style="margin-top: 10px;">
+                <img src="<?php echo $avatarPath; ?>" class="avatar-preview"><br>
+                <label for="avatar-upload" class="avatar-upload-btn">
+                    <i class="fas fa-camera"></i> Chọn ảnh mới
+                </label>
+                <input type="file" id="avatar-upload" name="avatar" accept="image/*">
             </div>
 
             <div class="form-group">
-                <label>Họ và tên</label>
-                <input type="text" name="fullname" value="<?php echo $user['hoten']; ?>" required>
+                <label><i class="fas fa-user"></i> Họ và tên</label>
+                <input type="text" name="fullname" value="<?php echo htmlspecialchars($user['hoten']); ?>" required>
             </div>
 
             <div class="form-group">
-                <label>Số điện thoại</label>
-                <input type="text" name="sdt" value="<?php echo $user['sdt']; ?>">
+                <label><i class="fas fa-phone"></i> Số điện thoại</label>
+                <input type="text" name="sdt" value="<?php echo htmlspecialchars($user['sdt'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
-                <label>Địa chỉ</label>
-                <input type="text" name="diachi" value="<?php echo $user['diachi']; ?>">
+                <label><i class="fas fa-map-marker-alt"></i> Địa chỉ</label>
+                <input type="text" name="diachi" value="<?php echo htmlspecialchars($user['diachi'] ?? ''); ?>">
             </div>
 
             <div class="form-group">
-                <label>Giới thiệu bản thân</label>
-                <textarea name="gioithieu" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;"><?php echo $user['gioithieu']; ?></textarea>
+                <label><i class="fas fa-quote-left"></i> Giới thiệu bản thân</label>
+                <textarea name="gioithieu" rows="4"><?php echo htmlspecialchars($user['gioithieu'] ?? ''); ?></textarea>
             </div>
 
-            <div style="display: flex; gap: 15px;">
-                <a href="/baitaplon/Admin/profile" class="btn" style="background: #858796; text-decoration: none; text-align: center;">Hủy</a>
-                <button type="submit" class="btn">Cập nhật hồ sơ</button>
+            <div class="form-actions">
+                <a href="/baitaplon/Admin/profile" class="btn btn-cancel">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-save"></i> Cập nhật hồ sơ
+                </button>
             </div>
         </form>
     </div>

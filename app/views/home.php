@@ -135,6 +135,7 @@
                             <li><hr class="dropdown-divider"></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="/baitaplon/User/Profile/<?php echo urlencode($currentUserId); ?>">Trang cá nhân</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="/baitaplon/Home?logout=1">Đăng xuất</a></li>
                     </ul>
@@ -236,6 +237,85 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <input type="hidden" name="user_id" value="<?php echo isset($currentUserId) ? $currentUserId : ''; ?>">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu cũ</label>
+                        <input type="password" class="form-control" id="old_password" name="old_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6">
+                        <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="alert alert-danger d-none" id="cp-error-msg"></div>
+                    <div class="alert alert-success d-none" id="cp-success-msg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnChangePassword">Đổi mật khẩu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const changePwdModal = document.getElementById('changePasswordModal');
+    const errorMsg = document.getElementById('cp-error-msg');
+    const successMsg = document.getElementById('cp-success-msg');
+    
+    changePwdModal.addEventListener('show.bs.modal', function() {
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+        document.getElementById('changePasswordForm').reset();
+    });
+    
+    document.getElementById('btnChangePassword').addEventListener('click', function() {
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+        
+        const formData = new FormData(document.getElementById('changePasswordForm'));
+        
+        fetch('/baitaplon/User/changePasswordAjax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                successMsg.textContent = data.message;
+                successMsg.classList.remove('d-none');
+                setTimeout(function() {
+                    const modal = bootstrap.Modal.getInstance(changePwdModal);
+                    modal.hide();
+                }, 1500);
+            } else {
+                errorMsg.textContent = data.message;
+                errorMsg.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            errorMsg.textContent = 'Có lỗi xảy ra. Vui lòng thử lại!';
+            errorMsg.classList.remove('d-none');
+        });
+    });
+});
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>

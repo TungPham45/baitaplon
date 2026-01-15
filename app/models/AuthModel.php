@@ -80,5 +80,13 @@ class AuthModel {
         $stmt->bind_param("ss", $hashedPassword, $email);
         return $stmt->execute();
     }
+
+    public function updatePasswordByUserId($userId, $newPassword) {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $sql = "UPDATE account SET password = ? WHERE id_user = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ss", $hashedPassword, $userId);
+        return $stmt->execute();
+    }
 }
 ?>

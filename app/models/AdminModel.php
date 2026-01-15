@@ -6,7 +6,8 @@ class AdminModel {
     }
 
     public function getAllAccounts() {
-        $sql = "SELECT tk.id_user, nd.hoten, tk.email, tk.trangthai 
+        $sql = "SELECT tk.id_user, tk.username, tk.email, tk.role, tk.trangthai, tk.ngaytao,
+                       nd.hoten, nd.sdt, nd.diachi 
                 FROM account tk 
                 JOIN users nd ON CAST(tk.id_user AS CHAR) = CAST(nd.id_user AS CHAR)";
         $result = $this->db->query($sql);
@@ -30,7 +31,8 @@ class AdminModel {
             $types .= 's';
         }
 
-        $sql = "SELECT tk.id_user, nd.hoten, tk.email, tk.trangthai 
+        $sql = "SELECT tk.id_user, tk.username, tk.email, tk.role, tk.trangthai, tk.ngaytao,
+                       nd.hoten, nd.sdt, nd.diachi 
                 FROM account tk 
                 JOIN users nd ON CAST(tk.id_user AS CHAR) = CAST(nd.id_user AS CHAR)";
 
