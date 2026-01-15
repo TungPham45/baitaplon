@@ -33,7 +33,9 @@ if (!function_exists('buildHomeUrl')) {
         <?php endif; ?>
     </h5>
     <?php if ($keyword !== '' || $category !== '' || $address !== '' || $status !== ''): ?>
-        <a href="./" class="btn btn-sm btn-link">Xóa lọc</a>
+        <button type="button" class="btn btn-danger rounded-circle ms-2" id="clearSearchBtn" title="Xóa tất cả lọc" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-x text-white"></i>
+        </button>
     <?php endif; ?>
 </div>
 
@@ -148,3 +150,52 @@ if (!function_exists('buildHomeUrl')) {
         </ul>
     </nav>
 <?php endif; ?>
+<style>
+#clearSearchBtn {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#clearSearchBtn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+#clearSearchBtn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+
+#clearSearchBtn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+#clearSearchBtn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+}
+
+#clearSearchBtn i {
+    transition: transform 0.3s ease;
+}
+
+#clearSearchBtn:hover i {
+    transform: rotate(90deg);
+}
+</style>
