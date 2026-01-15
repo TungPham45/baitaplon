@@ -30,18 +30,6 @@ if (!$p) {
 }
 ?>
 
-<script>
-    // Check trạng thái sản phẩm khi trang vừa load
-    document.addEventListener('DOMContentLoaded', function() {
-        const productStatus = '<?= isset($p['trangthai']) ? htmlspecialchars($p['trangthai']) : '' ?>';
-        
-        if (productStatus === 'Dừng bán') {
-            alert('Sản phẩm này đã dừng bán!');
-            history.back();
-        }
-    });
-</script>
-
 <div class="container mt-5 mb-5">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -192,8 +180,6 @@ if (!$p) {
         catLevel2: "<?= $p['id_danhmuc'] ?>"
     };
 
-    // Dữ liệu thuộc tính cũ: [ {id_thuoctinh: 1, giatri: "Màu đỏ", id_option: 5}, ... ]
-    // Chuyển mảng PHP $attrs thành JSON JS
     const OLD_ATTRIBUTES = <?= json_encode($attrs); ?>;
 </script>
 
@@ -403,7 +389,6 @@ document.addEventListener("DOMContentLoaded", function() {
         else dynamicDiv.innerHTML = '';
     });
 
-    // CHẠY LẦN ĐẦU
     loadParentCategories();
 
     // Autocomplete địa chỉ

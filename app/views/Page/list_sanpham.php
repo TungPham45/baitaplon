@@ -199,3 +199,14 @@ if (!function_exists('buildHomeUrl')) {
     transform: rotate(90deg);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clearBtn = document.getElementById('clearSearchBtn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            window.location.href = '<?= buildHomeUrl(1, '', '', '', '') ?>';
+        });
+    }
+});
+</script>

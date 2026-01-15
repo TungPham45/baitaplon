@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/baitaplon/Public/css/style.css?v=<?php echo time(); ?>">
-
+    
     <style>
         body { background: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; color: #0f172a; }
         .navbar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 10px 0; margin-bottom: 20px; }
