@@ -3,7 +3,7 @@ $current_url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : 'Home/index';
 ?>
 <aside class="sidebar">
     <div class="logo-box">
-        <img src="/baitaplon/public/images/logo.png" alt="Logo" class="admin-logo">
+        <img src="/baitaplon/Public/icon/Logo.png" alt="Logo" class="admin-logo">
         <span>C2C ADMIN</span>
     </div>
     <nav class="sidebar-nav">

@@ -157,5 +157,55 @@ class User
             exit();
         }
     }
+
+    // =================================================================
+    // ĐỔI MẬT KHẨU (Xử lý AJAX)
+    // =================================================================
+    public function changePasswordAjax()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $user_id = $_POST['user_id'] ?? '';
+            $old_password = $_POST['old_password'] ?? '';
+            $new_password = $_POST['new_password'] ?? '';
+            $confirm_password = $_POST['confirm_password'] ?? '';
+
+            $response = ['success' => false, 'message' => ''];
+
+            if (empty($user_id) || empty($old_password) || empty($new_password) || empty($confirm_password)) {
+                $response['message'] = 'Vui lòng điền đầy đủ thông tin!';
+                echo json_encode($response);
+                exit;
+            }
+
+            if ($new_password !== $confirm_password) {
+                $response['message'] = 'Mật khẩu mới không khớp!';
+                echo json_encode($response);
+                exit;
+            }
+
+            if (strlen($new_password) < 6) {
+                $response['message'] = 'Mật khẩu mới phải có ít nhất 6 ký tự!';
+                echo json_encode($response);
+                exit;
+            }
+
+            $userModel = $this->model('UserModel');
+            $user = $userModel->getUserById($user_id);
+
+            if (!$user) {
+                $response['message'] = 'Người dùng không tồn tại!';
+                echo json_encode($response);
+                exit;
+            }
+
+            $authModel = $this->model('AuthModel');
+            $authModel->updatePasswordByUserId($user_id, $new_password);
+
+            $response['success'] = true;
+            $response['message'] = 'Đổi mật khẩu thành công!';
+            echo json_encode($response);
+            exit;
+        }
+    }
 }
 ?>

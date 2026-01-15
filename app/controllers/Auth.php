@@ -83,6 +83,7 @@ class Auth {
                         $_SESSION['user_id']  = $user['id_user'];
                         $_SESSION['role']     = $user['role'];
                         $_SESSION['username'] = $user['username'];
+                        $_SESSION['avatar']   = $user['avatar'] ?? 'default.png';
                         
                         // Chuyển hướng
                         $redirect = ($user['role'] == 'Quản lý') ? "/baitaplon/Admin/dashboard" : "/baitaplon/Home/index";
