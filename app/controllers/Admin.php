@@ -7,17 +7,22 @@ class Admin {
     private $adminModel;
     private $profileModel;
     private $duyetSPModel;
+    private $conn;
 
     public function __construct($conn) {
         $url = isset($_GET['url']) ? $_GET['url'] : '';
-        $isApiRequest = strpos($url, 'getDetail') !== false || 
+        $isApiRequest = strpos($url, 'getDetail') !== false ||
                         strpos($url, 'updateStatus') !== false ||
                         strpos($url, 'deleteAccount') !== false ||
                         strpos($url, 'getPendingProducts') !== false ||
                         strpos($url, 'getProductDetail') !== false ||
                         strpos($url, 'approve') !== false ||
                         strpos($url, 'reject') !== false ||
-                        strpos($url, 'searchAccounts') !== false;
+                        strpos($url, 'searchAccounts') !== false ||
+                        strpos($url, 'exportProductStatistics') !== false ||
+                        strpos($url, 'stopSelling') !== false ||
+                        strpos($url, 'approveProduct') !== false ||
+                        strpos($url, 'rejectProduct') !== false;
 
         if (!$isApiRequest) {
             if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
@@ -25,6 +30,7 @@ class Admin {
                 exit();
             }
         }
+        $this->conn = $conn;
         $this->adminModel = new AdminModel($conn);
         $this->profileModel = new ProfileModel($conn);
         $this->duyetSPModel = new DuyetSPModel($conn);
@@ -280,7 +286,7 @@ class Admin {
 
             $id_sanpham = intval($_POST['id_sanpham']);
             $reason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
-            
+
             $this->duyetSPModel->rejectProduct($id_sanpham, $reason);
 
             echo json_encode([
@@ -293,6 +299,213 @@ class Admin {
                 'success' => false,
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function productStatistics() {
+        try {
+            // Xử lý bộ lọc mới với checkbox arrays
+            $statusFilters = isset($_GET['status']) ? $_GET['status'] : [];
+            $categoryFilters = isset($_GET['categories']) ? $_GET['categories'] : [];
+            $month = isset($_GET['month']) ? intval($_GET['month']) : '';
+            $year = isset($_GET['year']) ? intval($_GET['year']) : '';
+            $seller = isset($_GET['seller']) ? trim($_GET['seller']) : '';
+
+            // Lấy dữ liệu thống kê sản phẩm từ Model với filters mới
+            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller);
+
+            // Lấy danh sách danh mục để mapping
+            $categories = $this->adminModel->getCategoriesMapping();
+
+            // Lấy cây danh mục cho filter
+            $categoryTree = $this->adminModel->getCategoryTree();
+
+            $functionTitle = "Thống kê sản phẩm";
+            $contentView = __DIR__ . '/../views/admin/product_statistics.php';
+            require_once __DIR__ . '/../views/admin/dashboard.php';
+
+            $functionTitle = "Thống kê sản phẩm";
+            $contentView = __DIR__ . '/../views/admin/product_statistics.php';
+            require_once __DIR__ . '/../views/admin/dashboard.php';
+        } catch (Exception $e) {
+            echo "Lỗi: " . $e->getMessage();
+        }
+    }
+
+
+    public function stopSelling() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_POST['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_POST['id_sanpham']);
+            $reason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
+
+            // Sử dụng AdminModel để cập nhật trạng thái
+            $result = $this->adminModel->stopSellingProduct($id_sanpham, $reason);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Đã dừng bán sản phẩm!'
+                ]);
+            } else {
+                throw new Exception("Không thể cập nhật trạng thái sản phẩm");
+            }
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function approveProduct() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_POST['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_POST['id_sanpham']);
+
+            // Sử dụng AdminModel để duyệt sản phẩm
+            $result = $this->adminModel->approveProduct($id_sanpham);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Đã duyệt sản phẩm thành công!'
+                ]);
+            } else {
+                throw new Exception("Không thể cập nhật trạng thái sản phẩm");
+            }
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function rejectProduct() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (!isset($_POST['id_sanpham'])) {
+                throw new Exception("Thiếu ID sản phẩm");
+            }
+
+            $id_sanpham = intval($_POST['id_sanpham']);
+            $reason = isset($_POST['reason']) ? trim($_POST['reason']) : 'Từ chối bởi admin';
+
+            // Sử dụng AdminModel để từ chối sản phẩm
+            $result = $this->adminModel->rejectProduct($id_sanpham, $reason);
+
+            if ($result) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Đã từ chối sản phẩm!'
+                ]);
+            } else {
+                throw new Exception("Không thể cập nhật trạng thái sản phẩm");
+            }
+        } catch (Exception $e) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function exportProductStatistics() {
+        try {
+            // Xử lý bộ lọc mới với checkbox arrays
+            $statusFilters = isset($_GET['status']) ? $_GET['status'] : [];
+            $categoryFilters = isset($_GET['categories']) ? $_GET['categories'] : [];
+            $month = isset($_GET['month']) ? intval($_GET['month']) : '';
+            $year = isset($_GET['year']) ? intval($_GET['year']) : '';
+            $seller = isset($_GET['seller']) ? trim($_GET['seller']) : '';
+
+            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller);
+
+            // Set headers cho file Excel
+            header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="thong_ke_san_pham_' . date('Y-m-d') . '.xls"');
+            header('Cache-Control: max-age=0');
+
+            // Tạo nội dung Excel
+            echo "<html><head><meta charset='UTF-8'></head><body>";
+            echo "<table border='1'>";
+            echo "<tr><th>Mã SP</th><th>Tên sản phẩm</th><th>Giá</th><th>Danh mục</th><th>Người bán</th><th>Trạng thái</th><th>Ngày đăng</th><th>Thao tác</th></tr>";
+
+            foreach ($products as $product) {
+                // Convert trạng thái database thành text hiển thị
+                $displayStatus = '';
+                switch ($product['trangthai']) {
+                    case 'Đã duyệt':
+                        $displayStatus = 'Đang bán';
+                        break;
+                    case 'Chờ duyệt':
+                        $displayStatus = 'Chưa duyệt';
+                        break;
+                    case 'Dừng bán':
+                        $displayStatus = 'Dừng bán';
+                        break;
+                    case 'Đã bán':
+                        $displayStatus = 'Đã bán';
+                        break;
+                    default:
+                        $displayStatus = $product['trangthai'];
+                }
+
+                // Xử lý cột thao tác
+                $actionText = '';
+                switch ($product['trangthai']) {
+                    case 'Đã duyệt':
+                        $actionText = 'Có thể dừng bán';
+                        break;
+                    case 'Chờ duyệt':
+                        $actionText = 'Chưa duyệt';
+                        break;
+                    case 'Dừng bán':
+                        // Trích xuất lý do dừng bán
+                        $reason = 'Đã dừng bán';
+                        if (isset($product['mota']) && !empty($product['mota'])) {
+                            if (preg_match('/\[Lý do dừng bán: ([^\]]+)\]/', $product['mota'], $matches)) {
+                                $reason = trim($matches[1]);
+                            }
+                        }
+                        $actionText = 'Đã dừng: ' . $reason;
+                        break;
+                    case 'Đã bán':
+                        $actionText = 'Đã bán';
+                        break;
+                    default:
+                        $actionText = 'N/A';
+                }
+
+                echo "<tr>";
+                echo "<td>{$product['id_sanpham']}</td>";
+                echo "<td>" . htmlspecialchars($product['ten_sanpham']) . "</td>";
+                echo "<td>" . number_format($product['gia']) . "</td>";
+                echo "<td>" . htmlspecialchars($product['ten_danhmuc'] ?? 'N/A') . "</td>";
+                echo "<td>" . htmlspecialchars($product['nguoi_ban']) . "</td>";
+                echo "<td>" . htmlspecialchars($displayStatus) . "</td>";
+                echo "<td>" . date('d/m/Y H:i', strtotime($product['ngaydang'])) . "</td>";
+                echo "<td>" . htmlspecialchars($actionText) . "</td>";
+                echo "</tr>";
+            }
+
+            echo "</table></body></html>";
+            exit();
+
+        } catch (Exception $e) {
+            echo "Lỗi: " . $e->getMessage();
         }
     }
 }
