@@ -1,0 +1,246 @@
+/* public/css/AdminReport.css */
+
+/* --- 1. Layout & Header --- */
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.card-large {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden; /* Để bo góc cho đẹp */
+}
+
+/* --- 2. Filter Toolbar (Thanh lọc & Tìm kiếm) --- */
+/* --- 2. Filter Toolbar (Đã sửa đẹp hơn) --- */
+.filter-toolbar {
+    padding: 20px;
+    background-color: #fff; /* Đổi sang nền trắng cho sạch */
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between; /* 🔥 Đẩy 2 phần sang 2 đầu */
+    align-items: center;
+    gap: 20px; /* Khoảng cách an toàn giữa 2 ô */
+    flex-wrap: wrap; /* Xuống dòng nếu màn hình quá nhỏ */
+}
+
+/* Khối bao quanh ô tìm kiếm */
+.search-box {
+    position: relative;
+    flex: 1; /* Chiếm phần còn lại */
+    max-width: 450px; /* Giới hạn độ dài tối đa cho đẹp */
+}
+
+.search-box i {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8; /* Màu icon nhạt hơn chút */
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 85%;
+    height: 42px; /* 🔥 Chiều cao cố định */
+    padding: 0 15px 0 30px; /* Padding trái né icon */
+    border: 1px solid #e2e8f0;
+    border-radius: 8px; /* Bo tròn mềm mại hơn */
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+}
+
+.search-box input:focus {
+    background-color: #fff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Khối bao quanh select */
+.filter-select {
+    min-width: 220px; /* Độ rộng tối thiểu cho combobox */
+}
+
+.filter-select select {
+    width: 100%;
+    height: 42px; /* 🔥 Chiều cao bằng với input */
+    padding: 0 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    cursor: pointer;
+    color: #334155;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filter-select select:focus {
+    border-color: #3b82f6;
+}
+
+/* Responsive: Màn hình nhỏ thì cho full width */
+@media (max-width: 600px) {
+    .filter-toolbar {
+        flex-direction: column;
+        align-items: stretch; /* Kéo giãn full chiều ngang */
+    }
+    .search-box {
+        max-width: 100%;
+    }
+}
+
+/* --- 3. Table & Elements --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #444;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- 4. Components (Badge, Avatar, Button) --- */
+.badge-count {
+    background: #e74c3c;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-excel {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-excel:hover { background: #229954; }
+
+.id-hash { font-weight: bold; color: #666; font-family: monospace; }
+
+.user-cell { display: flex; align-items: center; gap: 10px; }
+
+.avatar-circle {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: bold; font-size: 14px;
+    flex-shrink: 0;
+}
+
+.bg-blue { background: #3498db; }
+.bg-red { background: #e74c3c; }
+
+.user-info .name { font-weight: 500; color: #333; }
+.user-info .sub-id { font-size: 12px; color: #999; }
+.text-danger { color: #e74c3c !important; }
+
+/* Reason & Evidence */
+.reason-cell .reason-tag {
+    background: #f8f9fa; padding: 4px 8px;
+    border-radius: 4px; font-size: 12px;
+    color: #495057; border: 1px solid #e9ecef;
+    display: inline-block; margin-bottom: 5px;
+}
+.reason-cell .description { margin: 0; font-size: 13px; color: #666; line-height: 1.4; }
+
+.evidence-link {
+    position: relative; display: block; width: 50px; height: 50px;
+    border-radius: 4px; overflow: hidden; border: 1px solid #ddd;
+}
+.evidence-link img { width: 100%; height: 100%; object-fit: cover; }
+.evidence-link .zoom-icon {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    color: white; opacity: 0; transition: opacity 0.2s;
+}
+.evidence-link:hover .zoom-icon { opacity: 1; }
+.no-evidence { color: #999; font-size: 13px; font-style: italic; }
+
+/* Status Badges */
+.status-badge { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-processed { background: #d4edda; color: #155724; }
+.status-rejected { background: #f8d7da; color: #721c24; }
+
+/* Buttons & Icons */
+.action-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-icon {
+    width: 32px; height: 32px;
+    border: none; border-radius: 4px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.btn-ban { background: #fee2e2; color: #e74c3c; } /* Nhạt hơn xíu cho đẹp */
+.btn-ban:hover { background: #e74c3c; color: white; }
+
+.btn-ignore { background: #f1f2f6; color: #636e72; }
+.btn-ignore:hover { background: #636e72; color: white; }
+
+.text-success { color: #27ae60; font-size: 18px; }
+.text-right { text-align: right; }
+/* CSS cho Modal Ban User */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+    background: white; padding: 25px; border-radius: 8px; width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeIn 0.3s;
+}
+.modal-header { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; font-size: 18px; color: #e74c3c; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+.form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.btn-cancel { background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+.btn-confirm { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
