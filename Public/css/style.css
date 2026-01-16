@@ -331,3 +331,163 @@ textarea {
 .modal-box::-webkit-scrollbar-thumb:hover {
     background: #764ba2;
 }
+        body {
+            background: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: #f59e0b !important;
+            font-size: 1.5rem;
+        }
+
+        /* Form tìm kiếm */
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #dfe6e9;
+            border-radius: 50px;
+            padding: 5px 15px;
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        /* [QUAN TRỌNG] CSS cho danh sách gợi ý địa chỉ */
+        .address-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            margin-top: 5px;
+        }
+
+        .address-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .address-item:hover {
+            background-color: #f8f9fa;
+            color: #f59e0b;
+        }
+
+        .address-item:last-child {
+            border-bottom: none;
+        }
+
+        .address-item i {
+            margin-right: 10px;
+            color: #999;
+        }
+
+        /* Các CSS khác giữ nguyên */
+        .dropdown-item-parent {
+            position: relative;
+        }
+
+        .dropdown-item-parent .submenu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            margin-top: -1px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            min-width: 200px;
+            list-style: none;
+            padding: 5px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item-parent:hover .submenu {
+            display: block;
+        }
+
+        .dropdown-item-parent:hover>.dropdown-item {
+            background-color: #f8f9fa;
+        }
+
+        .submenu li a {
+            padding: 8px 16px;
+            display: block;
+            text-decoration: none;
+            color: #212529;
+        }
+
+        .submenu li a:hover {
+            background-color: #e9ecef;
+        }
+
+        .upload-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .upload-box-btn {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        .image-item {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-remove-img {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
