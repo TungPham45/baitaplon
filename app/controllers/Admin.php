@@ -317,29 +317,26 @@ if ($this->profileModel->updateProfile($userId, $data)) {
 
     public function productStatistics() {
         try {
-            // Xử lý bộ lọc mới với checkbox arrays
             $statusFilters = isset($_GET['status']) ? $_GET['status'] : [];
             $categoryFilters = isset($_GET['categories']) ? $_GET['categories'] : [];
             $month = isset($_GET['month']) ? intval($_GET['month']) : '';
             $year = isset($_GET['year']) ? intval($_GET['year']) : '';
             $seller = isset($_GET['seller']) ? trim($_GET['seller']) : '';
+            
+            // --- THÊM KEYWORD VÀO ĐÂY ---
+            $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : ''; 
 
-            // Lấy dữ liệu thống kê sản phẩm từ Model với filters mới
-            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller);
+            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller, $keyword);
 
-            // Lấy danh sách danh mục để mapping
             $categories = $this->adminModel->getCategoriesMapping();
-
-            // Lấy cây danh mục cho filter
             $categoryTree = $this->adminModel->getCategoryTree();
 
             $functionTitle = "Thống kê sản phẩm";
             $contentView = __DIR__ . '/../views/admin/product_statistics.php';
             require_once __DIR__ . '/../views/admin/dashboard.php';
 
-            $functionTitle = "Thống kê sản phẩm";
-            $contentView = __DIR__ . '/../views/admin/product_statistics.php';
-            require_once __DIR__ . '/../views/admin/dashboard.php';
+            // --- ĐÃ XÓA ĐOẠN LẶP require_once Ở ĐÂY ---
+
         } catch (Exception $e) {
             echo "Lỗi: " . $e->getMessage();
         }
@@ -408,56 +405,41 @@ if ($this->profileModel->updateProfile($userId, $data)) {
 
     public function exportProductStatistics() {
         try {
-            // Xử lý bộ lọc mới với checkbox arrays
             $statusFilters = isset($_GET['status']) ? $_GET['status'] : [];
             $categoryFilters = isset($_GET['categories']) ? $_GET['categories'] : [];
             $month = isset($_GET['month']) ? intval($_GET['month']) : '';
             $year = isset($_GET['year']) ? intval($_GET['year']) : '';
             $seller = isset($_GET['seller']) ? trim($_GET['seller']) : '';
+            
+            // --- THÊM KEYWORD ---
+            $keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
 
-            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller);
+            $products = $this->adminModel->getProductStatisticsAdvanced($statusFilters, $categoryFilters, $month, $year, $seller, $keyword);
 
-            // Set headers cho file Excel
             header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
             header('Content-Disposition: attachment; filename="thong_ke_san_pham_' . date('Y-m-d') . '.xls"');
             header('Cache-Control: max-age=0');
 
-            // Tạo nội dung Excel
             echo "<html><head><meta charset='UTF-8'></head><body>";
             echo "<table border='1'>";
             echo "<tr><th>Mã SP</th><th>Tên sản phẩm</th><th>Giá</th><th>Danh mục</th><th>Người bán</th><th>Trạng thái</th><th>Ngày đăng</th><th>Thao tác</th></tr>";
 
             foreach ($products as $product) {
-                // Convert trạng thái database thành text hiển thị
+                // ... (Giữ nguyên logic hiển thị bảng Excel) ...
                 $displayStatus = '';
                 switch ($product['trangthai']) {
-                    case 'Đã duyệt':
-                        $displayStatus = 'Đang bán';
-                        break;
-                    case 'Chờ duyệt':
-                        $displayStatus = 'Chưa duyệt';
-                        break;
-                    case 'Dừng bán':
-                        $displayStatus = 'Dừng bán';
-                        break;
-                    case 'Đã bán':
-                        $displayStatus = 'Đã bán';
-                        break;
-                    default:
-                        $displayStatus = $product['trangthai'];
+                    case 'Đã duyệt': $displayStatus = 'Đang bán'; break;
+                    case 'Chờ duyệt': $displayStatus = 'Chưa duyệt'; break;
+                    case 'Dừng bán': $displayStatus = 'Dừng bán'; break;
+                    case 'Đã bán': $displayStatus = 'Đã bán'; break;
+                    default: $displayStatus = $product['trangthai'];
                 }
 
-                // Xử lý cột thao tác
                 $actionText = '';
                 switch ($product['trangthai']) {
-                    case 'Đã duyệt':
-                        $actionText = 'Có thể dừng bán';
-                        break;
-                    case 'Chờ duyệt':
-                        $actionText = 'Chưa duyệt';
-                        break;
+                    case 'Đã duyệt': $actionText = 'Có thể dừng bán'; break;
+                    case 'Chờ duyệt': $actionText = 'Chưa duyệt'; break;
                     case 'Dừng bán':
-                        // Trích xuất lý do dừng bán
                         $reason = 'Đã dừng bán';
                         if (isset($product['mota']) && !empty($product['mota'])) {
                             if (preg_match('/\[Lý do dừng bán: ([^\]]+)\]/', $product['mota'], $matches)) {
@@ -466,11 +448,8 @@ if ($this->profileModel->updateProfile($userId, $data)) {
                         }
                         $actionText = 'Đã dừng: ' . $reason;
                         break;
-                    case 'Đã bán':
-                        $actionText = 'Đã bán';
-                        break;
-                    default:
-                        $actionText = 'N/A';
+                    case 'Đã bán': $actionText = 'Đã bán'; break;
+                    default: $actionText = 'N/A';
                 }
 
                 echo "<tr>";
@@ -484,10 +463,8 @@ if ($this->profileModel->updateProfile($userId, $data)) {
                 echo "<td>" . htmlspecialchars($actionText) . "</td>";
                 echo "</tr>";
             }
-
             echo "</table></body></html>";
             exit();
-
         } catch (Exception $e) {
             echo "Lỗi: " . $e->getMessage();
         }

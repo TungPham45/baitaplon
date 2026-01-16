@@ -1,8 +1,12 @@
 <?php
+// Lấy các giá trị filter từ URL
 $status = isset($_GET['status']) ? $_GET['status'] : 'all';
 $month = isset($_GET['month']) ? $_GET['month'] : '';
 $year = isset($_GET['year']) ? $_GET['year'] : '';
 $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
+
+// --- THÊM DÒNG NÀY: Lấy keyword tên sản phẩm ---
+$keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
 ?>
 
 <div class="container-fluid">
@@ -16,99 +20,51 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                 </div>
 
                 <div class="card-body">
-                    <!-- Bộ lọc -->
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <form method="GET" action="/baitaplon/Admin/productStatistics" id="filterForm">
                                 <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Bộ lọc sản phẩm</label>
+                                    
+                                    <div class="col-md-3">
+                                        <label class="form-label">Tên sản phẩm</label>
+                                        <input type="text" class="form-control" name="keyword" 
+                                               value="<?= htmlspecialchars($keyword) ?>" 
+                                               placeholder="Nhập tên cần tìm...">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Bộ lọc nâng cao</label>
                                         <div class="dropdown">
                                             <input type="text" class="form-control" id="filterInput"
-                                                   placeholder="Chọn các tiêu chí lọc..."
+                                                   placeholder="Trạng thái / Danh mục..."
                                                    readonly data-bs-toggle="dropdown">
-                                            <div class="dropdown-menu p-3" style="min-width: 500px;">
-                                                <!-- Trạng thái -->
+                                            <div class="dropdown-menu p-3 shadow" style="min-width: 400px; max-height: 400px; overflow-y: auto;">
                                                 <div class="mb-3">
-                                                    <h6 class="fw-bold mb-2">
-                                                        <i class="fas fa-info-circle me-1"></i>Trạng thái
-                                                    </h6>
+                                                    <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-1"></i>Trạng thái</h6>
                                                     <div class="row">
-                                                        <div class="col-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input filter-checkbox" type="checkbox"
-                                                                       id="status_all" value="all" name="status[]">
-                                                                <label class="form-check-label" for="status_all">
-                                                                    Tất cả
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input filter-checkbox" type="checkbox"
-                                                                       id="status_duyet" value="Đã duyệt" name="status[]">
-                                                                <label class="form-check-label" for="status_duyet">
-                                                                    Đang bán
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input filter-checkbox" type="checkbox"
-                                                                       id="status_cho" value="Chờ duyệt" name="status[]">
-                                                                <label class="form-check-label" for="status_cho">
-                                                                    Chưa duyệt
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input filter-checkbox" type="checkbox"
-                                                                       id="status_dung" value="Dừng bán" name="status[]">
-                                                                <label class="form-check-label" for="status_dung">
-                                                                    Dừng bán
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input filter-checkbox" type="checkbox"
-                                                                       id="status_ban" value="Đã bán" name="status[]">
-                                                                <label class="form-check-label" for="status_ban">
-                                                                    Đã bán
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                                        <div class="col-6"><div class="form-check"><input class="form-check-input filter-checkbox" type="checkbox" id="status_all" value="all" name="status[]" <?= ($status == 'all') ? 'checked' : '' ?>><label class="form-check-label" for="status_all">Tất cả</label></div></div>
+                                                        <div class="col-6"><div class="form-check"><input class="form-check-input filter-checkbox" type="checkbox" id="status_duyet" value="Đã duyệt" name="status[]"><label class="form-check-label" for="status_duyet">Đang bán</label></div></div>
+                                                        <div class="col-6"><div class="form-check"><input class="form-check-input filter-checkbox" type="checkbox" id="status_cho" value="Chờ duyệt" name="status[]"><label class="form-check-label" for="status_cho">Chưa duyệt</label></div></div>
+                                                        <div class="col-6"><div class="form-check"><input class="form-check-input filter-checkbox" type="checkbox" id="status_dung" value="Dừng bán" name="status[]"><label class="form-check-label" for="status_dung">Dừng bán</label></div></div>
+                                                        <div class="col-6"><div class="form-check"><input class="form-check-input filter-checkbox" type="checkbox" id="status_ban" value="Đã bán" name="status[]"><label class="form-check-label" for="status_ban">Đã bán</label></div></div>
                                                     </div>
                                                 </div>
-
-                                                <!-- Danh mục -->
                                                 <div class="mb-3">
-                                                    <h6 class="fw-bold mb-2">
-                                                        <i class="fas fa-tags me-1"></i>Danh mục
-                                                    </h6>
+                                                    <h6 class="fw-bold mb-2"><i class="fas fa-tags me-1"></i>Danh mục</h6>
                                                     <div class="row">
                                                         <?php if (isset($categoryTree) && !empty($categoryTree)): ?>
                                                             <?php foreach ($categoryTree as $parent): ?>
-                                                                <div class="col-md-6 mb-2">
+                                                                <div class="col-12 mb-2">
                                                                     <div class="form-check">
-                                                                        <input class="form-check-input filter-checkbox category-checkbox"
-                                                                               type="checkbox" id="cat_<?= $parent['id'] ?>"
-                                                                               value="<?= $parent['id'] ?>" name="categories[]">
-                                                                        <label class="form-check-label fw-bold" for="cat_<?= $parent['id'] ?>">
-                                                                            <?= htmlspecialchars($parent['name']) ?>
-                                                                        </label>
+                                                                        <input class="form-check-input filter-checkbox category-checkbox" type="checkbox" id="cat_<?= $parent['id'] ?>" value="<?= $parent['id'] ?>" name="categories[]">
+                                                                        <label class="form-check-label fw-bold" for="cat_<?= $parent['id'] ?>"><?= htmlspecialchars($parent['name']) ?></label>
                                                                     </div>
                                                                     <?php if (!empty($parent['children'])): ?>
-                                                                        <div class="ms-3">
+                                                                        <div class="ms-3 border-start ps-2">
                                                                             <?php foreach ($parent['children'] as $child): ?>
                                                                                 <div class="form-check">
-                                                                                    <input class="form-check-input filter-checkbox subcategory-checkbox"
-                                                                                           type="checkbox" id="subcat_<?= $child['id'] ?>"
-                                                                                           value="<?= $child['id'] ?>" name="categories[]">
-                                                                                    <label class="form-check-label small" for="subcat_<?= $child['id'] ?>">
-                                                                                        <?= htmlspecialchars($child['name']) ?>
-                                                                                    </label>
+                                                                                    <input class="form-check-input filter-checkbox subcategory-checkbox" type="checkbox" id="subcat_<?= $child['id'] ?>" value="<?= $child['id'] ?>" name="categories[]">
+                                                                                    <label class="form-check-label small" for="subcat_<?= $child['id'] ?>"><?= htmlspecialchars($child['name']) ?></label>
                                                                                 </div>
                                                                             <?php endforeach; ?>
                                                                         </div>
@@ -118,15 +74,9 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
-
-                                                <!-- Nút áp dụng trong dropdown -->
-                                                <div class="d-flex gap-2 mt-3">
-                                                    <button type="button" class="btn btn-primary btn-sm" id="applyFilters">
-                                                        <i class="fas fa-check"></i> Áp dụng
-                                                    </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" id="clearFilters">
-                                                        <i class="fas fa-times"></i> Xóa tất cả
-                                                    </button>
+                                                <div class="d-flex gap-2 mt-3 pt-2 border-top">
+                                                    <button type="button" class="btn btn-primary btn-sm w-100" id="applyFilters">Áp dụng</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm w-100" id="clearFilters">Xóa</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -135,11 +85,9 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                                     <div class="col-md-1">
                                         <label class="form-label">Tháng</label>
                                         <select name="month" class="form-select">
-                                            <option value="">Tất cả</option>
+                                            <option value="">--</option>
                                             <?php for($i = 1; $i <= 12; $i++): ?>
-                                                <option value="<?= $i ?>" <?= (isset($_GET['month']) && $_GET['month'] == $i) ? 'selected' : '' ?>>
-                                                    <?= $i ?>
-                                                </option>
+                                                <option value="<?= $i ?>" <?= ($month == $i) ? 'selected' : '' ?>><?= $i ?></option>
                                             <?php endfor; ?>
                                         </select>
                                     </div>
@@ -147,14 +95,11 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                                     <div class="col-md-1">
                                         <label class="form-label">Năm</label>
                                         <select name="year" class="form-select">
-                                            <option value="">Tất cả</option>
-                                            <?php
+                                            <option value="">--</option>
+                                            <?php 
                                             $currentYear = date('Y');
-                                            for($i = $currentYear; $i >= $currentYear - 5; $i--):
-                                            ?>
-                                                <option value="<?= $i ?>" <?= (isset($_GET['year']) && $_GET['year'] == $i) ? 'selected' : '' ?>>
-                                                    <?= $i ?>
-                                                </option>
+                                            for($i = $currentYear; $i >= $currentYear - 2; $i--): ?>
+                                                <option value="<?= $i ?>" <?= ($year == $i) ? 'selected' : '' ?>><?= $i ?></option>
                                             <?php endfor; ?>
                                         </select>
                                     </div>
@@ -162,11 +107,11 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                                     <div class="col-md-2">
                                         <label class="form-label">&nbsp;</label>
                                         <div class="d-flex gap-2">
-                                            <button type="submit" class="btn btn-primary">
+                                            <button type="submit" class="btn btn-primary w-100">
                                                 <i class="fas fa-search"></i> Lọc
                                             </button>
-                                            <a href="/baitaplon/Admin/productStatistics" class="btn btn-secondary">
-                                                <i class="fas fa-times"></i> Xóa lọc
+                                            <a href="/baitaplon/Admin/productStatistics" class="btn btn-outline-secondary" title="Reset">
+                                                <i class="fas fa-sync-alt"></i>
                                             </a>
                                         </div>
                                     </div>
@@ -177,6 +122,7 @@ $seller = isset($_GET['seller']) ? $_GET['seller'] : '';
                                             <i class="fas fa-file-excel"></i> Xuất Excel
                                         </button>
                                     </div>
+
                                 </div>
                             </form>
                         </div>

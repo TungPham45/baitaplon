@@ -175,91 +175,70 @@ class AdminModel {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getProductStatisticsAdvanced($statusFilters = [], $categoryFilters = [], $month = '', $year = '', $seller = '') {
-        $where = [];
+    public function getProductStatisticsAdvanced($statusFilters = [], $categoryFilters = [], $month = '', $year = '', $seller = '', $keyword = '') {
+        
+        if (!$this->db) { die("Lỗi kết nối"); }
 
-        // Lọc theo trạng thái (multiple selection)
+        $where = " WHERE 1=1 "; 
+
+        // 1. Keyword (Tên sản phẩm)
+        if (!empty($keyword)) {
+            $keyword = mysqli_real_escape_string($this->db, $keyword);
+            $where .= " AND sp.ten_sanpham LIKE '%$keyword%' ";
+        }
+
+        // 2. Trạng thái
         if (!empty($statusFilters) && !in_array('all', $statusFilters)) {
-            $statusPlaceholders = str_repeat('?,', count($statusFilters) - 1) . '?';
-            $where[] = "sp.trangthai IN ($statusPlaceholders)";
+            $safeStatus = [];
+            foreach ($statusFilters as $s) {
+                $safeStatus[] = mysqli_real_escape_string($this->db, $s);
+            }
+            $statusStr = implode("','", $safeStatus);
+            $where .= " AND sp.trangthai IN ('$statusStr') ";
         }
 
-        // Lọc theo danh mục (multiple selection)
+        // 3. Danh mục
         if (!empty($categoryFilters)) {
-            $categoryPlaceholders = str_repeat('?,', count($categoryFilters) - 1) . '?';
-            $where[] = "sp.id_danhmuc IN ($categoryPlaceholders)";
+            $catIds = implode(',', array_map('intval', $categoryFilters));
+            $where .= " AND (sp.id_danhmuc IN ($catIds) OR dm.id_parent IN ($catIds)) ";
         }
 
-        // Lọc theo tháng/năm
-        if ($month && $year) {
-            $where[] = "MONTH(sp.ngaydang) = ? AND YEAR(sp.ngaydang) = ?";
-        } elseif ($year) {
-            $where[] = "YEAR(sp.ngaydang) = ?";
+        // 4. Thời gian
+        if (!empty($month)) {
+            $month = intval($month);
+            $where .= " AND MONTH(sp.ngaydang) = $month ";
+        }
+        if (!empty($year)) {
+            $year = intval($year);
+            $where .= " AND YEAR(sp.ngaydang) = $year ";
         }
 
-        // Lọc theo người bán
-        if ($seller) {
-            $where[] = "u.hoten LIKE ?";
+        // 5. Người bán (Sửa: Tìm theo username vì không có hoten)
+        if (!empty($seller)) {
+            $seller = mysqli_real_escape_string($this->conn, $seller);
+            $where .= " AND acc.username LIKE '%$seller%' ";
         }
 
-        $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
-
-        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.trangthai, sp.ngaydang, sp.mota,
-                       u.hoten as nguoi_ban, u.id_user,
-                       dm.ten_danhmuc, dm.id_parent,
-                       COALESCE(MIN(spa.url_anh), sp.avatar) AS anh_hienthi
+        // Sửa query: acc.username AS nguoi_ban
+        $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.avatar, sp.khu_vuc_ban, sp.ngaydang, sp.trangthai, sp.id_user,
+                dm.ten_danhmuc, dm.id_parent, acc.role, acc.username AS nguoi_ban,
+                COALESCE(MIN(spa.url_anh), sp.avatar) AS anh_hienthi
                 FROM sanpham sp
-                LEFT JOIN users u ON sp.id_user = u.id_user
                 LEFT JOIN danhmuc dm ON sp.id_danhmuc = dm.id_danhmuc
+                LEFT JOIN account acc ON sp.id_user = acc.id_user
                 LEFT JOIN sanpham_anh spa ON sp.id_sanpham = spa.id_sanpham
-                $whereClause
+                $where
                 GROUP BY sp.id_sanpham
                 ORDER BY sp.ngaydang DESC";
 
-        $stmt = $this->db->prepare($sql);
-
-        // Bind parameters
-        $paramTypes = '';
-        $paramValues = [];
-
-        // Status filters
-        if (!empty($statusFilters) && !in_array('all', $statusFilters)) {
-            foreach ($statusFilters as $status) {
-                $paramTypes .= 's';
-                $paramValues[] = $status;
+        $result = mysqli_query($this->db, $sql);
+        $data = [];
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $data[] = $row;
             }
         }
-
-        // Category filters
-        if (!empty($categoryFilters)) {
-            foreach ($categoryFilters as $category) {
-                $paramTypes .= 'i';
-                $paramValues[] = (int)$category;
-            }
-        }
-
-        // Month/Year filters
-        if ($month && $year) {
-            $paramTypes .= 'ii';
-            $paramValues[] = $month;
-            $paramValues[] = $year;
-        } elseif ($year) {
-            $paramTypes .= 'i';
-            $paramValues[] = $year;
-        }
-
-        // Seller filter
-        if ($seller) {
-            $paramTypes .= 's';
-            $paramValues[] = "%$seller%";
-        }
-
-        if (!empty($paramValues)) {
-            $stmt->bind_param($paramTypes, ...$paramValues);
-        }
-
-        $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $data;
     }
 
     public function getCategoriesMapping() {
