@@ -24,11 +24,33 @@ if ($p && !empty($viewerId)) {
     }
 }
 
+// 4. Kiểm tra nếu sản phẩm không tồn tại hoặc bị dừng bán
 if (!$p) {
     echo '<div class="alert alert-danger container mt-5">Sản phẩm không tồn tại! <a href="/baitaplon/Home">Về trang chủ</a></div>';
     return;
 }
+
+// 5. Kiểm tra trạng thái "Dừng bán"
+if ($p['trangthai'] == 'Dừng bán') {
+    echo '<script>
+        alert("Sản phẩm này đã dừng bán.");
+        window.history.back();
+    </script>';
+    return;
+}
 ?>
+
+<script>
+    // Check trạng thái sản phẩm khi trang vừa load
+    document.addEventListener('DOMContentLoaded', function() {
+        const productStatus = '<?= isset($p['trangthai']) ? htmlspecialchars($p['trangthai']) : '' ?>';
+        
+        if (productStatus === 'Dừng bán') {
+            alert('Sản phẩm này đã dừng bán!');
+            history.back();
+        }
+    });
+</script>
 
 <div class="container mt-5 mb-5">
     <nav aria-label="breadcrumb">
@@ -180,8 +202,6 @@ if (!$p) {
         catLevel2: "<?= $p['id_danhmuc'] ?>"
     };
 
-    // Dữ liệu thuộc tính cũ: [ {id_thuoctinh: 1, giatri: "Màu đỏ", id_option: 5}, ... ]
-    // Chuyển mảng PHP $attrs thành JSON JS
     const OLD_ATTRIBUTES = <?= json_encode($attrs); ?>;
 </script>
 
@@ -391,7 +411,6 @@ document.addEventListener("DOMContentLoaded", function() {
         else dynamicDiv.innerHTML = '';
     });
 
-    // CHẠY LẦN ĐẦU
     loadParentCategories();
 
     // Autocomplete địa chỉ

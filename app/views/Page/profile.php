@@ -134,65 +134,72 @@ if ($totalReviews > 0) {
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="products">
                             
-                        <?php if ($isOwner): ?>
-                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-light rounded border">
-                                
-                                <form action="" method="GET" class="d-flex align-items-center gap-2">
-                                    <label class="fw-bold text-secondary small text-nowrap">
-                                        <i class="bi bi-funnel-fill"></i> Lọc tin:
-                                    </label>
+                            <?php if ($isOwner): ?>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-3 bg-light rounded border">
                                     
-                                    <select name="trang_thai" class="form-select form-select-sm" style="width: 140px;" onchange="this.form.submit()">
+                                    <form action="" method="GET" class="d-flex align-items-center gap-2">
+                                        <label class="fw-bold text-secondary small text-nowrap">
+                                            <i class="bi bi-funnel-fill"></i> Lọc tin:
+                                        </label>
+                                        
                                         <?php
-                                        $current_status = isset($_GET['trang_thai']) ? $_GET['trang_thai'] : $default_status;
+                                        // Lấy trạng thái hiện tại trên URL
+                                        $curr = isset($_GET['trang_thai']) ? $_GET['trang_thai'] : '';
                                         ?>
-                                        <option value="all" <?= ($current_status == 'all') ? 'selected' : '' ?>>Tất cả</option>
 
-                                        <option value="Đã duyệt" <?= ($current_status == 'Đã duyệt') ? 'selected' : '' ?>>Đang bán</option>
+                                        <select name="trang_thai" class="form-select form-select-sm" style="width: 140px;" onchange="this.form.submit()">
+                                            <option value="all" <?= ($curr == 'all') ? 'selected' : '' ?>>Tất cả</option>
 
-                                        <option value="Đã bán" <?= ($current_status == 'Đã bán') ? 'selected' : '' ?>>Đã bán</option>
+                                            <option value="Đã duyệt" <?= ($curr == 'Đã duyệt') ? 'selected' : '' ?>>Đang bán</option>
 
-                                        <option value="Chờ duyệt" <?= ($current_status == 'Chờ duyệt') ? 'selected' : '' ?>>Chưa duyệt</option>
-                                    </select>
-                                </form>
+                                            <option value="Đã bán" <?= ($curr == 'Đã bán') ? 'selected' : '' ?>>Đã bán</option>
 
-                                <button id="btnExportExcel" class="btn btn-success btn-sm fw-bold mt-2 mt-md-0">
-                                    <i class="bi bi-file-earmark-spreadsheet-fill"></i> Xuất Excel
-                                </button>
-                            </div>
-                        <?php endif; ?>
+                                            <option value="Chờ duyệt" <?= ($curr == 'Chờ duyệt') ? 'selected' : '' ?>>Chưa duyệt</option>
+                                            
+                                            <option value="Dừng bán" <?= ($curr == 'Dừng bán') ? 'selected' : '' ?>>Dừng bán</option>
+                                        </select>
+                                    </form>
+
+                                    <button id="btnExportExcel" class="btn btn-success btn-sm fw-bold mt-2 mt-md-0">
+                                        <i class="bi bi-file-earmark-spreadsheet-fill"></i> Xuất Excel
+                                    </button>
+                                </div>
+                            <?php endif; ?>
 
                             <?php if (empty($products)): ?>
                                 <div class="text-center py-5">
                                     <div class="mb-3 text-muted display-4"><i class="bi bi-box-seam"></i></div>
-                                    <p class="text-muted">Chưa có tin đăng nào.</p>
+                                    <p class="text-muted">Không tìm thấy tin đăng nào.</p>
                                 </div>
                             <?php else: ?>
                                 <div class="row g-3" id="productList">
                                     <?php foreach ($products as $p): ?>
                                         <?php
                                             // Logic trạng thái cho JS và Badge
-                                            $jsStatus = 'hienthi';
+                                            $jsStatus = 'hienthi'; 
                                             if ($p['trangthai'] == 'Đã bán') $jsStatus = 'daban';
                                             if ($p['trangthai'] == 'Chờ duyệt') $jsStatus = 'choduyet';
+                                            if ($p['trangthai'] == 'Dừng bán') $jsStatus = 'dungban'; // Gán trạng thái dừng bán
                                             
                                             $img = isset($p['anh_hienthi']) ? "/baitaplon/" . $p['anh_hienthi'] : 'https://via.placeholder.com/300';
                                             $detailLink = "/baitaplon/Home/detail_Sanpham/" . $p['id_sanpham'] . ($loggedInId ? "/".urlencode($loggedInId) : "");
                                         ?>
                                         
-                                        <div class="col-sm-6 col-lg-4 product-item-wrapper" 
-                                             data-status="<?= $jsStatus ?>"
-                                             data-name="<?= htmlspecialchars($p['ten_sanpham']) ?>"
-                                             data-price="<?= $p['gia'] ?>"
-                                             data-date="<?= date('d/m/Y', strtotime($p['ngaydang'])) ?>">
-                                            
+                                        <div class="col-sm-6 col-lg-4 product-item-wrapper">
                                             <div class="card h-100 shadow-sm border hover-shadow position-relative">
                                                 
                                                 <?php if($isOwner): ?>
                                                     <?php if($jsStatus == 'daban'): ?>
                                                         <span class="status-badge bg-sold">ĐÃ BÁN</span>
+                                                    
                                                     <?php elseif($jsStatus == 'choduyet'): ?>
                                                         <span class="status-badge bg-pending">CHỜ DUYỆT</span>
+                                                    
+                                                    <?php elseif($jsStatus == 'dungban'): ?>
+                                                        <span class="status-badge bg-danger text-uppercase text-truncate" style="max-width: 90%;">
+                                                            <i class="bi bi-exclamation-octagon-fill me-1"></i>
+                                                            <?= htmlspecialchars($p['mota']) ?>
+                                                        </span>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
 

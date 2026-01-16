@@ -2,11 +2,13 @@
 require_once __DIR__ . '/../models/AdminModel.php';
 require_once __DIR__ . '/../models/ProfileModel.php';
 require_once __DIR__ . '/../models/DuyetSPModel.php';
+require_once __DIR__ . '/../models/AuthModel.php';
 
 class Admin {
     private $adminModel;
     private $profileModel;
     private $duyetSPModel;
+    private $authModel;
     private $conn;
 
     public function __construct($conn) {
@@ -20,9 +22,11 @@ class Admin {
                         strpos($url, 'reject') !== false ||
                         strpos($url, 'searchAccounts') !== false ||
                         strpos($url, 'exportProductStatistics') !== false ||
+                        strpos($url, 'exportAccounts') !== false ||
                         strpos($url, 'stopSelling') !== false ||
                         strpos($url, 'approveProduct') !== false ||
-                        strpos($url, 'rejectProduct') !== false;
+                        strpos($url, 'rejectProduct') !== false ||
+                        strpos($url, 'changePassword') !== false;
 
         if (!$isApiRequest) {
             if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Quản lý') {
@@ -34,6 +38,14 @@ class Admin {
         $this->adminModel = new AdminModel($conn);
         $this->profileModel = new ProfileModel($conn);
         $this->duyetSPModel = new DuyetSPModel($conn);
+        $this->authModel = new AuthModel($conn);
+
+        if (!isset($_SESSION['avatar']) && isset($_SESSION['user_id'])) {
+            $user = $this->profileModel->getProfile($_SESSION['user_id']);
+            if ($user && isset($user['avatar'])) {
+                $_SESSION['avatar'] = $user['avatar'];
+            }
+        }
     }
 
     public function profile() {
@@ -392,35 +404,6 @@ class Admin {
         }
     }
 
-    public function rejectProduct() {
-        header('Content-Type: application/json; charset=utf-8');
-        try {
-            if (!isset($_POST['id_sanpham'])) {
-                throw new Exception("Thiếu ID sản phẩm");
-            }
-
-            $id_sanpham = intval($_POST['id_sanpham']);
-            $reason = isset($_POST['reason']) ? trim($_POST['reason']) : 'Từ chối bởi admin';
-
-            // Sử dụng AdminModel để từ chối sản phẩm
-            $result = $this->adminModel->rejectProduct($id_sanpham, $reason);
-
-            if ($result) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Đã từ chối sản phẩm!'
-                ]);
-            } else {
-                throw new Exception("Không thể cập nhật trạng thái sản phẩm");
-            }
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
 
     public function exportProductStatistics() {
         try {
@@ -506,6 +489,120 @@ class Admin {
 
         } catch (Exception $e) {
             echo "Lỗi: " . $e->getMessage();
+        }
+    }
+
+    public function exportAccounts() {
+        try {
+            $hoten = isset($_GET['hoten']) ? trim($_GET['hoten']) : '';
+            $trangthai = isset($_GET['trangthai']) ? $_GET['trangthai'] : 'all';
+
+            if (!empty($hoten) || $trangthai !== 'all') {
+                $accounts = $this->adminModel->searchAccounts($hoten, $trangthai);
+            } else {
+                $accounts = $this->adminModel->getAllAccounts();
+            }
+
+            header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="danh_sach_tai_khoan_' . date('Y-m-d') . '.xls"');
+            header('Cache-Control: max-age=0');
+
+            echo "<html><head><meta charset='UTF-8'></head><body>";
+            echo "<table border='1'>";
+            echo "<tr style='background-color: #4e73df; color: white; font-weight: bold;'>";
+            echo "<th style='padding: 12px; text-align: center;'>STT</th>";
+            echo "<th style='padding: 12px;'>Mã TK</th>";
+            echo "<th style='padding: 12px;'>Họ và tên</th>";
+            echo "<th style='padding: 12px;'>Tên đăng nhập</th>";
+            echo "<th style='padding: 12px;'>Email</th>";
+            echo "<th style='padding: 12px;'>Số điện thoại</th>";
+            echo "<th style='padding: 12px;'>Địa chỉ</th>";
+            echo "<th style='padding: 12px;'>Vai trò</th>";
+            echo "<th style='padding: 12px;'>Trạng thái</th>";
+            echo "<th style='padding: 12px;'>Ngày tạo</th>";
+            echo "</tr>";
+
+            $stt = 1;
+            foreach ($accounts as $acc) {
+                $statusText = $acc['trangthai'];
+                $statusColor = '#28a745';
+                if ($statusText === 'Chờ duyệt') {
+                    $statusColor = '#fd7e14';
+                } else if ($statusText === 'Bị khóa' || $statusText === 'Khóa') {
+                    $statusColor = '#dc3545';
+                }
+
+                $rowBg = ($stt % 2 === 0) ? '#f8f9fc' : '#ffffff';
+                echo "<tr style='background-color: {$rowBg};'>";
+                echo "<td style='padding: 10px; text-align: center;'>{$stt}</td>";
+                echo "<td style='padding: 10px;'>{$acc['id_user']}</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['hoten']) . "</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['username']) . "</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['email']) . "</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['sdt'] ?? 'N/A') . "</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['diachi'] ?? 'N/A') . "</td>";
+                echo "<td style='padding: 10px;'>" . htmlspecialchars($acc['role']) . "</td>";
+                echo "<td style='padding: 10px; color: {$statusColor}; font-weight: bold;'>{$statusText}</td>";
+                echo "<td style='padding: 10px;'>" . date('d/m/Y', strtotime($acc['ngaytao'])) . "</td>";
+                echo "</tr>";
+                $stt++;
+            }
+
+            echo "</table></body></html>";
+            exit();
+
+        } catch (Exception $e) {
+            echo "Lỗi: " . $e->getMessage();
+        }
+    }
+
+    public function changePassword() {
+        header('Content-Type: application/json; charset=utf-8');
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $currentPassword = $_POST['current_password'] ?? '';
+                $newPassword = $_POST['new_password'] ?? '';
+                $confirmPassword = $_POST['confirm_password'] ?? '';
+
+                if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                    echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin!']);
+                    exit();
+                }
+
+                if ($newPassword !== $confirmPassword) {
+                    echo json_encode(['success' => false, 'message' => 'Mật khẩu mới không khớp!']);
+                    exit();
+                }
+
+                if (strlen($newPassword) < 6) {
+                    echo json_encode(['success' => false, 'message' => 'Mật khẩu mới phải có ít nhất 6 ký tự!']);
+                    exit();
+                }
+
+                $userId = $_SESSION['user_id'];
+                $sql = "SELECT password FROM account WHERE id_user = ?";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bind_param("s", $userId);
+                $stmt->execute();
+                $result = $stmt->get_result()->fetch_assoc();
+
+                if (!$result || !password_verify($currentPassword, $result['password'])) {
+                    echo json_encode(['success' => false, 'message' => 'Mật khẩu hiện tại không đúng!']);
+                    exit();
+                }
+
+                if ($this->authModel->updatePasswordByUserId($userId, $newPassword)) {
+                    echo json_encode(['success' => true, 'message' => 'Đổi mật khẩu thành công!']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra, vui lòng thử lại!']);
+                }
+                exit();
+
+            } catch (Exception $e) {
+                echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+                exit();
+            }
         }
     }
 }

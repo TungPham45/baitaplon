@@ -64,3 +64,4 @@
 }
 .bg-sold { background-color: #6c757d; }
 .bg-pending { background-color: #ffc107; color: #000; }
+.bg-danger { background-color: #dc3545; color: white; } /* Màu đỏ cho Dừng bán */

@@ -22,11 +22,14 @@
                 </div>
                 <div class="search-group btn-group">
                     <button type="submit" class="btn-search">
-                        <i class="fas fa-search"></i> Tìm kiếm
+                        Tìm kiếm
                     </button>
                     <a href="/baitaplon/Admin/dashboard" class="btn-reset">
-                        <i class="fas fa-sync-alt"></i> Tải lại
+                         Tải lại
                     </a>
+                    <button type="button" class="btn-export" id="btnExport">
+                         Xuất Excel
+                    </button>
                 </div>
             </div>
         </form>
@@ -87,3 +90,32 @@
             </div>
     </div>
 </div>
+
+<script>
+document.getElementById('btnExport').addEventListener('click', function() {
+    var hoten = document.getElementById('hoten').value;
+    var trangthai = document.getElementById('trangthai').value;
+    
+    var url = '/baitaplon/Admin/exportAccounts?hoten=' + encodeURIComponent(hoten) + '&trangthai=' + encodeURIComponent(trangthai);
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.blob();
+        })
+        .then(blob => {
+            var link = document.createElement('a');
+            var url = window.URL.createObjectURL(blob);
+            link.href = url;
+            link.download = 'danh_sach_tai_khoan_' + new Date().toISOString().slice(0,10) + '.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra khi xuất Excel!');
+        });
+});
+</script>

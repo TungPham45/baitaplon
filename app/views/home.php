@@ -5,12 +5,12 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8">
-    <title>Trang chủ - Chợ Tốt Clone</title>
+    <title>Trang chủ - DealNow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/baitaplon/Public/css/style.css?v=<?php echo time(); ?>">
-
+    
     <style>
         body { background: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; color: #0f172a; }
         .navbar { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 10px 0; margin-bottom: 20px; }
@@ -54,7 +54,7 @@
         $currentUserId = isset($data['user_id']) ? $data['user_id'] : '';
         $homeLink = "/baitaplon/Home" . (!empty($currentUserId) ? "/index/" . urlencode($currentUserId) : "");
         ?>
-        <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> Chợ Tốt Clone</a>
+        <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> DealNow</a>
 
         <div class="mx-auto flex-grow-1 px-3 d-flex justify-content-center">
             <form class="search-container" method="GET" action="/baitaplon/Home/index" id="searchForm">
@@ -77,6 +77,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#" onclick="selectCategory('', 'Tất cả danh mục'); return false;">Tất cả danh mục</a></li>
                         <li><hr class="dropdown-divider"></li>
+
                         <?php if (!empty($categoryTree)): foreach ($categoryTree as $parent): ?>
                             <?php if (!empty($parent['children'])): ?>
                                 <li class="dropdown-item-parent">
@@ -85,7 +86,7 @@
                                     </a>
                                     <ul class="submenu shadow">
                                         <?php foreach ($parent['children'] as $child): ?>
-                                            <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($child['ten_danhmuc']); ?></a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo  htmlspecialchars($child['ten_danhmuc']); ?></a></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </li>
@@ -93,6 +94,7 @@
                                 <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($parent['ten_danhmuc']); ?></a></li>
                             <?php endif; ?>
                         <?php endforeach; endif; ?>
+                        
                     </ul>
                 </div>
                 <div class="vr mx-2"></div>
@@ -135,6 +137,7 @@
                             <li><hr class="dropdown-divider"></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="/baitaplon/User/Profile/<?php echo urlencode($currentUserId); ?>">Trang cá nhân</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="/baitaplon/Home?logout=1">Đăng xuất</a></li>
                     </ul>
@@ -161,15 +164,39 @@
     </div>
 </div>
 
-<footer class="bg-white border-top py-4 mt-5">
-    <div class="container text-center small text-muted">&copy; 2024 Chợ Tốt Clone.</div>
+<footer class="bg-light border-top py-5 mt-5">
+    <div class="container">
+        <!-- Policies Section -->
+        <div class="row mb-5">
+            <div class="col-12 d-flex justify-content-center flex-wrap gap-4">
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-shield-lock"></i> CHÍNH SÁCH BẢO MẬT
+                </a>
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-file-text"></i> QUY CHẾ HOẠT ĐỘNG
+                </a>
+            </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="row text-center text-secondary small">
+            <div class="col-12">
+                <p class="mb-2"><strong>Công ty TNHH DealNow </strong></p>
+                <p class="mb-2">Địa chỉ: Số 54 Triều Khúc, phường Thanh Liệt, Hà Nội, Việt Nam</p>
+                <p class="mb-2">Chăm sóc khách hàng: Gọi tổng đài DealNow (miễn phí) hoặc Trò chuyện với chúng tôi ngay trên trang Trung tâm trợ giúp</p>
+                <p class="mb-2">Chủ Trách Nhiệm Quản Lý Nội Dung: AE Tôi </p>
+                <p class="mb-2">Mã số doanh nghiệp: 0123456JQK do Sở Kế hoạch và Đầu tư TP Hà Nội cấp lần đầu ngày 30/02/2025</p>
+                <p class="mb-0">&copy; 2025 - Bản quyền thuộc về Công ty TNHH DealNow</p>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-warning bg-opacity-10">
-                <h5 class="modal-title fw-bold">Đăng tin rao vặt</h5>
+                <h5 class="modal-title fw-bold">Đăng tin Bán Hàng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -236,6 +263,85 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <input type="hidden" name="user_id" value="<?php echo isset($currentUserId) ? $currentUserId : ''; ?>">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu cũ</label>
+                        <input type="password" class="form-control" id="old_password" name="old_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6">
+                        <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="alert alert-danger d-none" id="cp-error-msg"></div>
+                    <div class="alert alert-success d-none" id="cp-success-msg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnChangePassword">Đổi mật khẩu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const changePwdModal = document.getElementById('changePasswordModal');
+    const errorMsg = document.getElementById('cp-error-msg');
+    const successMsg = document.getElementById('cp-success-msg');
+    
+    changePwdModal.addEventListener('show.bs.modal', function() {
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+        document.getElementById('changePasswordForm').reset();
+    });
+    
+    document.getElementById('btnChangePassword').addEventListener('click', function() {
+        errorMsg.classList.add('d-none');
+        successMsg.classList.add('d-none');
+        
+        const formData = new FormData(document.getElementById('changePasswordForm'));
+        
+        fetch('/baitaplon/User/changePasswordAjax', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                successMsg.textContent = data.message;
+                successMsg.classList.remove('d-none');
+                setTimeout(function() {
+                    const modal = bootstrap.Modal.getInstance(changePwdModal);
+                    modal.hide();
+                }, 1500);
+            } else {
+                errorMsg.textContent = data.message;
+                errorMsg.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            errorMsg.textContent = 'Có lỗi xảy ra. Vui lòng thử lại!';
+            errorMsg.classList.remove('d-none');
+        });
+    });
+});
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>

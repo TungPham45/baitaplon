@@ -97,7 +97,9 @@ class SanphamModel
         }
 
         if ($keyword !== '') $where .= " AND sp.ten_sanpham LIKE '%$keyword%'";
-        if ($category !== '') $where .= " AND sp.id_danhmuc = '$category'";
+        if ($category !== '') {
+            $where .= " AND (sp.id_danhmuc = '$category' OR sp.id_danhmuc IN (SELECT id_danhmuc FROM danhmuc WHERE id_parent = '$category'))";
+        }
         if ($address !== '')  $where .= " AND sp.khu_vuc_ban LIKE '%$address%'";
         if ($userId !== '')   $where .= " AND sp.id_user = '$userId' ";
 

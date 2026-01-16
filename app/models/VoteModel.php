@@ -70,7 +70,6 @@ class VoteModel {
                 VALUES (?, ?, ?, ?, ?, NOW())";
         
         $stmt = $this->conn->prepare($sql);
-        
         // s: string, s: string, i: int, s: string, i: int (is_transacted)
         $stmt->bind_param("ssisi", $reviewer_id, $rated_user_id, $rating, $comment, $is_transacted);
         
