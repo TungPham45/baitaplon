@@ -55,6 +55,9 @@ class SanphamModel
         }
         if ($address !== '') $where .= " AND sp.khu_vuc_ban LIKE '%$address%'";
         if ($userId !== '')  $where .= " AND sp.id_user = '$userId' ";
+        
+        // Thêm điều kiện kiểm tra tài khoản không bị khóa
+        $where .= " AND (acc.trangthai IS NULL OR acc.trangthai != N'Bị khóa')";
 
         $sql = "SELECT sp.id_sanpham, sp.ten_sanpham, sp.gia, sp.mota, sp.avatar, sp.khu_vuc_ban, sp.ngaydang, sp.trangthai,
         dm.ten_danhmuc, dm.id_parent, acc.role,
@@ -103,7 +106,9 @@ class SanphamModel
         if ($address !== '')  $where .= " AND sp.khu_vuc_ban LIKE '%$address%'";
         if ($userId !== '')   $where .= " AND sp.id_user = '$userId' ";
 
-        $sql = "SELECT COUNT(*) AS total FROM sanpham sp" . $where;
+        $sql = "SELECT COUNT(*) AS total FROM sanpham sp
+        LEFT JOIN account acc ON sp.id_user = acc.id_user
+        " . $where . " AND (acc.trangthai IS NULL OR acc.trangthai != N'Bị khóa')";
         $result = mysqli_query($this->con, $sql);
         if ($result) {
             $row = mysqli_fetch_assoc($result);
