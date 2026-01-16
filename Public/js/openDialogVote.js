@@ -1,287 +1,283 @@
 // ==========================================
 // 1. BIẾN TOÀN CỤC & TRẠNG THÁI
 // ==========================================
-let selectedTags = [];
-let selectedFiles = [];
 
-const feedbackOptions = {
+/* SỬA LỖI: Dùng 'var' thay vì 'let/const' để tránh lỗi "already declared" khi load lại trang */
+var selectedTags = selectedTags || [];
+var selectedFiles = selectedFiles || [];
+
+var feedbackOptions = feedbackOptions || {
     positive: ["Nhiệt tình", "Đúng giờ", "Sản phẩm tốt", "Trả lời nhanh", "Thân thiện"],
     negative: ["Bom hàng", "Thái độ kém", "Sai mô tả", "Ép giá", "Spam", "Không đến hẹn"]
 };
 
 // Hàm reset dữ liệu khi mở dialog mới
-function resetDialogState() {
-    selectedTags = [];
-    selectedFiles = [];
+// Kiểm tra if (!window.resetDialogState) để tránh định nghĩa lại hàm nhiều lần
+if (!window.resetDialogState) {
+    window.resetDialogState = function() {
+        // 1. Reset biến
+        selectedTags = [];
+        selectedFiles = [];
+
+        // 2. Reset Input & Textarea
+        if(document.getElementById('voteRating')) document.getElementById('voteRating').value = "0";
+        if(document.getElementById('voteComment')) document.getElementById('voteComment').value = "";
+        if(document.getElementById('isTransacted')) document.getElementById('isTransacted').checked = false;
+        if(document.getElementById('reviewImages')) document.getElementById('reviewImages').value = ""; 
+
+        // 3. Reset Giao diện Sao
+        document.querySelectorAll('.star-rating span').forEach(s => {
+            s.classList.remove('filled');
+            s.innerHTML = '<i class="far fa-star"></i>'; 
+        });
+        if(document.getElementById('ratingLabel')) document.getElementById('ratingLabel').innerText = "";
+        if(document.getElementById('starError')) document.getElementById('starError').style.display = 'none';
+
+        // 4. Reset Tags & Ảnh preview
+        const tagContainer = document.getElementById('feedbackTags');
+        if (tagContainer) {
+            tagContainer.innerHTML = '';
+            tagContainer.style.display = 'none';
+        }
+        const imgContainer = document.getElementById('imagePreviewContainer');
+        if(imgContainer) imgContainer.innerHTML = '';
+    }
 }
 
 // ==========================================
 // 2. HÀM MỞ DIALOG (Đánh giá User)
 // ==========================================
-function openVoteDialog(element) {
-    // 1. Lấy dữ liệu từ nút bấm (đã thêm ở file HTML)
-    const partnerId = element.getAttribute('data-partner-id');
-    const partnerName = element.getAttribute('data-partner-name') || 'Người dùng';
-    const avatarSrc = element.getAttribute('data-avatar'); // Lấy đường dẫn ảnh
+if (!window.openVoteDialog) {
+    window.openVoteDialog = function(element) {
+        // 1. Lấy dữ liệu từ nút bấm
+        const partnerId = element.getAttribute('data-partner-id');
+        const partnerName = element.getAttribute('data-partner-name') || 'Người dùng';
+        const avatarSrc = element.getAttribute('data-avatar'); 
 
-    if (!partnerId) {
-        alert("Lỗi: Không tìm thấy ID người dùng.");
-        return;
-    }
-
-    // 2. Reset lại form trước khi hiện (để xóa sao cũ, comment cũ)
-    // Nếu bạn chưa có hàm resetDialogState riêng thì có thể bỏ qua dòng này hoặc copy hàm reset ở dưới
-    if (typeof resetDialogState === "function") {
-        resetDialogState();
-    }
-
-    // 3. Điền ID và Tên vào Modal
-    document.getElementById('voteTargetId').value = partnerId;
-    
-    const nameEl = document.querySelector('#reviewModal .user-name');
-    if (nameEl) nameEl.textContent = partnerName;
-
-    // 4. XỬ LÝ HIỆN AVATAR (Phần quan trọng nhất)
-    const avatarContainer = document.querySelector('#reviewModal .avatar-circle');
-    
-    if (avatarContainer) {
-        avatarContainer.innerHTML = ''; // Xóa nội dung cũ (chữ cái hoặc ảnh cũ)
-
-        if (avatarSrc && avatarSrc.trim() !== '') {
-            // Nếu có ảnh -> Tạo thẻ IMG chèn vào
-            // Kiểm tra xem đường dẫn có dấu '/' ở đầu chưa để nối chuỗi cho đúng
-            const imgPath = avatarSrc.startsWith('/') ? avatarSrc : '/baitaplon/' + avatarSrc;
-            
-            avatarContainer.innerHTML = `<img src="${imgPath}" alt="Avt" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else {
-            // Nếu không có ảnh -> Lấy chữ cái đầu của tên
-            const firstLetter = partnerName.charAt(0).toUpperCase();
-            avatarContainer.textContent = firstLetter;
+        if (!partnerId) {
+            alert("Lỗi: Không tìm thấy ID người dùng.");
+            return;
         }
-    }
 
-    // 5. Hiện Modal lên
-    const modal = document.getElementById('reviewModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Khóa cuộn trang
+        // 2. Reset form
+        resetDialogState();
+
+        // 3. Điền ID và Tên vào Modal
+        document.getElementById('voteTargetId').value = partnerId;
+        
+        const nameEl = document.querySelector('#reviewModal .user-name');
+        if (nameEl) nameEl.textContent = partnerName;
+
+        // 4. XỬ LÝ HIỆN AVATAR
+        const avatarContainer = document.querySelector('#reviewModal .avatar-circle');
+        
+        if (avatarContainer) {
+            avatarContainer.innerHTML = ''; 
+
+            if (avatarSrc && avatarSrc.trim() !== '') {
+                const imgPath = avatarSrc.startsWith('/') || avatarSrc.startsWith('http') 
+                                ? avatarSrc 
+                                : '/baitaplon/' + avatarSrc;
+                
+                avatarContainer.innerHTML = `<img src="${imgPath}" alt="Avt" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                const firstLetter = partnerName.charAt(0).toUpperCase();
+                avatarContainer.textContent = firstLetter;
+            }
+        }
+
+        // 5. Hiện Modal
+        const modal = document.getElementById('reviewModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        } else {
+            console.error("Không tìm thấy modal #reviewModal");
+        }
     }
 }
 
 // ==========================================
-// 3. XỬ LÝ RATING & TAGS
+// 3. ĐÓNG DIALOG & CÁC HÀM XỬ LÝ KHÁC
 // ==========================================
 
-// Hàm xử lý khi bấm chọn sao
-function setRating(star) {
-    const ratingInput = document.getElementById('voteRating');
-    const errorMsg = document.getElementById('starError');
-    
-    if(ratingInput) ratingInput.value = star;
-    if(errorMsg) errorMsg.style.display = 'none';
+if (!window.closeReview) {
+    window.closeReview = function() {
+        const modal = document.getElementById('reviewModal');
+        if (modal) modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
 
-    // 1. Tô màu sao (Dựa trên class .filled trong CSS mới)
-    const stars = document.querySelectorAll('.star-rating span'); 
+if (!window.setRating) {
+    window.setRating = function(star) {
+        const ratingInput = document.getElementById('voteRating');
+        const errorMsg = document.getElementById('starError');
         
+        if(ratingInput) ratingInput.value = star;
+        if(errorMsg) errorMsg.style.display = 'none';
+
+        const stars = document.querySelectorAll('.star-rating span'); 
         stars.forEach((s, index) => {
             if (index < star) {
                 s.classList.add('filled');
-                // Nếu dùng font-awesome solid/regular thì update ở đây
                 s.innerHTML = '<i class="fas fa-star"></i>'; 
             } else {
                 s.classList.remove('filled');   
-                s.innerHTML = '<i class="far fa-star"></i>'; // Hoặc để class cũ nếu muốn
+                s.innerHTML = '<i class="far fa-star"></i>'; 
             }
         });
 
-    // 2. Hiện label cảm xúc
-    const labels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
-    const labelEl = document.getElementById('ratingLabel');
-    if(labelEl) {
-        labelEl.innerText = labels[star - 1];
-        labelEl.style.color = (star >= 4) ? '#22c1b5' : '#ff9900';
-    }
-
-    // 3. Render tags phù hợp
-    renderTags(star);
-}
-
-// Hàm render các nút tag gợi ý
-function renderTags(star) {
-    const container = document.getElementById('feedbackTags');
-    if(!container) return;
-
-    container.style.display = 'flex';
-    container.innerHTML = '';
-    selectedTags = []; // Reset chọn tag khi đổi sao
-
-    // Nếu >= 4 sao: Hiện tag tích cực, < 4 sao: Hiện tag tiêu cực
-    const options = star >= 4 ? feedbackOptions.positive : feedbackOptions.negative;
-
-    options.forEach(text => {
-        const tag = document.createElement('span');
-        tag.className = 'tag-item';
-        tag.innerText = text;
-        tag.onclick = function() { toggleTag(this, text); };
-        container.appendChild(tag);
-    });
-}
-
-// Hàm chọn/bỏ chọn tag
-function toggleTag(element, text) {
-    if (selectedTags.includes(text)) {
-        selectedTags = selectedTags.filter(t => t !== text);
-        element.classList.remove('active');
-    } else {
-        selectedTags.push(text);
-        element.classList.add('active');
-    }
-}
-
-// ==========================================
-// 4. XỬ LÝ UPLOAD ẢNH (Quan trọng)
-// ==========================================
-function handleImageSelect(event) {
-    const files = Array.from(event.target.files);
-    const container = document.getElementById('imagePreviewContainer');
-    
-    // Kiểm tra giới hạn số lượng (tối đa 3 ảnh)
-    if (selectedFiles.length + files.length > 3) {
-        alert("Bạn chỉ được chọn tối đa 3 ảnh.");
-        return;
-    }
-
-    files.forEach(file => {
-        // Chỉ nhận file ảnh
-        if (!file.type.startsWith('image/')) return;
-
-        // Thêm vào mảng quản lý
-        selectedFiles.push(file);
-
-        // Tạo element xem trước
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const previewItem = document.createElement('div');
-            previewItem.className = 'preview-item';
-            
-            // HTML khớp với CSS .preview-thumb
-            previewItem.innerHTML = `
-                <img src="${e.target.result}" class="preview-thumb">
-                <button class="btn-remove-img" onclick="removeImage('${file.name}', this)">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            container.appendChild(previewItem);
+        const labels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
+        const labelEl = document.getElementById('ratingLabel');
+        if(labelEl) {
+            labelEl.innerText = labels[star - 1];
+            labelEl.style.color = (star >= 4) ? '#22c1b5' : '#ff9900';
         }
-        reader.readAsDataURL(file);
-    });
 
-    // Reset input để chọn lại được file cũ nếu cần
-    event.target.value = '';
+        renderTags(star);
+    }
 }
 
-// Xóa ảnh khỏi danh sách chờ upload
-function removeImage(fileName, buttonElement) {
-    // Xóa khỏi mảng quản lý
-    selectedFiles = selectedFiles.filter(f => f.name !== fileName);
-    // Xóa khỏi giao diện (remove thẻ cha .preview-item)
-    buttonElement.closest('.preview-item').remove();
+if (!window.renderTags) {
+    window.renderTags = function(star) {
+        const container = document.getElementById('feedbackTags');
+        if(!container) return;
+
+        container.style.display = 'flex';
+        container.innerHTML = '';
+        selectedTags = []; 
+
+        const options = star >= 4 ? feedbackOptions.positive : feedbackOptions.negative;
+
+        options.forEach(text => {
+            const tag = document.createElement('span');
+            tag.className = 'tag-item';
+            tag.innerText = text;
+            tag.onclick = function() { toggleTag(this, text); };
+            container.appendChild(tag);
+        });
+    }
 }
 
-// ==========================================
-// 5. HÀM GỬI ĐÁNH GIÁ (SUBMIT)
-// ==========================================
-function submitVote() {
-    const targetId = document.getElementById('voteTargetId').value;
-    const rating = document.getElementById('voteRating').value;
-    let comment = document.getElementById('voteComment').value.trim();
-    
-    // Checkbox xác nhận giao dịch
-    const isTransactedEl = document.getElementById('isTransacted');
-    const isTransacted = (isTransactedEl && isTransactedEl.checked) ? 1 : 0;
-
-    // Validate
-    if (rating == 0) {
-        document.getElementById('starError').style.display = 'block';
-        return;
-    }
-
-    // Gộp tags vào comment
-    if (selectedTags.length > 0) {
-        const tagString = selectedTags.map(t => `[${t}]`).join(' ');
-        comment = tagString + "\n" + comment;
-    }
-
-    // --- DÙNG FORMDATA ĐỂ GỬI FILE & DỮ LIỆU ---
-    const formData = new FormData();
-    formData.append('target_id', targetId);
-    formData.append('rating', rating);
-    formData.append('comment', comment);
-    formData.append('is_transacted', isTransacted); // Gửi 0 hoặc 1
-
-    // Append từng file ảnh vào formData
-    // Key 'review_images[]' phải khớp với $_FILES['review_images'] trong PHP
-    selectedFiles.forEach((file) => {
-        formData.append('review_images[]', file);
-    });
-
-    // Gửi Ajax
-    fetch('/baitaplon/Vote/submit', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        // Kiểm tra xem server có trả về JSON không
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-            return response.json();
+if (!window.toggleTag) {
+    window.toggleTag = function(element, text) {
+        if (selectedTags.includes(text)) {
+            selectedTags = selectedTags.filter(t => t !== text);
+            element.classList.remove('active');
         } else {
-            return response.text().then(text => { throw new Error(text); });
+            selectedTags.push(text);
+            element.classList.add('active');
         }
-    })
-    .then(data => {
-        if (data.success) { 
-            closeReview(); 
-            
-            // Logic gợi ý báo cáo nếu đánh giá thấp
-            if (parseInt(rating) <= 2) {
-                setTimeout(() => {
-                    showReportSuggestion(targetId);
-                }, 500);
-            } else {
-                alert('Cảm ơn bạn đã đánh giá!');
+    }
+}
+
+// Xử lý upload ảnh
+if (!window.handleImageSelect) {
+    window.handleImageSelect = function(event) {
+        const files = Array.from(event.target.files);
+        const container = document.getElementById('imagePreviewContainer');
+        
+        if (selectedFiles.length + files.length > 3) {
+            alert("Bạn chỉ được chọn tối đa 3 ảnh.");
+            return;
+        }
+
+        files.forEach(file => {
+            if (!file.type.startsWith('image/')) return;
+
+            selectedFiles.push(file);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" class="preview-thumb">
+                    <button class="btn-remove-img" type="button" onclick="removeImage('${file.name}', this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(previewItem);
             }
-        } else {
-            alert('Lỗi: ' + (data.message || 'Không rõ nguyên nhân'));
-        }
-    })
-    .catch(error => {
-        console.error('Lỗi hệ thống:', error);
-        // Hiển thị lỗi ngắn gọn
-        alert('Có lỗi xảy ra. Vui lòng kiểm tra Console (F12) để biết chi tiết.'); 
-    });
-}
+            reader.readAsDataURL(file);
+        });
 
-// ==========================================
-// 6. CÁC HÀM PHỤ TRỢ
-// ==========================================
-
-function showReportSuggestion(targetId) {
-    const choice = confirm(
-        "⚠️ CẢNH BÁO AN TOÀN \n\n" +
-        "Bạn đã đánh giá thấp người dùng này.\n" +
-        "Nếu bạn nghi ngờ có hành vi LỪA ĐẢO hoặc VI PHẠM, hãy báo cáo ngay.\n\n" +
-        "Chuyển đến trang Báo cáo?"
-    );
-
-    if (choice) {
-        window.location.href = '/baitaplon/Report/create?target_id=' + targetId;
+        event.target.value = '';
     }
 }
 
-function closeReview() {
-    const modal = document.getElementById('reviewModal');
-    if (modal) modal.remove();
-    document.body.style.overflow = ''; // Mở lại cuộn trang
-    resetDialogState();
+if (!window.removeImage) {
+    window.removeImage = function(fileName, buttonElement) {
+        selectedFiles = selectedFiles.filter(f => f.name !== fileName);
+        buttonElement.closest('.preview-item').remove();
+    }
+}
+
+// Gửi đánh giá
+if (!window.submitVote) {
+    window.submitVote = function() {
+        const targetId = document.getElementById('voteTargetId').value;
+        const rating = document.getElementById('voteRating').value;
+        let comment = document.getElementById('voteComment').value.trim();
+        const isTransactedEl = document.getElementById('isTransacted');
+        const isTransacted = (isTransactedEl && isTransactedEl.checked) ? 1 : 0;
+
+        if (rating == 0) {
+            document.getElementById('starError').style.display = 'block';
+            return;
+        }
+
+        if (selectedTags.length > 0) {
+            const tagString = selectedTags.map(t => `[${t}]`).join(' ');
+            comment = tagString + "\n" + comment;
+        }
+
+        const formData = new FormData();
+        formData.append('target_id', targetId);
+        formData.append('rating', rating);
+        formData.append('comment', comment);
+        formData.append('is_transacted', isTransacted);
+
+        selectedFiles.forEach((file) => {
+            formData.append('review_images[]', file);
+        });
+
+        // Gửi Ajax
+        fetch('/baitaplon/Vote/submit', { 
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) 
+        .then(data => {
+            if (data.success) { 
+                closeReview(); 
+                if (parseInt(rating) <= 2) {
+                    setTimeout(() => { showReportSuggestion(targetId); }, 500);
+                } else {
+                    alert('Cảm ơn bạn đã đánh giá!');
+                }
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không rõ nguyên nhân'));
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            alert('Lỗi hệ thống hoặc Server không phản hồi JSON.'); 
+        });
+    }
+}
+
+if (!window.showReportSuggestion) {
+    window.showReportSuggestion = function(targetId) {
+        const choice = confirm(
+            "⚠️ CẢNH BÁO AN TOÀN \n\n" +
+            "Bạn đã đánh giá thấp người dùng này.\n" +
+            "Nếu bạn nghi ngờ có hành vi LỪA ĐẢO hoặc VI PHẠM, hãy báo cáo ngay.\n\n" +
+            "Chuyển đến trang Báo cáo?"
+        );
+        if (choice) {
+            window.location.href = '/baitaplon/Report/create?target_id=' + targetId;
+        }
+    }
 }
