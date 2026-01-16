@@ -85,7 +85,7 @@ class Admin {
                         if ($avatarName && $avatarName !== 'default.png' && file_exists($uploadFileDir . $avatarName)) {
                             unlink($uploadFileDir . $avatarName);
                         }
-                        $avatarName = $newFileName;
+                        $avatarName = 'public/uploads/avatars/' . $newFileName;
                     }
                 }
             }
@@ -335,7 +335,6 @@ if ($this->profileModel->updateProfile($userId, $data)) {
             $contentView = __DIR__ . '/../views/admin/product_statistics.php';
             require_once __DIR__ . '/../views/admin/dashboard.php';
 
-            // --- ĐÃ XÓA ĐOẠN LẶP require_once Ở ĐÂY ---
 
         } catch (Exception $e) {
             echo "Lỗi: " . $e->getMessage();
