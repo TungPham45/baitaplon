@@ -18,46 +18,54 @@ function resetDialogState() {
 // ==========================================
 // 2. HÀM MỞ DIALOG (Đánh giá User)
 // ==========================================
-function openVoteDialog(el) {
-    let partnerId = el.getAttribute('data-partner-id'); 
-    
-    if (partnerId) partnerId = partnerId.trim(); 
+function openVoteDialog(element) {
+    // 1. Lấy dữ liệu từ nút bấm (đã thêm ở file HTML)
+    const partnerId = element.getAttribute('data-partner-id');
+    const partnerName = element.getAttribute('data-partner-name') || 'Người dùng';
+    const avatarSrc = element.getAttribute('data-avatar'); // Lấy đường dẫn ảnh
 
     if (!partnerId) {
-        alert('Lỗi: Không xác định được người dùng cần đánh giá!');
+        alert("Lỗi: Không tìm thấy ID người dùng.");
         return;
     }
 
-    // Xóa modal cũ nếu còn tồn tại
-    const oldModal = document.getElementById('reviewModal');
-    if (oldModal) oldModal.remove();
+    // 2. Reset lại form trước khi hiện (để xóa sao cũ, comment cũ)
+    // Nếu bạn chưa có hàm resetDialogState riêng thì có thể bỏ qua dòng này hoặc copy hàm reset ở dưới
+    if (typeof resetDialogState === "function") {
+        resetDialogState();
+    }
 
-    // Reset trạng thái
-    resetDialogState();
+    // 3. Điền ID và Tên vào Modal
+    document.getElementById('voteTargetId').value = partnerId;
+    
+    const nameEl = document.querySelector('#reviewModal .user-name');
+    if (nameEl) nameEl.textContent = partnerName;
 
-    // Gọi Fetch lấy HTML dialog
-    // Đảm bảo đường dẫn này đúng với Router của bạn
-    const url = '/baitaplon/Vote/dialog/' + encodeURIComponent(partnerId);
+    // 4. XỬ LÝ HIỆN AVATAR (Phần quan trọng nhất)
+    const avatarContainer = document.querySelector('#reviewModal .avatar-circle');
+    
+    if (avatarContainer) {
+        avatarContainer.innerHTML = ''; // Xóa nội dung cũ (chữ cái hoặc ảnh cũ)
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error(response.statusText);
-            return response.text();
-        })
-        .then(html => {
-            if (html.includes("Fatal error") || html.includes("Warning")) {
-                alert("Lỗi Server: " + html);
-                return;
-            }
+        if (avatarSrc && avatarSrc.trim() !== '') {
+            // Nếu có ảnh -> Tạo thẻ IMG chèn vào
+            // Kiểm tra xem đường dẫn có dấu '/' ở đầu chưa để nối chuỗi cho đúng
+            const imgPath = avatarSrc.startsWith('/') ? avatarSrc : '/baitaplon/' + avatarSrc;
+            
+            avatarContainer.innerHTML = `<img src="${imgPath}" alt="Avt" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else {
+            // Nếu không có ảnh -> Lấy chữ cái đầu của tên
+            const firstLetter = partnerName.charAt(0).toUpperCase();
+            avatarContainer.textContent = firstLetter;
+        }
+    }
 
-            // Chèn HTML vào cuối body
-            document.body.insertAdjacentHTML('beforeend', html);
-            document.body.style.overflow = 'hidden'; // Khóa cuộn trang
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Không thể mở hộp thoại: " + err.message);
-        });
+    // 5. Hiện Modal lên
+    const modal = document.getElementById('reviewModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Khóa cuộn trang
+    }
 }
 
 // ==========================================

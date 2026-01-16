@@ -181,7 +181,7 @@
             
             <input type="hidden" name="message_id" id="editMessageId">
             
-            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn..." required>
+            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn..." required autofocus>
             
             <button type="submit">
                 <i class="bi bi-send-fill"></i>
@@ -209,7 +209,12 @@
                 <i class="bi bi-search" style="color: #6610f2;"></i>  Tìm kiếm tin nhắn
             </li>
             
-            <li data-partner-id="<?= $sender_id ?>" onclick="openVoteDialog(this)">
+            <li 
+                data-partner-id="<?= $sender_id ?>" 
+                data-partner-name="<?= htmlspecialchars($sender_name) ?>" 
+                data-avatar="<?= htmlspecialchars($sender_avatar) ?>" 
+                onclick="openVoteDialog(this)"
+            >
                 <i class="bi bi-star-fill" style="color: #fd7e14;"></i>  Đánh giá người dùng
             </li>
           
@@ -229,6 +234,6 @@
 <script src="/baitaplon/public/js/OpenSearchMessage.js"></script>
 <script src="/baitaplon/public/js/openDialogVote.js"></script>
 <script src="/baitaplon/public/js/deleteMessage.js"></script>
-
+<?php require_once __DIR__ . '/../Vote/Dialog.php'; ?>
 </body>
 </html>

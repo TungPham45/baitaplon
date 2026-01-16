@@ -3,8 +3,7 @@
 <script src="/baitaplon/public/js/openDialogVote.js"></script>
 
 
-
-<div class="modal-overlay" id="reviewModal">
+<div class="modal-overlay" id="reviewModal" style="display: none;">
     <div class="modal">
         <div class="modal-header">
             <h3>Đánh giá trải nghiệm</h3>
@@ -14,24 +13,24 @@
         </div>
 
         <div class="modal-body">
-            <input type="hidden" id="voteTargetId" value="<?= htmlspecialchars($target_id ?? '') ?>">
+            <input type="hidden" id="voteTargetId" value="">
             <input type="hidden" id="voteRating" value="0">
 
             <div class="profile-section">
-                <div class="avatar-circle">
-                    <?= strtoupper(substr($target_name ?? 'U', 0, 1)) ?>
-                </div>
-                <div class="user-name"><?= htmlspecialchars($target_name ?? 'Người dùng') ?></div>
+                <div class="avatar-circle"></div>
+                
+                <div class="user-name">Người dùng</div>
+                
                 <div class="user-context">Bạn cảm thấy thế nào về cuộc trò chuyện này?</div>
             </div>
 
             <div class="rating-section">
                 <div class="star-rating">
-                    <span onclick="setRating(1)" data-star="1"><i class="fas fa-star"></i></span>
-                    <span onclick="setRating(2)" data-star="2"><i class="fas fa-star"></i></span>
-                    <span onclick="setRating(3)" data-star="3"><i class="fas fa-star"></i></span>
-                    <span onclick="setRating(4)" data-star="4"><i class="fas fa-star"></i></span>
-                    <span onclick="setRating(5)" data-star="5"><i class="fas fa-star"></i></span>
+                    <span onclick="setRating(1)" data-star="1"><i class="far fa-star"></i></span>
+                    <span onclick="setRating(2)" data-star="2"><i class="far fa-star"></i></span>
+                    <span onclick="setRating(3)" data-star="3"><i class="far fa-star"></i></span>
+                    <span onclick="setRating(4)" data-star="4"><i class="far fa-star"></i></span>
+                    <span onclick="setRating(5)" data-star="5"><i class="far fa-star"></i></span>
                 </div>
                 <div id="ratingLabel" class="rating-text"></div>
                 <small id="starError" style="color:#ef4444; display:none;">Vui lòng chọn số sao</small>

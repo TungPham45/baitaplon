@@ -236,8 +236,8 @@ if ($totalReviews > 0) {
                             <?php endif; ?>
                         </div>
 
-                        <div class="tab-pane fade" id="reviews">
-                             <?php if (empty($reviews)): ?>
+                      <div class="tab-pane fade" id="reviews">
+                            <?php if (empty($reviews)): ?>
                                 <div class="text-center py-5">
                                     <div class="mb-3 text-muted display-4"><i class="bi bi-chat-square-text"></i></div>
                                     <p class="text-muted">Chưa có đánh giá nào.</p>
@@ -245,19 +245,50 @@ if ($totalReviews > 0) {
                             <?php else: ?>
                                 <div class="d-flex flex-column gap-3">
                                     <?php foreach ($reviews as $rv): ?>
-                                    <div class="p-3 border rounded bg-light">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <img src="<?= !empty($rv['reviewer_avatar']) ? "/baitaplon/public/uploads/avatars/".basename($rv['reviewer_avatar']) : "/baitaplon/public/uploads/avatars/default.png" ?>" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
-                                            <div>
-                                                <div class="fw-bold"><?= htmlspecialchars($rv['reviewer_name']) ?></div>
-                                                <div class="text-warning small">
-                                                    <?php for($i=1; $i<=5; $i++) echo ($i <= $rv['rating']) ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>'; ?>
+                                        <div class="p-3 border rounded bg-light">
+                                            
+                                            <div class="d-flex align-items-center mb-2">
+                                                <?php 
+                                                    // CÁCH LẤY ẢNH ĐƠN GIẢN (GIỐNG SẢN PHẨM)
+                                                    // Nếu có avatar thì nối chuỗi, không thì dùng ảnh mặc định
+                                                    $rvAvatarUrl = !empty($rv['reviewer_avatar']) 
+                                                        ? "/baitaplon/" . $rv['reviewer_avatar'] 
+                                                        : "/baitaplon/public/uploads/avatars/default.png";
+                                                ?>
+                                                
+                                                <img src="<?= htmlspecialchars($rvAvatarUrl) ?>" 
+                                                    class="rounded-circle me-2 border" 
+                                                    width="40" height="40" 
+                                                    style="object-fit: cover;">
+                                                
+                                                <div>
+                                                    <div class="fw-bold"><?= htmlspecialchars($rv['reviewer_name']) ?></div>
+                                                    <div class="text-warning small">
+                                                        <?php for($i=1; $i<=5; $i++) echo ($i <= $rv['rating']) ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>'; ?>
+                                                    </div>
                                                 </div>
+                                                <small class="ms-auto text-muted"><?= date('d/m/Y', strtotime($rv['created_at'])) ?></small>
                                             </div>
-                                            <small class="ms-auto text-muted"><?= date('d/m/Y', strtotime($rv['created_at'])) ?></small>
+
+                                            <p class="mb-2 text-dark"><?= nl2br(htmlspecialchars($rv['comment'])) ?></p>
+
+                                            <?php if (!empty($rv['images']) && is_array($rv['images'])): ?>
+                                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                                    <?php foreach ($rv['images'] as $img_path): ?>
+                                                        <?php 
+                                                            $reviewImgUrl = "/baitaplon/Public/" . $img_path; 
+                                                        ?>
+                                                        <a href="<?= htmlspecialchars($reviewImgUrl) ?>" target="_blank">
+                                                            <img src="<?= htmlspecialchars($reviewImgUrl) ?>" 
+                                                                class="rounded border" 
+                                                                style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                                                                alt="Ảnh đánh giá">
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+
                                         </div>
-                                        <p class="mb-2 text-dark"><?= nl2br(htmlspecialchars($rv['comment'])) ?></p>
-                                    </div>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
