@@ -4,7 +4,7 @@
         document.getElementById('modal_report_id').value = reportId;
         document.getElementById('modal_reported_id').value = userId;
         document.getElementById('modal_user_name').value = userName;
-        document.getElementById('ban_reason').value = ''; // Reset lý do
+        document.getElementById('ban_reason').value = ''; 
         document.getElementById('banModal').style.display = 'flex';
     }
 

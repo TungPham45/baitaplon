@@ -26,3 +26,4 @@ function filterTable() {
         }
     }
 }
+    

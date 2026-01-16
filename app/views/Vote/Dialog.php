@@ -47,7 +47,7 @@
             <div class="feedback-tags" id="feedbackTags" style="display:none;"></div>
 
             <div class="input-group">
-                <textarea id="voteComment" rows="3" placeholder="Chia sẻ thêm chi tiết (Thái độ, chất lượng sản phẩm...)..."></textarea>
+                <textarea id="voteComment" rows="3" placeholder="Chia sẻ thêm chi tiết (Thái độ, chất lượng sản phẩm...)..." ></textarea>
             </div>
 
             <div class="upload-zone">

@@ -4,9 +4,9 @@
 <div class="admin-page-header">
     <h2 style="margin: 0; color: #2c3e50;"><i class="fas fa-flag text-danger"></i> Quản lý Báo cáo Vi phạm</h2>
     <div class="header-actions">
-        <button onclick="exportToExcel()" class="btn-excel">
-            <i class="fa-solid fa-file-csv"></i> Xuất Excel
-        </button>
+    <button onclick="window.location.href='/baitaplon/AdminReport/exportExcel'" class="btn-excel">
+        <i class="fa-solid fa-file-csv"></i> Xuất Excel
+    </button>
         <span class="badge-count"><?= !empty($reports) ? count($reports) : 0 ?> đơn</span>
     </div>
 </div>
@@ -51,7 +51,11 @@
                             <td>
                                 <div class="user-cell">
                                     <div class="avatar-circle bg-blue">
-                                        <?= strtoupper(substr($r['reporter_name'] ?? 'U', 0, 1)) ?>
+                                        <?php if (!empty($r['reporter_avatar'])): ?>
+                                        <img src="/baitaplon/<?= htmlspecialchars($r['reporter_avatar']) ?>" alt="Avt">
+                                        <?php else: ?>
+                                         <?= strtoupper(substr($r['reporter_name'] ?? 'U', 0, 1)) ?>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="user-info">
                                         <div class="name reporter-name"><?= htmlspecialchars($r['reporter_name'] ?? 'Unknown') ?></div>
@@ -62,8 +66,12 @@
 
                             <td>
                                 <div class="user-cell">
-                                    <div class="avatar-circle bg-red">
-                                        <?= strtoupper(substr($r['reported_name'] ?? 'U', 0, 1)) ?>
+                                    <div class="avatar-circle bg-blue">
+                                        <?php if (!empty($r['reported_avatar'])): ?>
+                                        <img src="/baitaplon/<?= htmlspecialchars($r['reported_avatar']) ?>" alt="Avt">
+                                        <?php else: ?>
+                                         <?= strtoupper(substr($r['reported_name'] ?? 'U', 0, 1)) ?>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="user-info">
                                         <div class="name text-danger reported-name"><?= htmlspecialchars($r['reported_name'] ?? 'Unknown') ?></div>
@@ -172,5 +180,6 @@
     </div>
 </div>
 
-<script src="/baitaplon/public/js/exportExcel.js"></script>
 <script src="/baitaplon/public/js/SearchNameReport.js"></script>
+<script src="/baitaplon/public/js/BanUser.js"></script>
+

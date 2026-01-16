@@ -46,9 +46,7 @@ class VoteModel {
         }
         return false; // Không tìm thấy hội thoại chung
     }
-    // =========================================================================
-    // 🔥 [UPDATE] HÀM LƯU ĐÁNH GIÁ (Bao gồm Xác nhận giao dịch & Hình ảnh)
-    // =========================================================================
+   
     public function addReview($reviewer_id, $rated_user_id, $rating, $comment, $is_transacted, $files = null) {
         
         // 1. Insert vào bảng REVIEWS trước
@@ -66,7 +64,7 @@ class VoteModel {
 
             // 2. Xử lý lưu ảnh (Nếu có file gửi lên)
             if ($files && !empty($files['review_images']['name'][0])) {
-$this->saveReviewImages($review_id, $files);
+                $this->saveReviewImages($review_id, $files);
             }
 
             return true;

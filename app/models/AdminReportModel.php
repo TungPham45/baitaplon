@@ -7,16 +7,15 @@ class AdminReportModel {
     public function __construct($conn) {
         $this->conn = $conn;
     }
-
-    // Lấy tất cả báo cáo (Mới nhất lên đầu)
-
         public function getAllReports() {
             // 🔥 ĐÃ SỬA: Xóa u1.email và u2.email đi để tránh lỗi
             $sql = "
                 SELECT 
                     r.*, 
-                    u1.hoten AS reporter_name, 
-                    u2.hoten AS reported_name
+                        u1.hoten AS reporter_name, 
+                        u2.hoten AS reported_name,
+                        u1.avatar AS reporter_avatar,
+                        u2.avatar AS reported_avatar
                 FROM reports r
                 JOIN users u1 ON r.reporter_id = u1.id_user  
                 JOIN users u2 ON r.reported_id = u2.id_user  

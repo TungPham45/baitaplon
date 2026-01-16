@@ -69,8 +69,7 @@ class ChatModel {
             if ($row = $res->fetch_assoc()) {
                 $existing_id = (int)$row['id_conversation'];
                 
-                // 🔥 QUAN TRỌNG: Nếu người dùng bấm chat từ 1 sản phẩm mới ($product_id có giá trị)
-                // Ta cần cập nhật hội thoại cũ này để nó ghim sản phẩm mới đó
+
                 if ($product_id) {
                     $this->updateConversationProduct($existing_id, $product_id);
                 }
@@ -168,51 +167,53 @@ class ChatModel {
             $row = $stmt->get_result()->fetch_assoc();
             return $row['id_user'] ?? '';
         }
-        public function removeConversationForUser($conversation_id, $user_id) {
-                // Cách 1: Xóa hẳn user khỏi conversation_users (User kia vẫn thấy chat, nhưng user này sẽ mất lịch sử)
+        // Cách 1: Xóa hẳn user khỏi conversation_users (User kia vẫn thấy chat, nhưng user này sẽ mất lịch sử)
+        public function removeConversationForUser($conversation_id, $user_id) 
+            {
                 $sql = "DELETE FROM conversation_users WHERE id_conversation = ? AND id_user = ?";
-                
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bind_param("is", $conversation_id, $user_id);
                 return $stmt->execute();
             }
-    public function isUserBanned($user_id) {
-        // Giả sử bảng chứa trạng thái là 'account' và cột là 'trangthai'
-        // Nếu hệ thống bạn lưu ở bảng 'users', hãy đổi 'account' thành 'users'
-        $sql = "SELECT trangthai FROM account WHERE id_user = ? LIMIT 1";
-        
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-        
-        // Trả về TRUE nếu bị khóa, FALSE nếu bình thường
-        return ($result && $result['trangthai'] === 'Bị khóa');
-    }
-    // Tìm kiếm hội thoại theo tên người nhận
-    public function searchConversationBySenderName($my_id, $keyword){
-        $sql = "
+
+        public function isUserBanned($user_id) {
+            // Giả sử bảng chứa trạng thái là 'account' và cột là 'trangthai'
+            // Nếu hệ thống bạn lưu ở bảng 'users', hãy đổi 'account' thành 'users'
+            $sql = "SELECT trangthai FROM account WHERE id_user = ? LIMIT 1";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_assoc();
+            
+            // Trả về TRUE nếu bị khóa, FALSE nếu bình thường
+            return ($result && $result['trangthai'] === 'Bị khóa');
+        }
+        // Tìm kiếm hội thoại theo tên người nhận
+        public function searchConversationBySenderName($my_id, $keyword){
+            $sql = "
             SELECT 
-                c.id_conversation,
-                c.last_message_at,
-                u.id_user,
-                u.hoten,
-                (SELECT m.content FROM messages m WHERE m.id_conversation = c.id_conversation ORDER BY m.created_at DESC LIMIT 1) AS last_message
-            FROM conversations c
-            JOIN conversation_users cu1 ON c.id_conversation = cu1.id_conversation
-            JOIN conversation_users cu2 ON c.id_conversation = cu2.id_conversation
-            JOIN users u ON cu2.id_user = u.id_user
-            WHERE cu1.id_user = ?
-            AND cu2.id_user != ?
-            AND u.hoten LIKE ?
-            ORDER BY c.last_message_at DESC
-        ";
-        $stmt = $this->conn->prepare($sql);
-        $like = '%' . $keyword . '%';
-        $stmt->bind_param("sss", $my_id, $my_id, $like); // "sss"
-        $stmt->execute();
-        return $stmt->get_result();
-    }
+            c.id_conversation,
+            c.last_message_at,
+            u.id_user,
+            u.hoten,
+            u.avatar,
+            (SELECT m.content FROM messages m WHERE m.id_conversation = c.id_conversation ORDER BY m.created_at DESC LIMIT 1) AS last_message
+                FROM conversations c
+                JOIN conversation_users cu1 ON c.id_conversation = cu1.id_conversation
+                JOIN conversation_users cu2 ON c.id_conversation = cu2.id_conversation
+                JOIN users u ON cu2.id_user = u.id_user
+                WHERE cu1.id_user = ?
+                AND cu2.id_user != ?
+                AND u.hoten LIKE ?
+                ORDER BY c.last_message_at DESC
+            ";
+            $stmt = $this->conn->prepare($sql);
+            $like = '%' . $keyword . '%';
+            $stmt->bind_param("sss", $my_id, $my_id, $like); // "sss"
+            $stmt->execute();
+            return $stmt->get_result();
+        }
 
     public function updateMessage($message_id, $user_id, $content){
         $sql = "UPDATE messages SET content = ?, updated_at = NOW() WHERE id_message = ? AND sender_id = ?";

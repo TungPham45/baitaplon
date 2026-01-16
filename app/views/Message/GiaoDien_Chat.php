@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Chat Realtime</title>
+    <title>Chat</title>
     <link rel="stylesheet" href="/baitaplon/public/css/GiaoDien_Chat.css">
     
 </head>
@@ -30,7 +30,6 @@
         <div class="chat-users">
             <?php if (!empty($conversations)): ?>
                 <?php foreach ($conversations as $c): ?>
-                    
                     <div class="chat-user <?= ($c['id_conversation'] == ($active_conversation_id ?? 0)) ? 'active' : '' ?>"
                         onclick="window.location.href='/baitaplon/Chat/start/<?= $c['id_conversation'] ?>'" >
 
@@ -55,7 +54,6 @@
                             <?= isset($c['last_message_at']) ? formatChatTime($c['last_message_at']) : '' ?>
                         </div>
                     </div>
-
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="chat-empty">Không tìm thấy cuộc trò chuyện</div>
@@ -181,11 +179,10 @@
             <?php endif; ?>
             
             <input type="hidden" name="message_id" id="editMessageId">
-            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn..." autofocus>
+            <input type="text" name="message" id="chatInput" autocomplete="off" placeholder="Nhập tin nhắn..." autofocus required>
             <button type="submit">➤</button>
-        </form>
-    </div>
-
+         </form>
+        </div>
     <div class="chat-info">
         
         <div class="avatar-large">

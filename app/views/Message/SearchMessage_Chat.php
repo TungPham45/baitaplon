@@ -1,6 +1,6 @@
 <head>
     <meta charset="UTF-8">
-    <title>Chat Realtime</title>
+    <title>Chat</title>
 
     <!-- CSS chính -->
     <link rel="stylesheet"
@@ -11,11 +11,9 @@
           href="/baitaplon/public/css/SearchMessage_Chat.css">
 </head>
 
-
 <form method="post"
       action="/baitaplon/chat/searchMessage"
       id="searchMessageForm">
-
        <div class="chat-search-center" id="chatSearch">
         <div class="search-wrapper">
             <input

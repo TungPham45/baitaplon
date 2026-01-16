@@ -25,7 +25,7 @@ document.addEventListener('click', function (e) {
 
        let isEditing = false;
 
-        function editMessage(id) {
+    function editMessage(id) {
             // 1️⃣ Lấy element nội dung tin nhắn
             const msgEl = document.querySelector(
                 '.message-content[data-id="' + id + '"]'

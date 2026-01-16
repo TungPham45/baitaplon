@@ -19,9 +19,7 @@ class ReportModel {
         
         return $stmt->execute();
     }
-    // app/models/ReportModel.php
 
-    //Check trùng report
     public function checkPendingReport($reporter_id, $target_id) {
         // Logic: Tìm xem có đơn nào của Reporter gửi cho Target mà trạng thái đang là 'PENDING' không?
         $sql = "SELECT id_report 

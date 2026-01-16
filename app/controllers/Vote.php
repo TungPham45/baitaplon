@@ -12,37 +12,28 @@ class Vote {
         $this->voteModel = new VoteModel($conn);
     }
 
-    // ==================================================
-    // 1. HIỆN POPUP ĐÁNH GIÁ NGƯỜI DÙNG
-    // URL: /Vote/dialog/{partner_id}
-    // ==================================================
+
     public function dialog($partner_id) {
         // 1. Kiểm tra đăng nhập
         if (!isset($_SESSION['user_id'])) {
             echo "Lỗi: Bạn chưa đăng nhập.";
             return;
         }
-
         $my_id = $_SESSION['user_id'];
-
         // 2. Không cho tự đánh giá mình
         if ($partner_id === $my_id) {
             echo "Lỗi: Không thể tự đánh giá bản thân.";
             return;
         }
-        
         // 3. Lấy thông tin người bị đánh giá
         $partnerInfo = $this->voteModel->getUserInfo($partner_id);
-
         if (!$partnerInfo) {
             echo "Lỗi: Người dùng không tồn tại.";
             return;
         }
-
         // 4. Chuẩn bị dữ liệu truyền sang View
         $target_id    = $partnerInfo['id_user']; 
         $target_name  = $partnerInfo['hoten'];
-        
         // Gọi View dialog
         require __DIR__ . '/../views/Vote/dialog.php';
     }
@@ -83,7 +74,6 @@ class Vote {
             echo json_encode(['success' => false, 'message' => 'Bạn cần trao đổi/nhắn tin với người này trước khi đánh giá.']);
             return;
         }
-
         // 5. Gọi Model để lưu (Truyền thêm $is_transacted và $_FILES)
         // $_FILES chứa các file ảnh được gửi lên từ form
         $result = $this->voteModel->addReview(

@@ -42,9 +42,7 @@ class AdminReport {
                         // 1. Cập nhật trạng thái báo cáo (AdminReportModel)
                         $this->reportModel->updateStatus($report_id, 'PROCESSED', 'Đã khóa tài khoản. Lý do: ' . $ban_reason);
                         
-                        // 2. ✅ GỌI HÀM KHÓA TÀI KHOẢN TỪ USER MODEL (Truyền thêm lý do)
-                        // Lưu ý: Bạn cần sửa UserModel để nhận thêm tham số thứ 2
-                       // ...
+
                         $isBanned = $this->userModel->banUser($reported_id, $ban_reason);
                         if ($isBanned) {
                             echo "<script>
@@ -68,6 +66,73 @@ class AdminReport {
                     }
                 }
             }
+
+
+
+
+        public function exportExcel() {
+        // 1. Lấy TOÀN BỘ dữ liệu từ Model (Không phân trang)
+        // Giả sử hàm getAllReports() của bạn đã lấy đủ thông tin (Join bảng users để lấy tên)
+        $reports = $this->reportModel->getAllReports(); 
+
+        // 2. Đặt tên file
+        $filename = "Bao_Cao_Full_" . date('Y-m-d_H-i') . ".csv";
+
+        // 3. Cấu hình Header để trình duyệt hiểu đây là file tải về
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        // 4. Mở luồng ghi dữ liệu (Output Stream)
+        $output = fopen('php://output', 'w');
+
+        // --- QUAN TRỌNG: Thêm BOM để Excel hiển thị đúng Tiếng Việt ---
+        fputs($output, "\xEF\xBB\xBF");
+
+        // 5. Viết dòng Tiêu đề (Header)
+        // Dùng dấu chấm phẩy (;) để Excel tự chia cột
+        fputcsv($output, [
+            'ID', 
+            'Người Tố Cáo', 
+            'Người Bị Tố Cáo', 
+            'Lý Do', 
+            'Mô Tả Chi Tiết', 
+            'Bằng Chứng (Link)', 
+            'Trạng Thái',
+            'Ngày Tạo'
+        ], ';'); 
+
+        // 6. Duyệt dữ liệu và ghi từng dòng
+        foreach ($reports as $row) {
+            
+            // Xử lý dữ liệu thô thành dữ liệu đẹp (nếu cần)
+            $statusLabel = '';
+            switch ($row['status']) {
+                case 'PENDING': $statusLabel = 'Chờ xử lý'; break;
+                case 'PROCESSED': $statusLabel = 'Đã xử lý'; break;
+                case 'REJECTED': $statusLabel = 'Đã hủy'; break;
+                default: $statusLabel = $row['status'];
+            }
+
+            // Tạo link ảnh đầy đủ (nếu có)
+            $evidenceLink = !empty($row['evidence_image']) ? "http://localhost/baitaplon/" . $row['evidence_image'] : "Không có";
+
+            // Ghi dòng dữ liệu vào file
+            fputcsv($output, [
+                $row['id_report'],
+                $row['reporter_name'] . " (ID: " . $row['reporter_id'] . ")", // Gộp tên + ID
+                $row['reported_name'] . " (ID: " . $row['reported_id'] . ")",
+                $row['reason'],
+                $row['description'],
+                $evidenceLink,
+                $statusLabel,
+                $row['created_at'] // Giả sử trong DB có cột này
+            ], ';');
+        }
+
+        // 7. Đóng luồng và kết thúc
+        fclose($output);
+        exit;
+    }
 
 }
 ?>
