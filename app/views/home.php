@@ -262,9 +262,9 @@
                             // Lấy role từ Session và xử lý khoảng trắng thừa (nếu có)
                             $role = isset($_SESSION['role']) ? trim($_SESSION['role']) : '';
                             if ($role === 'Quản lý'):
-                                ?>
+                            ?>
                                 <li>
-                                    <a class="dropdown-item fw-bold text-primary" href="/baitaplon/Admin/dashboard">
+                                    <a class="dropdown-item fw-bold admin-menu-item" href="/baitaplon/Admin/dashboard">
                                         <i class="bi bi-speedometer2"></i> Quản lý Web
                                     </a>
                                 </li>
