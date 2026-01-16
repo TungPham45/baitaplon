@@ -40,6 +40,18 @@ if ($p['trangthai'] == 'Dừng bán') {
 }
 ?>
 
+<script>
+    // Check trạng thái sản phẩm khi trang vừa load
+    document.addEventListener('DOMContentLoaded', function() {
+        const productStatus = '<?= isset($p['trangthai']) ? htmlspecialchars($p['trangthai']) : '' ?>';
+        
+        if (productStatus === 'Dừng bán') {
+            alert('Sản phẩm này đã dừng bán!');
+            history.back();
+        }
+    });
+</script>
+
 <div class="container mt-5 mb-5">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">

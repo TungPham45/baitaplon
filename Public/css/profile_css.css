@@ -1,127 +1,41 @@
-/* ========================================
-   PROFILE PAGE - MODERN LIGHT DESIGN
-   Simple, Clean, User-Friendly
-   ======================================== */
-
-:root {
-    --primary-color: #4e73df;
-    --secondary-color: #6c757d;
-    --success-color: #1cc88a;
-    --warning-color: #f6ad55;
-    --danger-color: #e74c3b;
-    --light-bg: #f8f9fa;
-    --lighter-bg: #ffffff;
-    --border-color: #e3e6f0;
-    --text-primary: #2c3e50;
-    --text-secondary: #6c757d;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-/* ========================================
-   1. PROFILE CARD
-   ======================================== */
+/* CSS PROFILE CARD ĐÃ SỬA LỖI */
 .profile-card {
-    border: none;
     border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--lighter-bg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.profile-card:hover {
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
-    transform: translateY(-4px);
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    /* Bỏ min-height cố định để tránh đẩy content */
+    display: flex;
+    flex-direction: column;
 }
 
 .cover-photo {
     height: 120px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.cover-photo::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #0d6efd, #0dcaf0);
 }
 
 .avatar-container {
+    position: relative;
+    margin-top: -60px; /* Đẩy avatar lên đè cover */
+    margin-bottom: 15px;
     display: flex;
     justify-content: center;
-    margin-top: -50px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 10;
 }
 
 .profile-avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
+    width: 120px;
+    height: 120px;
     object-fit: cover;
-    border: 5px solid var(--lighter-bg);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background: #fff;
 }
 
-.profile-avatar:hover {
-    transform: scale(1.05);
-}
-
-.profile-card .card-body {
-    padding: 0 1.5rem 1.5rem;
-    text-align: center;
-}
-
-.profile-card h4 {
-    color: var(--text-primary);
-    margin-bottom: 0.3rem;
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
-
-.profile-card .text-muted {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 1rem;
-}
-
-.profile-card .text-warning {
-    color: var(--warning-color) !important;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-}
-
-.profile-card .text-warning i {
-    margin-right: 4px;
-}
-
-/* ========================================
-   2. INFO SECTION
-   ======================================== */
 .info-section {
-    background: var(--light-bg);
-    border-radius: 10px;
-    padding: 1.2rem;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-.info-section:hover {
-    background: #ffffff;
-    border-color: var(--primary-color);
+    padding: 0 20px;
+    margin-top: 10px;
+    text-align: left;
 }
 
 .info-row {
@@ -129,446 +43,25 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 10px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.info-row:last-child {
-    margin-bottom: 0;
-}
-
-.info-row:hover {
-    background-color: rgba(78, 115, 223, 0.05);
-    transform: translateX(2px);
+    color: #555;
+    font-size: 0.95rem;
 }
 
 .info-row i {
-    color: var(--primary-color);
-    font-size: 1rem;
-    width: 24px;
+    color: #0d6efd;
+    font-size: 1.1rem;
+    width: 20px;
     text-align: center;
-    flex-shrink: 0;
 }
 
-.info-row span {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    word-break: break-word;
-}
-
-/* ========================================
-   3. TABS STYLING
-   ======================================== */
-.nav-tabs {
-    border-bottom: 2px solid var(--border-color);
-    gap: 0.5rem;
-}
-
-.nav-tabs .nav-link {
-    color: var(--text-secondary);
-    border: none;
-    padding: 0.75rem 1.2rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.25s ease;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    border-radius: 8px 8px 0 0;
-    background: transparent;
-}
-
-.nav-tabs .nav-link:hover {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    background: rgba(78, 115, 223, 0.05);
-}
-
-.nav-tabs .nav-link.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-    background-color: transparent;
-    font-weight: 700;
-}
-
-.card-header {
-    background-color: var(--lighter-bg) !important;
-    border-bottom: 2px solid var(--border-color) !important;
-}
-
-/* ========================================
-   4. PRODUCT ITEMS
-   ======================================== */
-.product-item-wrapper .card {
-    border: 1px solid var(--border-color);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    background: var(--lighter-bg);
-    border-radius: 10px;
-}
-
-.product-item-wrapper .card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(78, 115, 223, 0.15);
-}
-
+/* Badge trạng thái */
 .status-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 12px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border-radius: 6px;
-    text-transform: uppercase;
-    z-index: 5;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    top: 10px; right: 10px; z-index: 10;
+    padding: 4px 8px; border-radius: 4px;
+    font-size: 0.75rem; font-weight: bold; color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-
-.status-badge.bg-sold {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.status-badge.bg-pending {
-    background-color: var(--warning-color);
-    color: white;
-}
-
-.status-badge.bg-danger {
-    background-color: var(--danger-color);
-    color: white;
-}
-
-.card-title {
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.card-body {
-    padding: 1rem !important;
-}
-
-.card-body .text-danger {
-    color: var(--danger-color) !important;
-    font-size: 1.05rem;
-    font-weight: 700;
-}
-
-.btn-outline-primary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-    font-size: 0.8rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* ========================================
-   5. REVIEWS
-   ======================================== */
-.p-3.border.rounded.bg-light {
-    border: 1px solid var(--border-color) !important;
-    background-color: var(--light-bg) !important;
-    border-radius: 10px !important;
-    transition: all 0.2s ease;
-}
-
-.p-3.border.rounded.bg-light:hover {
-    background-color: var(--lighter-bg) !important;
-    border-color: var(--primary-color);
-}
-
-.p-3.border.rounded.bg-light .fw-bold {
-    color: var(--text-primary);
-    font-size: 0.95rem;
-}
-
-.p-3.border.rounded.bg-light .text-dark {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    font-size: 0.9rem;
-}
-
-/* ========================================
-   6. FILTER & ACTION BAR
-   ======================================== */
-.d-flex.flex-wrap.justify-content-between.align-items-center.mb-4.p-3.bg-light.rounded.border {
-    background-color: var(--light-bg) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 10px !important;
-    gap: 1rem;
-}
-
-.form-select-sm {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    color: var(--text-primary);
-    background-color: var(--lighter-bg);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.form-select-sm:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
-    outline: none;
-}
-
-.form-select-sm:hover {
-    border-color: var(--primary-color);
-}
-
-.btn-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-success:hover {
-    background-color: #16a085;
-    border-color: #16a085;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(28, 200, 138, 0.3);
-}
-
-/* ========================================
-   7. EMPTY STATE
-   ======================================== */
-.text-center.py-5 {
-    color: var(--text-secondary);
-    padding: 3rem 1rem !important;
-}
-
-.text-center.py-5 .display-4 {
-    color: var(--border-color);
-    margin-bottom: 1rem;
-    font-size: 3rem;
-}
-
-/* ========================================
-   8. MODAL STYLING
-   ======================================== */
-.modal-content {
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    background: var(--lighter-bg);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-    background-color: var(--light-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1.5rem;
-}
-
-.modal-header h5 {
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.modal-body {
-    padding: 1.5rem;
-    color: var(--text-secondary);
-}
-
-.form-label {
-    color: var(--text-primary);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.form-control {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.7rem 0.9rem;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    background-color: var(--lighter-bg);
-    color: var(--text-primary);
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
-    outline: none;
-    background-color: var(--lighter-bg);
-}
-
-.form-control::placeholder {
-    color: #adb5bd;
-    font-weight: 400;
-}
-
-.form-control-sm {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.85rem;
-}
-
-/* ========================================
-   9. BUTTON STYLING
-   ======================================== */
-.btn {
-    font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.25s ease;
-    padding: 0.6rem 1rem;
-    font-size: 0.95rem;
-    border: none;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #375a7f;
-    border-color: #375a7f;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(78, 115, 223, 0.3);
-}
-
-.btn-primary:active {
-    transform: translateY(0);
-}
-
-.btn-secondary {
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #5a6268;
-    transform: translateY(-2px);
-}
-
-.btn-outline-primary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-    background: transparent;
-}
-
-.btn-outline-primary:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.btn-sm {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.8rem;
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #d23a2f;
-    border-color: #d23a2f;
-    transform: translateY(-2px);
-}
-
-/* ========================================
-   10. RESPONSIVE ADJUSTMENTS
-   ======================================== */
-@media (max-width: 768px) {
-    .profile-card {
-        margin-bottom: 1.5rem;
-    }
-
-    .container.py-5 {
-        padding: 1rem 0.75rem !important;
-    }
-
-    .nav-tabs .nav-link {
-        padding: 0.6rem 0.9rem;
-        font-size: 0.85rem;
-    }
-
-    .card-body {
-        padding: 0.75rem !important;
-    }
-
-    .product-item-wrapper {
-        min-height: auto;
-    }
-
-    .d-flex.flex-wrap.justify-content-between.align-items-center.mb-4.p-3.bg-light.rounded.border {
-        flex-direction: column;
-        gap: 1rem !important;
-    }
-
-    .d-flex.flex-wrap.justify-content-between.align-items-center.mb-4.p-3.bg-light.rounded.border form {
-        width: 100%;
-    }
-
-    .d-flex.flex-wrap.justify-content-between.align-items-center.mb-4.p-3.bg-light.rounded.border .btn {
-        width: 100%;
-    }
-
-    .form-select {
-        width: 100% !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .profile-avatar {
-        width: 80px;
-        height: 80px;
-    }
-
-    .profile-card h4 {
-        font-size: 1.1rem;
-    }
-
-    .cover-photo {
-        height: 90px;
-    }
-
-    .avatar-container {
-        margin-top: -40px;
-    }
-
-    .row.g-3 {
-        gap: 0.75rem !important;
-    }
-
-    .col-sm-6.col-lg-4 {
-        min-height: auto;
-    }
-
-    .nav-tabs .nav-link {
-        padding: 0.5rem 0.6rem;
-        font-size: 0.8rem;
-    }
-
-    .btn {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
-    }
-}
+.bg-sold { background-color: #6c757d; }
+.bg-pending { background-color: #ffc107; color: #000; }
+.bg-danger { background-color: #dc3545; color: white; } /* Màu đỏ cho Dừng bán */
