@@ -177,6 +177,9 @@ class PostController {
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
+            // Lấy trạng thái cũ
+            $oldStatus = $this->getProductStatus($id);
+            
             // 1. Cập nhật thông tin cơ bản
             $catId = !empty($_POST['catLevel2']) ? $_POST['catLevel2'] : 
                      (!empty($_POST['catLevel1']) ? $_POST['catLevel1'] : null);
@@ -217,6 +220,12 @@ class PostController {
                 }
 
                 $this->conn->commit();
+                
+                // Nếu sản phẩm bị từ chối, sau khi update set thành Chờ duyệt
+                if ($oldStatus == 'Từ chối') {
+                    $this->postModel->updateStatus($id, 'Chờ duyệt');
+                }
+                
                 echo "<script>alert('Cập nhật thành công!'); window.location.href='/baitaplon/Home/detail_Sanpham/$id';</script>";
 
             } catch (Exception $e) {
@@ -224,6 +233,16 @@ class PostController {
                 echo "<script>alert('Lỗi: " . $e->getMessage() . "'); window.history.back();</script>";
             }
         }
+    }
+    
+    private function getProductStatus($id) {
+        $sql = "SELECT trangthai FROM sanpham WHERE id_sanpham = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row ? $row['trangthai'] : null;
     }
     
 }

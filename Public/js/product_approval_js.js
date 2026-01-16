@@ -252,9 +252,11 @@ function openRejectModal(id_sanpham, product_name) {
 function rejectProduct() {
     if (!currentProductId) return;
 
+    const reason = document.getElementById('rejectReason').value;
+
     const formData = new FormData();
     formData.append('id_sanpham', currentProductId);
-    formData.append('reason', '');
+    formData.append('reason', reason);
 
     fetch('/baitaplon/admin/reject', {
         method: 'POST',
@@ -265,6 +267,7 @@ function rejectProduct() {
         if (data.success) {
             alert(data.message);
             document.getElementById('rejectModal').classList.remove('active');
+            document.getElementById('rejectReason').value = '';
             loadProducts();
         } else {
             alert('Lỗi: ' + data.error);

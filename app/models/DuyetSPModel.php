@@ -150,10 +150,11 @@ class DuyetSPModel
     }
 
     // Từ chối sản phẩm
-    public function rejectProduct($id_sanpham)
+    public function rejectProduct($id_sanpham, $lydo = '')
     {
         $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
-        $sql = "UPDATE sanpham SET trangthai = 'Từ chối' WHERE id_sanpham = '$id_sanpham'";
+        $lydo = mysqli_real_escape_string($this->con, $lydo);
+        $sql = "UPDATE sanpham SET trangthai = 'Từ chối', lydotuchoi = '$lydo' WHERE id_sanpham = '$id_sanpham'";
         return mysqli_query($this->con, $sql);
     }
 }

@@ -157,6 +157,8 @@ if ($totalReviews > 0) {
 
                                             <option value="Chờ duyệt" <?= ($curr == 'Chờ duyệt') ? 'selected' : '' ?>>Chưa duyệt</option>
                                             
+                                            <option value="Từ chối" <?= ($curr == 'Từ chối') ? 'selected' : '' ?>>Từ chối</option>
+                                            
                                             <option value="Dừng bán" <?= ($curr == 'Dừng bán') ? 'selected' : '' ?>>Dừng bán</option>
                                         </select>
                                     </form>
@@ -181,6 +183,7 @@ if ($totalReviews > 0) {
                                             if ($p['trangthai'] == 'Đã bán') $jsStatus = 'daban';
                                             if ($p['trangthai'] == 'Chờ duyệt') $jsStatus = 'choduyet';
                                             if ($p['trangthai'] == 'Dừng bán') $jsStatus = 'dungban'; // Gán trạng thái dừng bán
+                                            if ($p['trangthai'] == 'Từ chối') $jsStatus = 'tuchoi';
                                             
                                             $img = isset($p['anh_hienthi']) ? "/baitaplon/" . $p['anh_hienthi'] : 'https://via.placeholder.com/300';
                                             $detailLink = "/baitaplon/Home/detail_Sanpham/" . $p['id_sanpham'] . ($loggedInId ? "/".urlencode($loggedInId) : "");
@@ -195,6 +198,9 @@ if ($totalReviews > 0) {
                                                     
                                                     <?php elseif($jsStatus == 'choduyet'): ?>
                                                         <span class="status-badge bg-pending">CHỜ DUYỆT</span>
+                                                    
+                                                    <?php elseif($jsStatus == 'tuchoi'): ?>
+                                                        <span class="status-badge bg-danger">TỪ CHỐI</span>
                                                     
                                                     <?php elseif($jsStatus == 'dungban'): ?>
                                                         <span class="status-badge bg-danger text-uppercase text-truncate" style="max-width: 90%;">
