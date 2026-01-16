@@ -138,8 +138,8 @@ class User
                 
 // Di chuyển file
                 if (move_uploaded_file($_FILES["avatar_file"]["tmp_name"], $target_file)) {
-                    // Lưu chỉ tên file vào DB (không lưu đường dẫn đầy đủ)
-                    $avatarUrl = $fileName; 
+                    // Lưu đường dẫn đầy đủ theo yêu cầu của bạn
+                    $avatarUrl = 'public/uploads/avatars/' . $fileName; 
                 }
             }
 

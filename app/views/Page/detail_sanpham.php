@@ -9,7 +9,8 @@ $viewerId = isset($data['user_id']) ? $data['user_id'] : '';
 $userRole = isset($_SESSION['role']) ? trim($_SESSION['role']) : '';
 
 // 2. Xử lý ảnh
-$mainAvatar = !empty($p['avatar_user']) ? "/baitaplon/" . $p['avatar_user'] : 'https://via.placeholder.com/150';
+$avatarFilename = !empty($p['avatar_user']) ? basename($p['avatar_user']) : 'default.png';
+$mainAvatar = "/baitaplon/public/uploads/avatars/" . $avatarFilename;
 if (!empty($imgs) && isset($imgs[0]['url_anh'])) {
     $mainImg = "/baitaplon/" . $imgs[0]['url_anh'];
 } else {
