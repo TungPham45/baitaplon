@@ -1,7 +1,7 @@
 <?php
 // app/views/Page/detail_sanpham.php
 
-// 1. Lấy dữ liệu
+
 $p = isset($data['product']) ? $data['product'] : null;
 $imgs = isset($data['productImages']) ? $data['productImages'] : [];
 $attrs = isset($data['productAttributes']) ? $data['productAttributes'] : [];
@@ -117,7 +117,7 @@ if ($p['trangthai'] == 'Dừng bán') {
                                 <i class="bi bi-pencil-square"></i> Sửa bài đăng
                             </button>
 
-                            <?php if ($p['trangthai'] !== 'Đã bán'): ?>
+                            <?php if ($p['trangthai'] !== 'Đã bán'&& $p['trangthai'] !== 'Chờ duyệt'): ?>
                                 <a href="/baitaplon/PostController/markSold/<?= $p['id_sanpham'] ?>" 
                                    class="btn btn-secondary fw-bold"
                                    onclick="return confirm('Xác nhận đánh dấu ĐÃ BÁN? Tin sẽ bị ẩn khỏi danh sách tìm kiếm.');">
