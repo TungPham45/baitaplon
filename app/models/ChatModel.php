@@ -6,7 +6,6 @@ class ChatModel {
         $this->conn = $conn;
     }
 
-<<<<<<< HEAD
   // Lấy tên người gửi dựa trên ID (Varchar)
     public function getNameSenderByID($sender_id) {
         $sql = "SELECT hoten FROM users WHERE id_user = ? LIMIT 1";
@@ -16,8 +15,6 @@ class ChatModel {
         $result = $stmt->get_result()->fetch_assoc();
         return $result['hoten'] ?? '';
     }
-=======
->>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
 
     // Tìm hội thoại giữa 2 user (Cả 2 đều là Varchar)
     public function findConversation($user1, $user2) {
