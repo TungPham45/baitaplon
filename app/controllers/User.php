@@ -87,10 +87,11 @@ class User
         $approvedCount = $sanphamModel->countProducts('', '', '', $profileId, 'Đã duyệt');
         $totalActiveProducts = $soldCount + $approvedCount;
 
-        // 7. Đóng gói dữ liệu gửi sang View
+// 7. Đóng gói dữ liệu gửi sang View
         $data = [
             'page'        => 'profile', // Để Navbar biết đang ở trang nào
             'profile'     => $userProfile,
+            'user'        => $userProfile, // Dùng cho header
             'products'    => $products,
             'reviews'     => $reviews, // <-- Truyền biến này sang View
             'isOwner'     => $isOwner,
@@ -135,15 +136,20 @@ class User
                 $fileName = time() . "_" . basename($_FILES["avatar_file"]["name"]);
                 $target_file = $target_dir . $fileName;
                 
-                // Di chuyển file
+// Di chuyển file
                 if (move_uploaded_file($_FILES["avatar_file"]["tmp_name"], $target_file)) {
-                    // Lưu đường dẫn tương đối vào DB (public/...)
-                    $avatarUrl = "public/uploads/avatars/" . $fileName; 
+                    // Lưu chỉ tên file vào DB (không lưu đường dẫn đầy đủ)
+                    $avatarUrl = $fileName; 
                 }
             }
 
-            // 3. Gọi Model cập nhật Database
+// 3. Gọi Model cập nhật Database
             $userModel->updateUser($id_user, $hoten, $sdt, $diachi, $gioithieu, $avatarUrl);
+
+            // Cập nhật session avatar nếu thay đổi avatar
+            if ($avatarUrl !== $currentUser['avatar']) {
+                $_SESSION['avatar'] = $avatarUrl;
+            }
 
             // 4. Chuyển hướng về lại trang Profile
             $redirectUrl = "/baitaplon/User/Profile/" . urlencode($id_user);
