@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +9,17 @@
     <link rel="stylesheet" href="/baitaplon/public/css/profile_css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="auth-container wide edit-profile-card">
         <h2><i class="fas fa-user-edit"></i> CHỈNH SỬA HỒ SƠ</h2>
         <form action="/baitaplon/Admin/editProfile" method="POST" enctype="multipart/form-data">
-            
+
             <div class="avatar-upload-section">
                 <label>Ảnh đại diện</label>
-                <?php 
-                    $avatarPath = $user['avatar'] 
-                        ? '/baitaplon/public/uploads/avatars/' . htmlspecialchars($user['avatar']) 
-                        : '/baitaplon/public/uploads/avatars/default.png';
+                <?php
+                $avatarFilename = !empty($user['avatar']) ? basename($user['avatar']) : 'default.png';
+                $avatarPath = '/baitaplon/public/uploads/avatars/' . htmlspecialchars($avatarFilename);
                 ?>
                 <img src="<?php echo $avatarPath; ?>" class="avatar-preview"><br>
                 <label for="avatar-upload" class="avatar-upload-btn">
@@ -58,4 +59,5 @@
         </form>
     </div>
 </body>
+
 </html>

@@ -98,8 +98,9 @@ class Admin {
                 'bio'     => $_POST['gioithieu']
             ];
 
-            if ($this->profileModel->updateProfile($userId, $data)) {
+if ($this->profileModel->updateProfile($userId, $data)) {
                 $_SESSION['success'] = "Cập nhật thành công!";
+                $_SESSION['avatar'] = $avatarName;
                 header("Location: /baitaplon/Admin/profile");
                 exit();
             }

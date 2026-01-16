@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,20 +9,20 @@
     <link rel="stylesheet" href="/baitaplon/public/css/profile_css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="auth-container wide profile-card">
         <div class="profile-header">
             <div class="profile-avatar-large">
-                <?php 
-                    $avatarPath = !empty($user['avatar']) 
-                        ? '/baitaplon/public/uploads/avatars/' . htmlspecialchars($user['avatar']) 
-                        : '/baitaplon/public/uploads/avatars/default.png';
+                <?php
+                $avatarFilename = !empty($user['avatar']) ? basename($user['avatar']) : 'default.png';
+                $avatarPath = '/baitaplon/public/uploads/avatars/' . htmlspecialchars($avatarFilename);
                 ?>
                 <img src="<?php echo $avatarPath; ?>" alt="Avatar">
             </div>
             <h2 class="profile-name"><?php echo htmlspecialchars($user['hoten']); ?></h2>
             <p class="profile-rating">
-                <i class="fas fa-star"></i> 
+                <i class="fas fa-star"></i>
                 Đánh giá: <?php echo number_format($user['danhgia'] ?? 0, 1); ?> / 5.0
             </p>
         </div>
@@ -77,4 +78,5 @@
         </div>
     </div>
 </body>
+
 </html>
