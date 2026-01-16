@@ -52,7 +52,7 @@ class ProfileModel {
                         ri.image_path AS images 
                     FROM reviews r
                     JOIN users u ON r.user_id = u.id_user 
-                    LEFT JOIN review_images ri ON r.id_review = ri.review_id 
+                    LEFT JOIN review_images ri ON r.id_review = ri.id_review
                     WHERE r.seller_id = ? 
                     ORDER BY r.created_at DESC";
 
@@ -82,7 +82,7 @@ class ProfileModel {
                 // Nếu dòng dữ liệu này có ảnh, thêm đường dẫn ảnh vào mảng 'images'
                 if (!empty($row['images'])) {
                     // Kiểm tra để tránh trùng ảnh (nếu cần)
-                    if (!in_array($row['images'], $reviews[$r_id]['images'])) {
+if (!in_array($row['images'], $reviews[$r_id]['images'])) {
                         $reviews[$r_id]['images'][] = $row['images'];
                     }
                 }

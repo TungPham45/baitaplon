@@ -19,7 +19,6 @@ class VoteModel {
 
     // 🔥 KIỂM TRA QUAN HỆ: Hai người này có chung cuộc hội thoại nào không?
     public function checkIfChatted($user1, $user2) {
-        // Bước 1: Tìm ID cuộc hội thoại chung giữa 2 người
         $sqlFindConv = "
             SELECT c1.id_conversation 
             FROM conversation_users c1
@@ -28,37 +27,25 @@ class VoteModel {
             AND c2.id_user = ?
             LIMIT 1
         ";
-        
         $stmt = $this->conn->prepare($sqlFindConv);
         $stmt->bind_param("ss", $user1, $user2);
         $stmt->execute();
         $res = $stmt->get_result();
-
         if ($row = $res->fetch_assoc()) {
             $conversation_id = $row['id_conversation'];
-
-            // Bước 2: Kiểm tra xem CẢ 2 người đã nhắn tin trong cuộc hội thoại này chưa
-            // Logic: Đếm số lượng sender_id khác nhau (DISTINCT) trong cuộc hội thoại đó
-            // Nếu kết quả = 2 (hoặc lớn hơn) => Cả 2 người đều đã từng gửi tin nhắn
             $sqlCheckMessages = "
                 SELECT COUNT(DISTINCT sender_id) as num_senders
                 FROM messages
                 WHERE id_conversation = ?
-                AND (sender_id = ? OR sender_id = ?)
-            ";
-
+                AND (sender_id = ? OR sender_id = ?)";
             $stmt2 = $this->conn->prepare($sqlCheckMessages);
             $stmt2->bind_param("iss", $conversation_id, $user1, $user2);
             $stmt2->execute();
             $res2 = $stmt2->get_result()->fetch_assoc();
-
-            // Nếu số người nhắn >= 2 thì trả về TRUE
             return ($res2['num_senders'] >= 2);
         }
-
         return false; // Không tìm thấy hội thoại chung
     }
-
     // =========================================================================
     // 🔥 [UPDATE] HÀM LƯU ĐÁNH GIÁ (Bao gồm Xác nhận giao dịch & Hình ảnh)
     // =========================================================================
@@ -79,7 +66,7 @@ class VoteModel {
 
             // 2. Xử lý lưu ảnh (Nếu có file gửi lên)
             if ($files && !empty($files['review_images']['name'][0])) {
-                $this->saveReviewImages($review_id, $files);
+$this->saveReviewImages($review_id, $files);
             }
 
             return true;
@@ -98,7 +85,7 @@ class VoteModel {
             mkdir($target_dir, 0777, true);
         }
 
-        $sqlImg = "INSERT INTO review_images (review_id, image_path) VALUES (?, ?)";
+        $sqlImg = "INSERT INTO review_images (id_review, image_path) VALUES (?, ?)";
         $stmtImg = $this->conn->prepare($sqlImg);
 
         $count_files = count($files['review_images']['name']);
