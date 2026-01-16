@@ -205,6 +205,7 @@ class ChatModel {
             // Trả về TRUE nếu bị khóa, FALSE nếu bình thường
             return ($result && $result['trangthai'] === 'Bị khóa');
         }
+
         // Tìm kiếm hội thoại theo tên người nhận
         public function searchConversationBySenderName($my_id, $keyword){
             $sql = "

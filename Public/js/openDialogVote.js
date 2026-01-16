@@ -1,8 +1,5 @@
-// ==========================================
-// 1. BIẾN TOÀN CỤC & TRẠNG THÁI
-// ==========================================
 
-/* SỬA LỖI: Dùng 'var' thay vì 'let/const' để tránh lỗi "already declared" khi load lại trang */
+
 var selectedTags = selectedTags || [];
 var selectedFiles = selectedFiles || [];
 
@@ -44,9 +41,6 @@ if (!window.resetDialogState) {
     }
 }
 
-// ==========================================
-// 2. HÀM MỞ DIALOG (Đánh giá User)
-// ==========================================
 if (!window.openVoteDialog) {
     window.openVoteDialog = function(element) {
         // 1. Lấy dữ liệu từ nút bấm
@@ -97,9 +91,6 @@ if (!window.openVoteDialog) {
     }
 }
 
-// ==========================================
-// 3. ĐÓNG DIALOG & CÁC HÀM XỬ LÝ KHÁC
-// ==========================================
 
 if (!window.closeReview) {
     window.closeReview = function() {
