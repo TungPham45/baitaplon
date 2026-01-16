@@ -29,6 +29,10 @@ class UserModel {
         return null;
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
     /**
      * Lấy danh sách những người dùng khác có trạng thái Hoạt động
      */

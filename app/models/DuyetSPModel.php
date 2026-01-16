@@ -150,11 +150,18 @@ class DuyetSPModel
     }
 
     // Từ chối sản phẩm
+<<<<<<< HEAD
     public function rejectProduct($id_sanpham, $lydo = '')
     {
         $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
         $lydo = mysqli_real_escape_string($this->con, $lydo);
         $sql = "UPDATE sanpham SET trangthai = 'Từ chối', lydotuchoi = '$lydo' WHERE id_sanpham = '$id_sanpham'";
+=======
+    public function rejectProduct($id_sanpham)
+    {
+        $id_sanpham = mysqli_real_escape_string($this->con, $id_sanpham);
+        $sql = "UPDATE sanpham SET trangthai = 'Từ chối' WHERE id_sanpham = '$id_sanpham'";
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
         return mysqli_query($this->con, $sql);
     }
 }

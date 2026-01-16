@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/baitaplon/public/css/style.css?v=<?php echo time(); ?>">
+<<<<<<< HEAD
 
     <style>
         body {
@@ -174,6 +175,8 @@
             z-index: 10;
         }
     </style>
+=======
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
 </head>
 
 <body>

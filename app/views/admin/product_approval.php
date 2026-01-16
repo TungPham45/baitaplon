@@ -37,8 +37,11 @@
         <h3>Từ chối sản phẩm</h3>
         <p id="rejectProductName" style="margin: 15px 0; color: #666;"></p>
         <p style="color: #666; margin-bottom: 20px;">Bạn có chắc muốn từ chối sản phẩm này?</p>
+<<<<<<< HEAD
         <label for="rejectReason" style="display: block; margin-bottom: 5px; font-weight: bold;">Lý do từ chối:</label>
         <textarea id="rejectReason" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nhập lý do từ chối..."></textarea>
+=======
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
         <div style="margin-top: 15px; display: flex; gap: 10px;">
             <button class="btn-small btn-reject" id="confirmReject">Xác nhận từ chối</button>
             <button class="btn-small" style="background: #95a5a6; color: white;" id="cancelReject">Hủy</button>

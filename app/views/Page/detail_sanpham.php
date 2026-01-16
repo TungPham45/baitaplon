@@ -40,6 +40,21 @@ if ($p['trangthai'] == 'Dừng bán') {
 }
 ?>
 
+<<<<<<< HEAD
+=======
+<script>
+    // Check trạng thái sản phẩm khi trang vừa load
+    document.addEventListener('DOMContentLoaded', function() {
+        const productStatus = '<?= isset($p['trangthai']) ? htmlspecialchars($p['trangthai']) : '' ?>';
+        
+        if (productStatus === 'Dừng bán') {
+            alert('Sản phẩm này đã dừng bán!');
+            history.back();
+        }
+    });
+</script>
+
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
 <div class="container mt-5 mb-5">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -77,6 +92,7 @@ if ($p['trangthai'] == 'Dừng bán') {
                 <div class="alert alert-warning fw-bold text-center">
                     <i class="bi bi-hourglass-split"></i> TIN ĐANG CHỜ DUYỆT
                 </div>
+<<<<<<< HEAD
             <?php elseif ($p['trangthai'] == 'Từ chối'): ?>
                 <div class="alert alert-danger fw-bold text-center">
                     <i class="bi bi-x-circle"></i> TIN BỊ TỪ CHỐI
@@ -84,6 +100,8 @@ if ($p['trangthai'] == 'Dừng bán') {
                         <br><small class="text-muted">Lý do: <?= htmlspecialchars($p['lydotuchoi']) ?></small>
                     <?php endif; ?>
                 </div>
+=======
+>>>>>>> 2562b16aebed4df7dc3b06293e5d7411944c9081
             <?php endif; ?>
 
             <p class="text-muted">
