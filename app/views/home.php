@@ -77,6 +77,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#" onclick="selectCategory('', 'Tất cả danh mục'); return false;">Tất cả danh mục</a></li>
                         <li><hr class="dropdown-divider"></li>
+
                         <?php if (!empty($categoryTree)): foreach ($categoryTree as $parent): ?>
                             <?php if (!empty($parent['children'])): ?>
                                 <li class="dropdown-item-parent">
@@ -85,7 +86,7 @@
                                     </a>
                                     <ul class="submenu shadow">
                                         <?php foreach ($parent['children'] as $child): ?>
-                                            <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($child['ten_danhmuc']); ?></a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo  htmlspecialchars($child['ten_danhmuc']); ?></a></li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </li>
@@ -93,6 +94,7 @@
                                 <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($parent['ten_danhmuc']); ?></a></li>
                             <?php endif; ?>
                         <?php endforeach; endif; ?>
+                        
                     </ul>
                 </div>
                 <div class="vr mx-2"></div>
@@ -194,7 +196,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-warning bg-opacity-10">
-                <h5 class="modal-title fw-bold">Đăng tin rao vặt</h5>
+                <h5 class="modal-title fw-bold">Đăng tin Bán Hàng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
