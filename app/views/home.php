@@ -5,7 +5,7 @@
 <html lang="vi">
 <head>
     <meta charset="utf-8">
-    <title>Trang chủ - Chợ Tốt Clone</title>
+    <title>Trang chủ - DealNow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -54,7 +54,7 @@
         $currentUserId = isset($data['user_id']) ? $data['user_id'] : '';
         $homeLink = "/baitaplon/Home" . (!empty($currentUserId) ? "/index/" . urlencode($currentUserId) : "");
         ?>
-        <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> Chợ Tốt Clone</a>
+        <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> DealNow</a>
 
         <div class="mx-auto flex-grow-1 px-3 d-flex justify-content-center">
             <form class="search-container" method="GET" action="/baitaplon/Home/index" id="searchForm">
@@ -162,8 +162,32 @@
     </div>
 </div>
 
-<footer class="bg-white border-top py-4 mt-5">
-    <div class="container text-center small text-muted">&copy; 2024 Chợ Tốt Clone.</div>
+<footer class="bg-light border-top py-5 mt-5">
+    <div class="container">
+        <!-- Policies Section -->
+        <div class="row mb-5">
+            <div class="col-12 d-flex justify-content-center flex-wrap gap-4">
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-shield-lock"></i> CHÍNH SÁCH BẢO MẬT
+                </a>
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-file-text"></i> QUY CHẾ HOẠT ĐỘNG
+                </a>
+            </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="row text-center text-secondary small">
+            <div class="col-12">
+                <p class="mb-2"><strong>Công ty TNHH DealNow </strong></p>
+                <p class="mb-2">Địa chỉ: Số 54 Triều Khúc, phường Thanh Liệt, Hà Nội, Việt Nam</p>
+                <p class="mb-2">Chăm sóc khách hàng: Gọi tổng đài DealNow (miễn phí) hoặc Trò chuyện với chúng tôi ngay trên trang Trung tâm trợ giúp</p>
+                <p class="mb-2">Chủ Trách Nhiệm Quản Lý Nội Dung: AE Tôi </p>
+                <p class="mb-2">Mã số doanh nghiệp: 0123456JQK do Sở Kế hoạch và Đầu tư TP Hà Nội cấp lần đầu ngày 30/02/2025</p>
+                <p class="mb-0">&copy; 2025 - Bản quyền thuộc về Công ty TNHH DealNow</p>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
