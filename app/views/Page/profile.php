@@ -7,8 +7,9 @@ $reviews = isset($data['reviews']) ? $data['reviews'] : [];
 $isOwner = isset($data['isOwner']) ? $data['isOwner'] : false;
 $loggedInId = isset($data['user_id']) ? $data['user_id'] : '';
 
-// Xử lý avatar
-$avatar = (!empty($u['avatar'])) ? "/baitaplon/" . $u['avatar'] : "https://via.placeholder.com/150?text=User";
+// Xử lý avatar - chỉ lấy tên file từ database nếu có đường dẫn đầy đủ
+$avatarFilename = !empty($u['avatar']) ? basename($u['avatar']) : 'default.png';
+$avatar = "/baitaplon/public/uploads/avatars/" . $avatarFilename;
 
 if (!$u) {
     echo '<div class="alert alert-warning m-4">Người dùng không tồn tại.</div>';
@@ -236,7 +237,7 @@ if ($totalReviews > 0) {
                                     <?php foreach ($reviews as $rv): ?>
                                     <div class="p-3 border rounded bg-light">
                                         <div class="d-flex align-items-center mb-2">
-                                            <img src="<?= !empty($rv['reviewer_avatar']) ? "/baitaplon/".$rv['reviewer_avatar'] : "https://via.placeholder.com/40" ?>" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
+                                            <img src="<?= !empty($rv['reviewer_avatar']) ? "/baitaplon/public/uploads/avatars/".basename($rv['reviewer_avatar']) : "/baitaplon/public/uploads/avatars/default.png" ?>" class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;">
                                             <div>
                                                 <div class="fw-bold"><?= htmlspecialchars($rv['reviewer_name']) ?></div>
                                                 <div class="text-warning small">

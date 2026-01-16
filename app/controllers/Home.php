@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../models/SanphamModel.php';
 require_once __DIR__ . '/../models/CategoriesModel.php';
 require_once __DIR__ . '/../models/DuyetSPModel.php';
+require_once __DIR__ . '/../models/UserModel.php';
 
 class Home
 {
@@ -14,7 +15,7 @@ class Home
         $this->conn = $conn;
     }
 
-    public function index($user_id = null)
+public function index($user_id = null)
     {
         // 1. Xử lý logout
         if (isset($_GET['logout']) && $_GET['logout'] == '1') {
@@ -26,12 +27,23 @@ class Home
         // 2. Khởi tạo các Model
         $sanphamModel = new SanphamModel($this->conn);
         $cateModel = new CategoriesModel($this->conn);
+        $userModel = new UserModel($this->conn);
 
         // [QUAN TRỌNG] Xác định User ID:
         // Nếu URL không truyền ID ($user_id là null), thì kiểm tra Session (đã đăng nhập chưa)
         // Nếu Session không có, mới kiểm tra $_GET hoặc coi là khách ('')
         if ($user_id === null) {
             $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : (isset($_GET['user_id']) ? trim($_GET['user_id']) : '');
+        }
+        
+        // Lấy thông tin user nếu đã đăng nhập
+        $user = null;
+        if (!empty($user_id)) {
+            $user = $userModel->getUserById($user_id);
+            // Đảm bảo avatar được set trong session
+            if ($user && isset($user['avatar'])) {
+                $_SESSION['avatar'] = $user['avatar'];
+            }
         }
         
         // 3. Lấy tham số tìm kiếm
@@ -88,16 +100,18 @@ class Home
             'totalPages'     => $totalPages,
             'totalProducts'  => $totalProducts,
             'user_id'        => $user_id,
-            'isLoggedIn'     => !empty($user_id)
+            'isLoggedIn'     => !empty($user_id),
+            'user'           => $user
         ];
 
         require_once __DIR__ . '/../views/home.php';
     }
 
-    public function detail_Sanpham($id_sanpham, $user_id = '')
+public function detail_Sanpham($id_sanpham, $user_id = '')
     {
         $productModel = new SanphamModel($this->conn);
         $duyetSPModel = new DuyetSPModel($this->conn);
+        $userModel = new UserModel($this->conn);
 
         $product = $productModel->getProductById($id_sanpham);
         $productImages = $productModel->getProductImages($id_sanpham);
@@ -105,6 +119,16 @@ class Home
 
         // Logic lấy User ID trong trang chi tiết cũng tương tự
         $userId = !empty($user_id) ? $user_id : (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : '');
+
+        // Lấy thông tin user nếu đã đăng nhập
+        $user = null;
+        if (!empty($userId)) {
+            $user = $userModel->getUserById($userId);
+            // Đảm bảo avatar được set trong session
+            if ($user && isset($user['avatar'])) {
+                $_SESSION['avatar'] = $user['avatar'];
+            }
+        }
 
         // Tăng lượt xem nếu người xem không phải chủ sở hữu sản phẩm
         if ($product && isset($product['id_user'])) {
@@ -123,7 +147,8 @@ class Home
             'productAttributes' => $productAttributes,
             'page'              => 'detail_sanpham',
             'user_id'           => $userId,
-            'isLoggedIn'        => !empty($userId)
+            'isLoggedIn'        => !empty($userId),
+            'user'              => $user
         ];
 
         require_once __DIR__ . '/../views/home.php';
