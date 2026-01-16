@@ -67,10 +67,50 @@ class AdminModel {
     }
 
     public function updateStatus($id, $status) {
-        $sql = "UPDATE account SET trangthai = ? WHERE id_user = CAST(? AS CHAR)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("ss", $status, $id);
-        return $stmt->execute();
+        try {
+            // Bắt đầu transaction để đảm bảo an toàn dữ liệu
+            $this->db->begin_transaction();
+
+            // 1. Cập nhật trạng thái tài khoản
+            $sql = "UPDATE account SET trangthai = ? WHERE id_user = CAST(? AS CHAR)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param("ss", $status, $id);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Lỗi khi cập nhật trạng thái tài khoản");
+            }
+
+            // 2. Logic xử lý phụ: Nếu khóa tài khoản -> Dừng bán các sản phẩm đang duyệt
+            // Kiểm tra các từ khóa có thể dùng cho việc khóa (tùy thuộc vào value bên view gửi về)
+            if ($status === 'Bị khóa' || $status === 'Khóa') {
+                
+                // Cập nhật trạng thái sản phẩm:
+                // Chỉ cập nhật những sản phẩm đang 'Đã duyệt' -> 'Dừng bán'
+                // Đồng thời ghi chú vào phần mô tả lý do dừng bán
+                $sqlProduct = "UPDATE sanpham 
+                               SET trangthai = N'Dừng bán', 
+                                   mota = CONCAT(IFNULL(mota, ''), '\n\n[Hệ thống: Dừng bán tự động do tài khoản người bán bị khóa]') 
+                               WHERE id_user = CAST(? AS CHAR) 
+                               AND trangthai = N'Đã duyệt'";
+                
+                $stmtProduct = $this->db->prepare($sqlProduct);
+                $stmtProduct->bind_param("s", $id);
+                
+                if (!$stmtProduct->execute()) {
+                    throw new Exception("Lỗi khi cập nhật trạng thái sản phẩm");
+                }
+            }
+
+            // Nếu mọi thứ ổn, xác nhận thay đổi
+            $this->db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            // Nếu có lỗi, hoàn tác mọi thay đổi
+            $this->db->rollback();
+            // Bạn có thể log lỗi ra file nếu cần: error_log($e->getMessage());
+            return false;
+        }
     }
 
     public function deleteAccount($id) {

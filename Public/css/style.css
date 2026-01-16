@@ -331,3 +331,17 @@ textarea {
 .modal-box::-webkit-scrollbar-thumb:hover {
     background: #764ba2;
 }
+.product-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img {
+    transition: transform 0.3s ease;
+}
+
