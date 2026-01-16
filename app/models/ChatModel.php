@@ -135,30 +135,37 @@ class ChatModel {
     }
 
         // Lấy danh sách các cuộc hội thoại của 1 user
-    public function loadConversations($user_id) {
-        $sql = "
-            SELECT 
-                cu_me.id_conversation,
-                c.last_message_at,
-                u.id_user,
-                u.hoten,
-                u.avatar,
-                (SELECT m.content FROM messages m WHERE m.id_conversation = cu_me.id_conversation ORDER BY m.created_at DESC LIMIT 1) as last_message
-            FROM conversation_users cu_me
-            JOIN conversation_users cu_other ON cu_me.id_conversation = cu_other.id_conversation AND cu_other.id_user != cu_me.id_user
-            JOIN users u ON cu_other.id_user = u.id_user
-            JOIN conversations c ON cu_me.id_conversation = c.id_conversation
-            WHERE cu_me.id_user = ?
-            GROUP BY cu_me.id_conversation -- Ép mỗi hội thoại chỉ hiện 1 dòng
-            ORDER BY 
-                (c.last_message_at IS NULL) DESC,
-                c.last_message_at DESC
-        ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $user_id);
-        $stmt->execute();
-        return $stmt->get_result();
-    }
+        public function loadConversations($user_id) {
+            $sql = "
+                SELECT 
+                    cu_me.id_conversation,
+                    c.last_message_at,
+                    u.id_user,
+                    u.hoten,
+                    u.avatar,
+                    (SELECT m.content FROM messages m WHERE m.id_conversation = cu_me.id_conversation ORDER BY m.created_at DESC LIMIT 1) as last_message
+                FROM conversation_users cu_me
+                -- Tìm người kia trong cuộc hội thoại
+                JOIN conversation_users cu_other ON cu_me.id_conversation = cu_other.id_conversation AND cu_other.id_user != cu_me.id_user
+                -- Lấy thông tin cá nhân người kia
+                JOIN users u ON cu_other.id_user = u.id_user
+                -- Nối sang bảng Account để lấy trạng thái (MỚI THÊM)
+                JOIN account a ON u.id_user = a.id_user
+                -- Lấy thông tin cuộc hội thoại
+                JOIN conversations c ON cu_me.id_conversation = c.id_conversation
+                WHERE cu_me.id_user = ? 
+                AND a.trangthai = 'Hoạt động' -- Chỉ hiện nếu đối phương đang hoạt động (MỚI THÊM)
+                GROUP BY cu_me.id_conversation 
+                ORDER BY 
+                    (c.last_message_at IS NULL) DESC,
+                    c.last_message_at DESC
+            ";
+            
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $user_id); // Lưu ý: id_user của bạn là chuỗi hay số? Nếu số thì đổi "s" thành "i"
+            $stmt->execute();
+            return $stmt->get_result();
+        }
     public function getOtherUserId($conversation_id, $my_id)
         {
             $sql = "
