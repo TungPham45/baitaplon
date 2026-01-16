@@ -308,8 +308,32 @@
         </div>
     </div>
 
-<footer class="bg-white border-top py-4 mt-5">
-    <div class="container text-center small text-muted">&copy; 2024 Chợ Tốt Clone.</div>
+<footer class="bg-light border-top py-5 mt-5">
+    <div class="container">
+        <!-- Policies Section -->
+        <div class="row mb-5">
+            <div class="col-12 d-flex justify-content-center flex-wrap gap-4">
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-shield-lock"></i> CHÍNH SÁCH BẢO MẬT
+                </a>
+                <a href="#" class="text-decoration-none text-secondary fw-600 small">
+                    <i class="bi bi-file-text"></i> QUY CHẾ HOẠT ĐỘNG
+                </a>
+            </div>
+        </div>
+
+        <!-- Company Info -->
+        <div class="row text-center text-secondary small">
+            <div class="col-12">
+                <p class="mb-2"><strong>Công ty TNHH DealNow </strong></p>
+                <p class="mb-2">Địa chỉ: Số 54 Triều Khúc, phường Thanh Liệt, Hà Nội, Việt Nam</p>
+                <p class="mb-2">Chăm sóc khách hàng: Gọi tổng đài DealNow (miễn phí) hoặc Trò chuyện với chúng tôi ngay trên trang Trung tâm trợ giúp</p>
+                <p class="mb-2">Chủ Trách Nhiệm Quản Lý Nội Dung: AE Tôi </p>
+                <p class="mb-2">Mã số doanh nghiệp: 0123456JQK do Sở Kế hoạch và Đầu tư TP Hà Nội cấp lần đầu ngày 30/02/2025</p>
+                <p class="mb-0">&copy; 2025 - Bản quyền thuộc về Công ty TNHH DealNow</p>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
