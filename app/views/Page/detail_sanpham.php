@@ -24,8 +24,18 @@ if ($p && !empty($viewerId)) {
     }
 }
 
+// 4. Kiểm tra nếu sản phẩm không tồn tại hoặc bị dừng bán
 if (!$p) {
     echo '<div class="alert alert-danger container mt-5">Sản phẩm không tồn tại! <a href="/baitaplon/Home">Về trang chủ</a></div>';
+    return;
+}
+
+// 5. Kiểm tra trạng thái "Dừng bán"
+if ($p['trangthai'] == 'Dừng bán') {
+    echo '<script>
+        alert("Sản phẩm này đã dừng bán.");
+        window.history.back();
+    </script>';
     return;
 }
 ?>

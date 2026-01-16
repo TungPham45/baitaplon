@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Trang chủ - Chợ Tốt Clone</title>
+    <title>Trang chủ - DealNow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -184,7 +184,7 @@
             $currentUserId = isset($data['user_id']) ? $data['user_id'] : '';
             $homeLink = "/baitaplon/Home" . (!empty($currentUserId) ? "/index/" . urlencode($currentUserId) : "");
             ?>
-            <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> Chợ Tốt Clone</a>
+            <a class="navbar-brand me-4" href="<?php echo $homeLink; ?>"><i class="bi bi-shop"></i> DealNow</a>
 
             <div class="mx-auto flex-grow-1 px-3 d-flex justify-content-center">
                 <form class="search-container" method="GET" action="/baitaplon/Home/index" id="searchForm">
@@ -201,45 +201,32 @@
                     <input type="hidden" name="danhmuc" id="inputDanhmuc"
                         value="<?php echo htmlspecialchars($category); ?>">
 
-                    <div class="dropdown">
-                        <button class="btn btn-sm fw-bold text-secondary border-0 dropdown-toggle text-truncate"
-                            type="button" data-bs-toggle="dropdown" style="max-width: 150px;">
-                            <i class="bi bi-list"></i> <span
-                                id="catDisplay"><?php echo htmlspecialchars($currentCatName); ?></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"
-                                    onclick="selectCategory('', 'Tất cả danh mục'); return false;">Tất cả danh mục</a>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <?php if (!empty($categoryTree)):
-                                foreach ($categoryTree as $parent): ?>
-                                    <?php if (!empty($parent['children'])): ?>
-                                        <li class="dropdown-item-parent">
-                                            <a class="dropdown-item d-flex justify-content-between align-items-center" href="#"
-                                                onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;">
-                                                <?php echo htmlspecialchars($parent['ten_danhmuc']); ?> <i
-                                                    class="bi bi-chevron-right small"></i>
-                                            </a>
-                                            <ul class="submenu shadow">
-                                                <?php foreach ($parent['children'] as $child): ?>
-                                                    <li><a class="dropdown-item" href="#"
-                                                            onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($child['ten_danhmuc']); ?></a>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        </li>
-                                    <?php else: ?>
-                                        <li><a class="dropdown-item" href="#"
-                                                onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($parent['ten_danhmuc']); ?></a>
-                                        </li>
-                                    <?php endif; ?>
-                                <?php endforeach; endif; ?>
-                        </ul>
-                    </div>
-                    <div class="vr mx-2"></div>
+                <div class="dropdown">
+                    <button class="btn btn-sm fw-bold text-secondary border-0 dropdown-toggle text-truncate" type="button" data-bs-toggle="dropdown" style="max-width: 150px;">
+                        <i class="bi bi-list"></i> <span id="catDisplay"><?php echo htmlspecialchars($currentCatName); ?></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="selectCategory('', 'Tất cả danh mục'); return false;">Tất cả danh mục</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <?php if (!empty($categoryTree)): foreach ($categoryTree as $parent): ?>
+                            <?php if (!empty($parent['children'])): ?>
+                                <li class="dropdown-item-parent">
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center" href="#" onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;">
+                                        <?php echo htmlspecialchars($parent['ten_danhmuc']); ?> <i class="bi bi-chevron-right small"></i>
+                                    </a>
+                                    <ul class="submenu shadow">
+                                        <?php foreach ($parent['children'] as $child): ?>
+                                            <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $child['id_danhmuc']; ?>', '<?php echo $child['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($child['ten_danhmuc']); ?></a></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item" href="#" onclick="selectCategory('<?php echo $parent['id_danhmuc']; ?>', '<?php echo $parent['ten_danhmuc']; ?>'); return false;"><?php echo htmlspecialchars($parent['ten_danhmuc']); ?></a></li>
+                            <?php endif; ?>
+                        <?php endforeach; endif; ?>
+                    </ul>
+                </div>
+                <div class="vr mx-2"></div>
 
                     <input class="search-input" type="text" name="q" placeholder="Tìm sản phẩm..."
                         value="<?php echo htmlspecialchars($keyword); ?>" style="flex: 1;">
@@ -321,21 +308,20 @@
         </div>
     </div>
 
-    <footer class="bg-white border-top py-4 mt-5">
-        <div class="container text-center small text-muted">&copy; 2024 Chợ Tốt Clone.</div>
-    </footer>
+<footer class="bg-white border-top py-4 mt-5">
+    <div class="container text-center small text-muted">&copy; 2024 Chợ Tốt Clone.</div>
+</footer>
 
-    <div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-warning bg-opacity-10">
-                    <h5 class="modal-title fw-bold">Đăng tin rao vặt</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="postForm" enctype="multipart/form-data">
-                        <input type="hidden" name="id_user_posted"
-                            value="<?php echo isset($currentUserId) ? $currentUserId : ''; ?>">
+<div class="modal fade" id="postModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-opacity-10">
+                <h5 class="modal-title fw-bold">Đăng tin rao vặt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="postForm" enctype="multipart/form-data">
+                    <input type="hidden" name="id_user_posted" value="<?php echo isset($currentUserId) ? $currentUserId : ''; ?>">
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Hình ảnh <span class="text-danger">*</span></label>
