@@ -1,34 +1,26 @@
 /**
  * public/js/xuatSanPham.js
- * Xử lý lọc và xuất Excel cho trang Profile
+ * Xử lý xuất Excel cho trang Profile theo bộ lọc hiện tại
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-    const filterSelect = document.getElementById('statusFilter');
+    const statusFilter = document.getElementById('statusFilter');
     const btnExport = document.getElementById('btnExportExcel');
     const productItems = document.querySelectorAll('.product-item-wrapper');
 
-    // 1. CHỨC NĂNG LỌC SẢN PHẨM
-    if (filterSelect) {
-        filterSelect.addEventListener('change', function() {
-            const status = this.value; // 'all', 'hienthi', 'daban', 'choduyet'
-
-            productItems.forEach(item => {
-                const itemStatus = item.getAttribute('data-status');
-                
-                if (status === 'all' || itemStatus === status) {
-                    // [QUAN TRỌNG] Chỉ xóa class d-none để nó hiện lại theo style gốc (block/flex)
-                    item.classList.remove('d-none'); 
-                } else {
-                    item.classList.add('d-none'); // Ẩn đi
-                }
-            });
-        });
-    }
-
-    // 2. CHỨC NĂNG XUẤT EXCEL (CSV)
+    // CHỨC NĂNG XUẤT EXCEL (CSV)
     if (btnExport) {
         btnExport.addEventListener('click', function() {
+            // Lấy bộ lọc hiện tại (từ select hoặc URL)
+            let currentFilter = 'all';
+            if (statusFilter) {
+                currentFilter = statusFilter.value;
+            } else {
+                // Fallback: lấy từ URL parameter
+                const params = new URLSearchParams(window.location.search);
+                currentFilter = params.get('trang_thai') || 'all';
+            }
+
             // Thêm BOM (\uFEFF) để Excel mở không bị lỗi font tiếng Việt
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
             
@@ -38,20 +30,40 @@ document.addEventListener('DOMContentLoaded', function() {
             let count = 0;
 
             productItems.forEach(item => {
-                // Chỉ export những item đang hiển thị (không có class d-none)
-                if (!item.classList.contains('d-none')) {
+                const itemStatus = item.getAttribute('data-status') || '';
+                
+                // Chỉ export những item theo bộ lọc hiện tại
+                // Mapping: trangthai DB -> jsStatus trong data-status
+                let shouldInclude = false;
+                
+                if (currentFilter === 'all') {
+                    shouldInclude = true;
+                } else if (currentFilter === 'Đã duyệt' && itemStatus === 'hienthi') {
+                    shouldInclude = true;
+                } else if (currentFilter === 'Đã bán' && itemStatus === 'daban') {
+                    shouldInclude = true;
+                } else if (currentFilter === 'Chờ duyệt' && itemStatus === 'choduyet') {
+                    shouldInclude = true;
+                } else if (currentFilter === 'Từ chối' && itemStatus === 'tuchoi') {
+                    shouldInclude = true;
+                } else if (currentFilter === 'Dừng bán' && itemStatus === 'dungban') {
+                    shouldInclude = true;
+                }
+
+                if (shouldInclude) {
                     count++;
                     
-                    // Lấy dữ liệu và xử lý dấu phẩy (vì CSV ngăn cách bằng phẩy)
+                    // Lấy dữ liệu từ data attributes
                     const name = (item.getAttribute('data-name') || "").replace(/,/g, " "); 
                     const price = item.getAttribute('data-price') || "0";
                     const date = item.getAttribute('data-date') || "";
                     
                     // Chuyển mã trạng thái sang tiếng Việt
                     let statusText = "Đang bán";
-                    const status = item.getAttribute('data-status');
-                    if (status === 'daban') statusText = "Đã bán";
-                    if (status === 'choduyet') statusText = "Chờ duyệt";
+                    if (itemStatus === 'daban') statusText = "Đã bán";
+                    if (itemStatus === 'choduyet') statusText = "Chờ duyệt";
+                    if (itemStatus === 'tuchoi') statusText = "Từ chối";
+                    if (itemStatus === 'dungban') statusText = "Dừng bán";
 
                     // Tạo dòng CSV
                     const row = `${count},${name},${price},${date},${statusText}`;

@@ -148,7 +148,7 @@ if ($totalReviews > 0) {
                                         $curr = isset($_GET['trang_thai']) ? $_GET['trang_thai'] : '';
                                         ?>
 
-                                        <select name="trang_thai" class="form-select form-select-sm" style="width: 140px;" onchange="this.form.submit()">
+                                        <select id="statusFilter" name="trang_thai" class="form-select form-select-sm" style="width: 140px;" onchange="this.form.submit()">
                                             <option value="all" <?= ($curr == 'all') ? 'selected' : '' ?>>Tất cả</option>
 
                                             <option value="Đã duyệt" <?= ($curr == 'Đã duyệt') ? 'selected' : '' ?>>Đang bán</option>
@@ -189,7 +189,11 @@ if ($totalReviews > 0) {
                                             $detailLink = "/baitaplon/Home/detail_Sanpham/" . $p['id_sanpham'] . ($loggedInId ? "/".urlencode($loggedInId) : "");
                                         ?>
                                         
-                                        <div class="col-sm-6 col-lg-4 product-item-wrapper">
+                                        <div class="col-sm-6 col-lg-4 product-item-wrapper"
+                                             data-status="<?= htmlspecialchars($jsStatus) ?>" 
+                                             data-name="<?= htmlspecialchars($p['ten_sanpham']) ?>" 
+                                             data-price="<?= htmlspecialchars($p['gia']) ?>" 
+                                             data-date="<?= date('d/m/Y', strtotime($p['ngaydang'])) ?>">
                                             <div class="card h-100 shadow-sm border hover-shadow position-relative">
                                                 
                                                 <?php if($isOwner): ?>
