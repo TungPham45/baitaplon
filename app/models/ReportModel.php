@@ -36,5 +36,44 @@ class ReportModel {
         // Trả về TRUE nếu tìm thấy (tức là ĐANG CÓ đơn chưa xử lý -> bị trùng)
         return $stmt->num_rows > 0;
     }
+        public function checkPendingReportByReason($reason) {
+        // Logic: Tìm xem có bất kỳ đơn nào có lý do này đang ở trạng thái 'PENDING' không
+        $sql = "SELECT id_report 
+                FROM reports 
+                WHERE reason = ? 
+                AND status = 'PENDING'";
+                
+        $stmt = $this->conn->prepare($sql);
+        
+        // "s" đại diện cho string (lý do thường là văn bản)
+        $stmt->bind_param("s", $reason); 
+        
+        $stmt->execute();
+        $stmt->store_result();
+        
+        // Trả về TRUE nếu lý do này đã tồn tại và đang chờ xử lý
+        return $stmt->num_rows > 0;
+    }
+        public function checkPendingReportByTargetAndReason($target_id, $reason) {
+        // Logic: Tìm xem Người bị báo cáo (Target) đã bị báo cáo cùng 1 lý do (Reason) 
+        // mà đơn đó vẫn đang chờ xử lý (PENDING) hay chưa?
+        $sql = "SELECT id_report 
+                FROM reports 
+                WHERE reported_id = ? 
+                AND reason = ? 
+                AND status = 'PENDING'";
+                
+        $stmt = $this->conn->prepare($sql);
+        
+        // "ss" vì cả target_id và reason đều là chuỗi (string)
+        $stmt->bind_param("ss", $target_id, $reason);
+        
+        $stmt->execute();
+        $stmt->store_result();
+        
+        // Nếu num_rows > 0 tức là đã tồn tại một đơn trùng y hệt đang chờ duyệt
+        return $stmt->num_rows > 0;
+    }
+
 }
 ?>
