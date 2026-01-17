@@ -112,12 +112,12 @@ if ($p['trangthai'] == 'Dừng bán') {
                             <div class="p-2 border rounded bg-white text-center mb-2">
                                 <small class="text-primary fw-bold">QUẢN LÝ TIN ĐĂNG NÀY</small>
                             </div>
-
+                            <?php if ($p['trangthai'] !== 'Đã bán' && $p['trangthai'] !== 'Từ chối'): ?>
                             <button type="button" class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#editProductModal">
                                 <i class="bi bi-pencil-square"></i> Sửa bài đăng
                             </button>
-
-                            <?php if ($p['trangthai'] !== 'Đã bán'&& $p['trangthai'] !== 'Chờ duyệt'): ?>
+                            <?php endif; ?>
+                            <?php if ($p['trangthai'] !== 'Đã bán'&& $p['trangthai'] !== 'Chờ duyệt' && $p['trangthai'] !== 'Từ chối'): ?>
                                 <a href="/baitaplon/PostController/markSold/<?= $p['id_sanpham'] ?>" 
                                    class="btn btn-secondary fw-bold"
                                    onclick="return confirm('Xác nhận đánh dấu ĐÃ BÁN? Tin sẽ bị ẩn khỏi danh sách tìm kiếm.');">
